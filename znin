@@ -1,0 +1,498 @@
+--[[
+    Aim Trainer UI - Versão Premium
+    Design: Dark com detalhes em azul neon
+    Funcionalidades: FOV ajustável, animações, notificações
+]]
+
+-- Configurações iniciais
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+-- Variáveis do sistema
+local fovCircle = nil
+local fovVisible = false
+local fovRadius = 50
+local mainPanel = nil
+local isDragging = false
+local dragStart = nil
+local panelStart = nil
+
+-- Paleta de cores
+local COLORS = {
+    Background = Color3.fromRGB(18, 18, 22),
+    Surface = Color3.fromRGB(25, 25, 32),
+    Border = Color3.fromRGB(40, 40, 50),
+    NeonBlue = Color3.fromRGB(0, 180, 255),
+    NeonBlueDark = Color3.fromRGB(0, 120, 200),
+    Text = Color3.fromRGB(220, 220, 230),
+    TextDim = Color3.fromRGB(140, 140, 150),
+    Success = Color3.fromRGB(0, 200, 120),
+    Warning = Color3.fromRGB(255, 180, 0),
+    Danger = Color3.fromRGB(255, 70, 70)
+}
+
+-- Sistema de notificações
+local notificationSystem = {}
+notificationSystem.__index = notificationSystem
+
+function notificationSystem.new()
+    local self = setmetatable({}, notificationSystem)
+    self.container = Instance.new("ScreenGui")
+    self.container.Name = "NotificationContainer"
+    self.container.Parent = player.PlayerGui
+    self.container.IgnoreGuiInset = true
+    self.container.DisplayOrder = 999
+    
+    self.frame = Instance.new("Frame")
+    self.frame.Size = UDim2.new(0, 320, 0, 0)
+    self.frame.Position = UDim2.new(1, -340, 0, 20)
+    self.frame.BackgroundTransparency = 1
+    self.frame.Parent = self.container
+    
+    self.listLayout = Instance.new("UIListLayout")
+    self.listLayout.Padding = UDim.new(0, 8)
+    self.listLayout.VerticalAlignment = Enum.VerticalAlignment.Bottom
+    self.listLayout.Parent = self.frame
+    
+    return self
+end
+
+function notificationSystem:show(message, type)
+    type = type or "info"
+    
+    local notifFrame = Instance.new("Frame")
+    notifFrame.Size = UDim2.new(1, 0, 0, 0)
+    notifFrame.BackgroundColor3 = COLORS.Surface
+    notifFrame.BorderSize = 0
+    notifFrame.ClipsDescendants = true
+    
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 8)
+    corner.Parent = notifFrame
+    
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = type == "success" and COLORS.Success or type == "warning" and COLORS.Warning or COLORS.NeonBlue
+    stroke.Thickness = 1.5
+    stroke.Transparency = 0.5
+    stroke.Parent = notifFrame
+    
+    local iconLabel = Instance.new("TextLabel")
+    iconLabel.Size = UDim2.new(0, 30, 1, 0)
+    iconLabel.Position = UDim2.new(0, 8, 0, 0)
+    iconLabel.BackgroundTransparency = 1
+    iconLabel.Text = type == "success" and "✓" or type == "warning" and "!" or "i"
+    iconLabel.TextColor3 = type == "success" and COLORS.Success or type == "warning" and COLORS.Warning or COLORS.NeonBlue
+    iconLabel.TextSize = 18
+    iconLabel.Font = Enum.Font.GothamBold
+    iconLabel.Parent = notifFrame
+    
+    local textLabel = Instance.new("TextLabel")
+    textLabel.Size = UDim2.new(1, -50, 1, 0)
+    textLabel.Position = UDim2.new(0, 40, 0, 0)
+    textLabel.BackgroundTransparency = 1
+    textLabel.Text = message
+    textLabel.TextColor3 = COLORS.Text
+    textLabel.TextSize = 13
+    textLabel.TextXAlignment = Enum.TextXAlignment.Left
+    textLabel.Font = Enum.Font.Gotham
+    textLabel.Parent = notifFrame
+    
+    notifFrame.Parent = self.frame
+    
+    -- Animação de entrada
+    local targetHeight = 45
+    notifFrame.Size = UDim2.new(1, 0, 0, 0)
+    
+    local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+    local sizeTween = TweenService:Create(notifFrame, tweenInfo, {Size = UDim2.new(1, 0, 0, targetHeight)})
+    sizeTween:Play()
+    
+    -- Animação de saída após 3 segundos
+    task.delay(3, function()
+        local fadeOut = TweenService:Create(notifFrame, TweenInfo.new(0.3), {BackgroundTransparency = 1, TextTransparency = 1})
+        fadeOut:Play()
+        fadeOut.Completed:Connect(function()
+            notifFrame:Destroy()
+        end)
+    end)
+end
+
+-- Criação do círculo de FOV
+function createFOVCircle()
+    if fovCircle then
+        fovCircle:Destroy()
+    end
+    
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "FOVCircle"
+    screenGui.Parent = player.PlayerGui
+    screenGui.IgnoreGuiInset = true
+    screenGui.DisplayOrder = 998
+    
+    local circleFrame = Instance.new("Frame")
+    circleFrame.Size = UDim2.new(0, fovRadius * 2, 0, fovRadius * 2)
+    circleFrame.Position = UDim2.new(0.5, -fovRadius, 0.5, -fovRadius)
+    circleFrame.BackgroundTransparency = 1
+    circleFrame.Parent = screenGui
+    
+    local circle = Instance.new("ImageLabel")
+    circle.Size = UDim2.new(1, 0, 1, 0)
+    circle.BackgroundTransparency = 1
+    circle.Image = "rbxassetid://2665431318" -- Círculo branco
+    circle.ImageColor3 = COLORS.NeonBlue
+    circle.ImageTransparency = 0.7
+    circle.ScaleType = Enum.ScaleType.Fit
+    circle.Parent = circleFrame
+    
+    local innerGlow = Instance.new("ImageLabel")
+    innerGlow.Size = UDim2.new(1, 0, 1, 0)
+    innerGlow.BackgroundTransparency = 1
+    innerGlow.Image = "rbxassetid://2665431318"
+    innerGlow.ImageColor3 = COLORS.NeonBlue
+    innerGlow.ImageTransparency = 0.85
+    innerGlow.ScaleType = Enum.ScaleType.Fit
+    innerGlow.Parent = circleFrame
+    
+    -- Efeito de brilho pulsante
+    spawn(function()
+        while circleFrame and circleFrame.Parent do
+            for i = 0.7, 0.5, -0.01 do
+                if not circleFrame or not circleFrame.Parent then break end
+                circle.ImageTransparency = i
+                innerGlow.ImageTransparency = i + 0.15
+                task.wait(0.03)
+            end
+            for i = 0.5, 0.7, 0.01 do
+                if not circleFrame or not circleFrame.Parent then break end
+                circle.ImageTransparency = i
+                innerGlow.ImageTransparency = i + 0.15
+                task.wait(0.03)
+            end
+        end
+    end)
+    
+    fovCircle = screenGui
+    return screenGui
+end
+
+-- Toggle do círculo
+function toggleFOV()
+    fovVisible = not fovVisible
+    
+    if fovVisible then
+        if not fovCircle then
+            createFOVCircle()
+        end
+        fovCircle.Enabled = true
+        notificationSystem:show("FOV Circle ativado (Raio: " .. fovRadius .. ")", "success")
+    else
+        if fovCircle then
+            fovCircle.Enabled = false
+        end
+        notificationSystem:show("FOV Circle desativado", "warning")
+    end
+end
+
+-- Atualizar tamanho do círculo
+function updateFOVSize(newRadius)
+    fovRadius = newRadius
+    
+    if fovCircle then
+        fovCircle:Destroy()
+        fovCircle = nil
+    end
+    
+    if fovVisible then
+        createFOVCircle()
+        notificationSystem:show("Raio do FOV alterado para " .. newRadius, "success")
+    end
+end
+
+-- Criação da UI principal
+function createMainUI()
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "AimTrainerUI"
+    screenGui.Parent = player.PlayerGui
+    screenGui.IgnoreGuiInset = true
+    screenGui.DisplayOrder = 100
+    
+    -- Painel principal
+    mainPanel = Instance.new("Frame")
+    mainPanel.Size = UDim2.new(0, 420, 0, 320)
+    mainPanel.Position = UDim2.new(0.5, -210, 0.5, -160)
+    mainPanel.BackgroundColor3 = COLORS.Background
+    mainPanel.BorderSize = 0
+    mainPanel.ClipsDescendants = true
+    mainPanel.Parent = screenGui
+    
+    -- Sombra
+    local shadow = Instance.new("ImageLabel")
+    shadow.Size = UDim2.new(1, 20, 1, 20)
+    shadow.Position = UDim2.new(0, -10, 0, -10)
+    shadow.BackgroundTransparency = 1
+    shadow.Image = "rbxassetid://1316045217"
+    shadow.ImageColor3 = Color3.new(0, 0, 0)
+    shadow.ImageTransparency = 0.6
+    shadow.ScaleType = Enum.ScaleType.Slice
+    shadow.SliceCenter = Rect.new(10, 10, 118, 118)
+    shadow.Parent = mainPanel
+    
+    -- Cantos arredondados
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 12)
+    corner.Parent = mainPanel
+    
+    -- Efeito de blur (usando frame com transparência)
+    local blurFrame = Instance.new("Frame")
+    blurFrame.Size = UDim2.new(1, 0, 1, 0)
+    blurFrame.BackgroundColor3 = COLORS.Background
+    blurFrame.BackgroundTransparency = 0.3
+    blurFrame.BorderSize = 0
+    blurFrame.Parent = mainPanel
+    
+    -- Barra superior
+    local topBar = Instance.new("Frame")
+    topBar.Size = UDim2.new(1, 0, 0, 45)
+    topBar.BackgroundColor3 = COLORS.Surface
+    topBar.BorderSize = 0
+    topBar.Parent = mainPanel
+    
+    local topCorner = Instance.new("UICorner")
+    topCorner.CornerRadius = UDim.new(0, 12)
+    topCorner.Parent = topBar
+    
+    local topBarStroke = Instance.new("UIStroke")
+    topBarStroke.Color = COLORS.Border
+    topBarStroke.Thickness = 1
+    topBarStroke.Parent = topBar
+    
+    -- Título
+    local title = Instance.new("TextLabel")
+    title.Size = UDim2.new(1, -50, 1, 0)
+    title.Position = UDim2.new(0, 15, 0, 0)
+    title.BackgroundTransparency = 1
+    title.Text = "AIM TRAINER PRO"
+    title.TextColor3 = COLORS.Text
+    title.TextSize = 16
+    title.TextXAlignment = Enum.TextXAlignment.Left
+    title.Font = Enum.Font.GothamBold
+    title.Parent = topBar
+    
+    -- Botão fechar
+    local closeBtn = Instance.new("TextButton")
+    closeBtn.Size = UDim2.new(0, 35, 0, 35)
+    closeBtn.Position = UDim2.new(1, -42, 0, 5)
+    closeBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+    closeBtn.BorderSize = 0
+    closeBtn.Text = "✕"
+    closeBtn.TextColor3 = COLORS.TextDim
+    closeBtn.TextSize = 18
+    closeBtn.Font = Enum.Font.Gotham
+    closeBtn.Parent = topBar
+    
+    local closeCorner = Instance.new("UICorner")
+    closeCorner.CornerRadius = UDim.new(0, 6)
+    closeCorner.Parent = closeBtn
+    
+    -- Conteúdo
+    local content = Instance.new("Frame")
+    content.Size = UDim2.new(1, -40, 1, -65)
+    content.Position = UDim2.new(0, 20, 0, 55)
+    content.BackgroundTransparency = 1
+    content.Parent = mainPanel
+    
+    -- Seção: Controles
+    local sectionLabel = Instance.new("TextLabel")
+    sectionLabel.Size = UDim2.new(1, 0, 0, 25)
+    sectionLabel.BackgroundTransparency = 1
+    sectionLabel.Text = "CONTROLES"
+    sectionLabel.TextColor3 = COLORS.NeonBlue
+    sectionLabel.TextSize = 12
+    sectionLabel.TextXAlignment = Enum.TextXAlignment.Left
+    sectionLabel.Font = Enum.Font.GothamBold
+    sectionLabel.Parent = content
+    
+    -- Botão Aim Trainer
+    local aimButton = createModernButton(content, UDim2.new(0, 170, 0, 40), "AIM TRAINER", COLORS.NeonBlue)
+    aimButton.Position = UDim2.new(0, 0, 0, 30)
+    
+    -- Seção: Configurações do FOV
+    local fovSection = Instance.new("TextLabel")
+    fovSection.Size = UDim2.new(1, 0, 0, 25)
+    fovSection.Position = UDim2.new(0, 0, 0, 90)
+    fovSection.BackgroundTransparency = 1
+    fovSection.Text = "CONFIGURAÇÕES DO FOV"
+    fovSection.TextColor3 = COLORS.NeonBlue
+    fovSection.TextSize = 12
+    fovSection.TextXAlignment = Enum.TextXAlignment.Left
+    fovSection.Font = Enum.Font.GothamBold
+    fovSection.Parent = content
+    
+    -- TextBox para raio
+    local radiusLabel = Instance.new("TextLabel")
+    radiusLabel.Size = UDim2.new(0, 100, 0, 30)
+    radiusLabel.Position = UDim2.new(0, 0, 0, 120)
+    radiusLabel.BackgroundTransparency = 1
+    radiusLabel.Text = "Raio do FOV:"
+    radiusLabel.TextColor3 = COLORS.TextDim
+    radiusLabel.TextSize = 13
+    radiusLabel.TextXAlignment = Enum.TextXAlignment.Left
+    radiusLabel.Font = Enum.Font.Gotham
+    radiusLabel.Parent = content
+    
+    local radiusBox = Instance.new("TextBox")
+    radiusBox.Size = UDim2.new(0, 80, 0, 35)
+    radiusBox.Position = UDim2.new(0, 110, 0, 117)
+    radiusBox.BackgroundColor3 = COLORS.Surface
+    radiusBox.BorderSize = 0
+    radiusBox.Text = tostring(fovRadius)
+    radiusBox.TextColor3 = COLORS.Text
+    radiusBox.TextSize = 14
+    radiusBox.Font = Enum.Font.Gotham
+    radiusBox.PlaceholderText = "Raio"
+    radiusBox.PlaceholderColor3 = COLORS.TextDim
+    radiusBox.ClearTextOnFocus = false
+    radiusBox.Parent = content
+    
+    local radiusCorner = Instance.new("UICorner")
+    radiusCorner.CornerRadius = UDim.new(0, 6)
+    radiusCorner.Parent = radiusBox
+    
+    -- Botão toggle FOV
+    local toggleBtn = createModernButton(content, UDim2.new(0, 170, 0, 40), "MOSTRAR FOV", COLORS.NeonBlueDark)
+    toggleBtn.Position = UDim2.new(0, 0, 0, 165)
+    
+    -- Eventos
+    closeBtn.MouseButton1Click:Connect(function()
+        screenGui:Destroy()
+        if fovCircle then
+            fovCircle:Destroy()
+        end
+    end)
+    
+    aimButton.MouseButton1Click:Connect(function()
+        toggleFOV()
+        toggleBtn.Text = fovVisible and "ESCONDER FOV" or "MOSTRAR FOV"
+    end)
+    
+    toggleBtn.MouseButton1Click:Connect(function()
+        toggleFOV()
+        toggleBtn.Text = fovVisible and "ESCONDER FOV" or "MOSTRAR FOV"
+    end)
+    
+    radiusBox.FocusLost:Connect(function(enterPressed)
+        if enterPressed then
+            local newValue = tonumber(radiusBox.Text)
+            if newValue and newValue > 0 and newValue <= 500 then
+                updateFOVSize(newValue)
+            else
+                radiusBox.Text = tostring(fovRadius)
+                notificationSystem:show("Valor inválido! Use entre 1 e 500", "warning")
+            end
+        end
+    end)
+    
+    -- Sistema de arrastar
+    topBar.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            isDragging = true
+            dragStart = input.Position
+            panelStart = mainPanel.Position
+        end
+    end)
+    
+    UserInputService.InputChanged:Connect(function(input)
+        if isDragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local delta = input.Position - dragStart
+            mainPanel.Position = UDim2.new(
+                panelStart.X.Scale,
+                panelStart.X.Offset + delta.X,
+                panelStart.Y.Scale,
+                panelStart.Y.Offset + delta.Y
+            )
+        end
+    end)
+    
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            isDragging = false
+        end
+    end)
+    
+    -- Animação de abertura
+    mainPanel.Size = UDim2.new(0, 0, 0, 0)
+    mainPanel.Position = UDim2.new(0.5, 0, 0.5, 0)
+    local openTween = TweenService:Create(mainPanel, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        Size = UDim2.new(0, 420, 0, 320),
+        Position = UDim2.new(0.5, -210, 0.5, -160)
+    })
+    openTween:Play()
+end
+
+-- Função para criar botões modernos
+function createModernButton(parent, size, text, color)
+    local btn = Instance.new("TextButton")
+    btn.Size = size
+    btn.BackgroundColor3 = color
+    btn.BorderSize = 0
+    btn.Text = text
+    btn.TextColor3 = COLORS.Text
+    btn.TextSize = 13
+    btn.Font = Enum.Font.GothamBold
+    btn.Parent = parent
+    
+    local btnCorner = Instance.new("UICorner")
+    btnCorner.CornerRadius = UDim.new(0, 8)
+    btnCorner.Parent = btn
+    
+    local btnStroke = Instance.new("UIStroke")
+    btnStroke.Color = color
+    btnStroke.Thickness = 1.5
+    btnStroke.Transparency = 0.3
+    btnStroke.Parent = btn
+    
+    -- Efeitos hover
+    btn.MouseEnter:Connect(function()
+        TweenService:Create(btn, TweenInfo.new(0.2), {
+            BackgroundColor3 = Color3.fromRGB(
+                math.min(color.R * 255 + 20, 255),
+                math.min(color.G * 255 + 20, 255),
+                math.min(color.B * 255 + 20, 255)
+            ),
+            Size = UDim2.new(size.X.Scale + 0.02, size.X.Offset + 4, size.Y.Scale + 0.02, size.Y.Offset + 4)
+        }):Play()
+    end)
+    
+    btn.MouseLeave:Connect(function()
+        TweenService:Create(btn, TweenInfo.new(0.2), {
+            BackgroundColor3 = color,
+            Size = size
+        }):Play()
+    end)
+    
+    btn.MouseButton1Down:Connect(function()
+        TweenService:Create(btn, TweenInfo.new(0.1), {
+            BackgroundColor3 = Color3.fromRGB(
+                math.max(color.R * 255 - 30, 0),
+                math.max(color.G * 255 - 30, 0),
+                math.max(color.B * 255 - 30, 0)
+            ),
+            Size = UDim2.new(size.X.Scale - 0.01, size.X.Offset - 2, size.Y.Scale - 0.01, size.Y.Offset - 2)
+        }):Play()
+    end)
+    
+    btn.MouseButton1Up:Connect(function()
+        TweenService:Create(btn, TweenInfo.new(0.1), {
+            BackgroundColor3 = color,
+            Size = size
+        }):Play()
+    end)
+    
+    return btn
+end
+
+-- Inicialização
+notificationSystem = notificationSystem.new()
+createMainUI()
