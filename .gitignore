@@ -3,7 +3,11 @@
 *.rbxlx
 sourcemap.json
 /build/
-/dist/
+
+# Exceção: os arquivos publicados em dist/ (pedidos explicitamente pro GitHub)
+!/dist/
+!/dist/*.rbxl
+!/dist/*.rbxlx
 
 # Aftman / Foreman tool caches
 .aftman/

@@ -1,0 +1,2530 @@
+<?xml version="1.0" encoding="utf-8"?>
+<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd" version="4">
+<External>null</External>
+<External>nil</External>
+<Item class="Workspace" referent="RBX1">
+<Properties>
+<string name="Name">Workspace</string>
+<float name="Gravity">130</float>
+</Properties>
+</Item>
+<Item class="ReplicatedStorage" referent="RBX2">
+<Properties><string name="Name">ReplicatedStorage</string></Properties>
+<Item class="Folder" referent="RBX3">
+  <Properties>
+    <string name="Name">Shared</string>
+  </Properties>
+<Item class="ModuleScript" referent="RBX4">
+  <Properties>
+    <string name="Name">CatConfig</string>
+    <ProtectedString name="Source"><![CDATA[--[[
+    CatConfig.lua
+    Tabela central com todas as constantes de física e jogabilidade do gato.
+    Ajuste estes números para "sentir" o movimento do gato do jeito que quiser.
+]]
+
+local CatConfig = {}
+
+-- ===== Locomoção =====
+CatConfig.WalkSpeed        = 14      -- studs/s andando
+CatConfig.SprintSpeed      = 24      -- studs/s correndo (explosivo, gasta stamina rápido)
+CatConfig.CrouchSpeed      = 7       -- studs/s agachado (aproximação silenciosa)
+CatConfig.Acceleration     = 45      -- studs/s^2 -- gatos aceleram/freiam quase instantaneamente
+CatConfig.AirControl       = 0.85    -- 0-1, quanto o jogador controla a trajetória no ar (gatos são MUITO ágeis no ar)
+
+-- ===== Stamina (sprint) =====
+CatConfig.MaxStamina       = 100
+CatConfig.SprintDrainRate  = 28      -- por segundo enquanto correndo
+CatConfig.StaminaRegenRate = 18      -- por segundo quando não corre
+CatConfig.MinStaminaToSprint = 8
+
+-- ===== Salto / Pulo felino =====
+CatConfig.BaseJumpPower     = 42     -- impulso vertical de um pulo "tap" rápido
+CatConfig.MaxChargedJumpPower = 68   -- impulso vertical com agachamento carregado ao máximo (pounce)
+CatConfig.MaxChargeTime     = 0.65   -- segundos para carregar o pulo 100%
+CatConfig.ChargeForwardBoost = 30    -- impulso horizontal extra do pounce, na direção do olhar/movimento
+CatConfig.JumpSustainTime   = 0.18   -- janela em que segurar o pulo ainda adiciona força ascendente (salto controlado)
+CatConfig.JumpSustainForce  = 90     -- força extra por segundo aplicada durante o sustain
+CatConfig.JumpCooldown      = 0.15
+
+-- ===== Gravidade customizada =====
+CatConfig.FallGravityMultiplier   = 1.35  -- caindo, a gravidade "efetiva" aumenta (queda mais decidida)
+CatConfig.GlideGravityMultiplier  = 0.55  -- se o jogador segurar o pulo caindo e não sustain, plana levemente como gato "espalmado"
+CatConfig.TerminalFallSpeed       = 120
+
+-- ===== Reflexo de endireitamento (righting reflex) =====
+CatConfig.RightingReflexEnabled   = true
+CatConfig.RightingReflexDelay     = 0.12   -- tempo em queda livre antes do reflexo ativar
+CatConfig.RightingReflexTorque    = 25000  -- força de rotação do BodyGyro
+CatConfig.SafeFallHeight          = 22     -- abaixo disso, pouso 100% limpo
+CatConfig.HardFallHeight          = 45     -- acima disso, o gato fica "atordoado" por um instante (sem dano!)
+CatConfig.DazedDuration           = 0.9
+CatConfig.DazedSpeedMultiplier    = 0.35
+
+-- ===== Pouso (squash & stretch) =====
+CatConfig.LandSquashScaleXZ  = 1.18
+CatConfig.LandSquashScaleY   = 0.78
+CatConfig.LandSquashTime     = 0.10
+CatConfig.LandStretchTime    = 0.22
+
+-- ===== Parede: pulo e escalada =====
+CatConfig.WallJumpEnabled       = true
+CatConfig.WallCheckDistance     = 2.6
+CatConfig.WallJumpUpPower       = 40
+CatConfig.WallJumpAwayPower     = 34
+CatConfig.WallJumpCooldown      = 0.25
+CatConfig.LedgeGrabEnabled      = true
+CatConfig.LedgeCheckHeight      = 4.6   -- altura acima dos pés pra procurar uma borda livre
+CatConfig.LedgeMantleTime       = 0.32
+
+-- ===== Segundo fôlego (habilidade desbloqueável, opcional) =====
+CatConfig.DoubleJumpUnlockedByDefault = false
+CatConfig.DoubleJumpPower = 34
+
+-- ===== Água (gatos odeiam água) =====
+CatConfig.WaterKnockback = true
+
+-- ===== Corpo / colisão do gato =====
+CatConfig.HipHeightStand  = 1.1
+CatConfig.HipHeightCrouch = 0.55
+CatConfig.BodyScale       = 0.62   -- escala geral aplicada ao personagem (baixinho como um gato)
+
+return CatConfig
+]]></ProtectedString>
+  </Properties>
+</Item>
+</Item>
+<Item class="Folder" referent="RBX5">
+  <Properties>
+    <string name="Name">Remotes</string>
+  </Properties>
+<Item class="RemoteEvent" referent="RBX6">
+  <Properties>
+    <string name="Name">SequenceState</string>
+  </Properties>
+</Item>
+<Item class="RemoteEvent" referent="RBX7">
+  <Properties>
+    <string name="Name">KeypadSubmit</string>
+  </Properties>
+</Item>
+<Item class="RemoteEvent" referent="RBX8">
+  <Properties>
+    <string name="Name">KeypadFeedback</string>
+  </Properties>
+</Item>
+<Item class="RemoteEvent" referent="RBX9">
+  <Properties>
+    <string name="Name">CheckpointReached</string>
+  </Properties>
+</Item>
+<Item class="RemoteEvent" referent="RBX10">
+  <Properties>
+    <string name="Name">WaterSplash</string>
+  </Properties>
+</Item>
+<Item class="RemoteEvent" referent="RBX11">
+  <Properties>
+    <string name="Name">RaceFinished</string>
+  </Properties>
+</Item>
+<Item class="RemoteEvent" referent="RBX12">
+  <Properties>
+    <string name="Name">CollectibleGrabbed</string>
+  </Properties>
+</Item>
+<Item class="RemoteEvent" referent="RBX13">
+  <Properties>
+    <string name="Name">RequestReset</string>
+  </Properties>
+</Item>
+<Item class="RemoteEvent" referent="RBX14">
+  <Properties>
+    <string name="Name">RequestFullReset</string>
+  </Properties>
+</Item>
+</Item>
+</Item>
+<Item class="ServerScriptService" referent="RBX15">
+<Properties><string name="Name">ServerScriptService</string></Properties>
+<Item class="Folder" referent="RBX16">
+  <Properties>
+    <string name="Name">Server</string>
+  </Properties>
+<Item class="ModuleScript" referent="RBX17">
+  <Properties>
+    <string name="Name">CatRigService</string>
+    <ProtectedString name="Source"><![CDATA[--[[
+    CatRigService.lua
+    Transforma o personagem padrão (R15) em um "gato": encolhe o corpo,
+    adiciona orelhas e rabo (feitos só de parts, sem precisar de assets externos),
+    desliga o pulo padrão do Humanoid (o controle é 100% custom no cliente) e
+    define os atributos usados pela física custom.
+]]
+
+local CatConfig = require(script.Parent.Parent.Parent.ReplicatedStorage.Shared.CatConfig)
+
+local CatRigService = {}
+
+local EAR_COLOR = Color3.fromRGB(235, 180, 120)
+local TAIL_COLOR = Color3.fromRGB(235, 180, 120)
+
+local function weld(part0, part1, c0, c1)
+    local w = Instance.new("Weld")
+    w.Part0 = part0
+    w.Part1 = part1
+    w.C0 = c0 or CFrame.new()
+    w.C1 = c1 or CFrame.new()
+    w.Parent = part0
+    return w
+end
+
+local function addEars(character, head)
+    local earFolder = Instance.new("Folder")
+    earFolder.Name = "CatEars"
+    earFolder.Parent = character
+
+    for _, side in ipairs({-1, 1}) do
+        local ear = Instance.new("WedgePart")
+        ear.Name = "Ear"
+        ear.Size = Vector3.new(0.35, 0.55, 0.35)
+        ear.Color = character:GetAttribute("CatColor") and Color3.new() or EAR_COLOR
+        ear.Material = Enum.Material.SmoothPlastic
+        ear.CanCollide = false
+        ear.CanQuery = false
+        ear.Massless = true
+        ear.Parent = earFolder
+        weld(head, ear, CFrame.new(0.32 * side, 0.55, -0.05) * CFrame.Angles(math.rad(-90), 0, math.rad(20 * side)))
+    end
+end
+
+local function addTail(character, lowerTorso)
+    local tailFolder = Instance.new("Folder")
+    tailFolder.Name = "CatTail"
+    tailFolder.Parent = character
+
+    local segments = {}
+    local previous = lowerTorso
+    local previousC0 = CFrame.new(0, -0.1, 0.55)
+
+    for i = 1, 5 do
+        local segment = Instance.new("Part")
+        segment.Name = "TailSegment" .. i
+        segment.Shape = Enum.PartType.Cylinder
+        segment.Size = Vector3.new(0.55, 0.22 - (i * 0.015), 0.22 - (i * 0.015))
+        segment.Color = TAIL_COLOR
+        segment.Material = Enum.Material.SmoothPlastic
+        segment.CanCollide = false
+        segment.CanQuery = false
+        segment.Massless = true
+        segment.Parent = tailFolder
+
+        local motor = Instance.new("Motor6D")
+        motor.Name = "TailJoint" .. i
+        motor.Part0 = previous
+        motor.Part1 = segment
+        motor.C0 = previousC0
+        motor.C1 = CFrame.new(0.26, 0, 0) * CFrame.Angles(0, math.rad(90), 0)
+        motor.Parent = previous
+
+        previous = segment
+        previousC0 = CFrame.new(0.5, 0, 0) * CFrame.Angles(0, 0, math.rad(8))
+
+        table.insert(segments, segment)
+    end
+
+    return segments
+end
+
+function CatRigService.Setup(player, character)
+    local humanoid = character:WaitForChild("Humanoid")
+    local rootPart = character:WaitForChild("HumanoidRootPart")
+    local head = character:WaitForChild("Head")
+    local lowerTorso = character:FindFirstChild("LowerTorso")
+
+    -- Só funciona 100% com rigs R15 (padrão atual do Roblox)
+    humanoid.RigType = Enum.HumanoidRigType.R15
+
+    -- O pulo é inteiramente controlado pelo CatController no cliente,
+    -- então desligamos o pulo/gravidade padrão do Humanoid.
+    humanoid.JumpPower = 0
+    humanoid.JumpHeight = 0
+    humanoid.UseJumpPower = true
+    humanoid.AutoRotate = true
+    humanoid.WalkSpeed = CatConfig.WalkSpeed
+    humanoid.BreakJointsOnDeath = false
+    humanoid.RequiresNeck = false
+
+    -- Encolhe o rig todo (mantendo proporções) para o tamanho de um gato.
+    -- IMPORTANTE: fazemos isso ANTES de fixar o HipHeight final, porque ScaleTo
+    -- também reajusta o HipHeight proporcionalmente — queremos que o valor do
+    -- CatConfig seja a palavra final, não multiplicado de novo pela escala.
+    local ok = pcall(function()
+        character:ScaleTo(CatConfig.BodyScale)
+    end)
+    if not ok then
+        warn("[CatRigService] ScaleTo falhou (rig talvez não seja R15). Continuando sem escala.")
+    end
+
+    humanoid.HipHeight = CatConfig.HipHeightStand
+
+    -- Visual: orelhas e rabo
+    pcall(addEars, character, head)
+    if lowerTorso then
+        pcall(addTail, character, lowerTorso)
+    end
+
+    -- Garante que existam os NumberValues de escala corporal (usados pro squash&stretch de pouso).
+    -- Em alguns jogos com "Avatar Scaling" desabilitado eles não existem por padrão.
+    for _, valueName in ipairs({ "BodyHeightScale", "BodyWidthScale", "BodyDepthScale", "HeadScale" }) do
+        if not humanoid:FindFirstChild(valueName) then
+            local nv = Instance.new("NumberValue")
+            nv.Name = valueName
+            nv.Value = 1
+            nv.Parent = humanoid
+        end
+    end
+
+    -- Sem barra de vida visível/dano de queda: gato nunca "morre" de queda
+    humanoid.MaxHealth = math.huge
+    humanoid.Health = math.huge
+
+    -- Atributos usados pela física/animação (client)
+    character:SetAttribute("IsGrounded", true)
+    character:SetAttribute("IsCrouching", false)
+    character:SetAttribute("IsSprinting", false)
+    character:SetAttribute("IsDazed", false)
+    character:SetAttribute("HasDoubleJump", CatConfig.DoubleJumpUnlockedByDefault)
+    character:SetAttribute("Stamina", CatConfig.MaxStamina)
+
+    -- Evita que o jogo empurre o gato pra "PlatformStand" em situações estranhas
+    humanoid.PlatformStand = false
+
+    return humanoid, rootPart
+end
+
+return CatRigService
+]]></ProtectedString>
+  </Properties>
+</Item>
+<Item class="ModuleScript" referent="RBX18">
+  <Properties>
+    <string name="Name">CheckpointService</string>
+    <ProtectedString name="Source"><![CDATA[--[[
+    CheckpointService.lua
+    Sistema de checkpoints: guarda a última posição segura de cada jogador
+    e o teleporta de volta quando cai na água ou precisa respawnar.
+]]
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local CheckpointService = {}
+CheckpointService._playerData = {} -- [player] = {position = Vector3, order = number}
+
+local Remotes = ReplicatedStorage:WaitForChild("Remotes")
+local CheckpointReached = Remotes:WaitForChild("CheckpointReached")
+
+function CheckpointService:GetData(player)
+    local data = self._playerData[player]
+    if not data then
+        data = { position = nil, order = -1 }
+        self._playerData[player] = data
+    end
+    return data
+end
+
+function CheckpointService:CreateCheckpoint(part, order, label)
+    part.CanCollide = false
+    part.Anchored = true
+
+    local debounce = {}
+
+    part.Touched:Connect(function(hit)
+        local character = hit:FindFirstAncestorOfClass("Model")
+        if not character then return end
+        local player = Players:GetPlayerFromCharacter(character)
+        if not player then return end
+
+        local data = self:GetData(player)
+        if order <= data.order then return end -- já passou por esse ou por um mais avançado
+
+        if debounce[player] then return end
+        debounce[player] = true
+        task.delay(0.5, function() debounce[player] = nil end)
+
+        data.order = order
+        data.position = part.Position + Vector3.new(0, 4, 0)
+
+        CheckpointReached:FireClient(player, label or ("Checkpoint " .. order))
+    end)
+
+    return part
+end
+
+function CheckpointService:Respawn(player, reason)
+    local character = player.Character
+    if not character then return end
+    local root = character:FindFirstChild("HumanoidRootPart")
+    local humanoid = character:FindFirstChild("Humanoid")
+    if not root or not humanoid then return end
+
+    local data = self:GetData(player)
+    local targetPosition = data.position or (root.Position + Vector3.new(0, 10, 0))
+
+    -- zera velocidades para não "voar" ao reaparecer
+    root.AssemblyLinearVelocity = Vector3.new()
+    root.AssemblyAngularVelocity = Vector3.new()
+    root.CFrame = CFrame.new(targetPosition)
+
+    if reason then
+        local Remotes2 = ReplicatedStorage:WaitForChild("Remotes")
+        Remotes2:WaitForChild("WaterSplash"):FireClient(player, reason)
+    end
+end
+
+function CheckpointService:SetSpawn(player, position)
+    local data = self:GetData(player)
+    if not data.position then
+        data.position = position
+    end
+end
+
+Players.PlayerRemoving:Connect(function(player)
+    CheckpointService._playerData[player] = nil
+end)
+
+return CheckpointService
+]]></ProtectedString>
+  </Properties>
+</Item>
+<Item class="ModuleScript" referent="RBX19">
+  <Properties>
+    <string name="Name">HazardService</string>
+    <ProtectedString name="Source"><![CDATA[--[[
+    HazardService.lua
+    Gatos odeiam água! Qualquer parte marcada como água manda o jogador
+    de volta pro último checkpoint com um "splash" e um miado de susto.
+]]
+
+local Players = game:GetService("Players")
+local SoundService = game:GetService("SoundService")
+
+local HazardService = {}
+HazardService.CheckpointService = nil -- injetado pelo Main.server.lua
+
+local SPLASH_SOUND_ID = "rbxassetid://9125619202" -- splash genérico
+
+function HazardService:CreateWaterHazard(part)
+    part.Transparency = 0.25
+    part.Color = Color3.fromRGB(45, 130, 220)
+    part.Material = Enum.Material.Glass
+    part.CanCollide = false
+    part.Anchored = true
+
+    local debounce = {}
+
+    part.Touched:Connect(function(hit)
+        local character = hit:FindFirstAncestorOfClass("Model")
+        if not character then return end
+        local player = Players:GetPlayerFromCharacter(character)
+        if not player then return end
+
+        if debounce[player] then return end
+        debounce[player] = true
+        task.delay(1.2, function() debounce[player] = nil end)
+
+        -- efeito sonoro no ponto de contato
+        local sound = Instance.new("Sound")
+        sound.SoundId = SPLASH_SOUND_ID
+        sound.Volume = 0.6
+        sound.Parent = part
+        sound:Play()
+        game:GetService("Debris"):AddItem(sound, 3)
+
+        if self.CheckpointService then
+            self.CheckpointService:Respawn(player, "Gatos odeiam água! Você foi enxotado de volta ao checkpoint.")
+        end
+    end)
+
+    return part
+end
+
+return HazardService
+]]></ProtectedString>
+  </Properties>
+</Item>
+<Item class="Script" referent="RBX20">
+  <Properties>
+    <string name="Name">Main</string>
+    <ProtectedString name="Source"><![CDATA[--[[
+    Main.server.lua
+    Ponto de entrada do servidor: constrói o mapa, prepara cada jogador
+    como um gato e liga o cronômetro da corrida.
+]]
+
+local Players = game:GetService("Players")
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local MapBuilder = require(script.Parent.MapBuilder)
+local CatRigService = require(script.Parent.CatRigService)
+local CheckpointService = require(script.Parent.CheckpointService)
+local RaceService = require(script.Parent.RaceService)
+
+-- Botão "Reset" (R): joga o jogador de volta pro último checkpoint (útil se ficar preso)
+local Remotes = ReplicatedStorage:WaitForChild("Remotes")
+local RequestReset = Remotes:WaitForChild("RequestReset")
+local RequestFullReset = Remotes:WaitForChild("RequestFullReset")
+
+local resetDebounce = {}
+RequestReset.OnServerEvent:Connect(function(player)
+    if resetDebounce[player] then return end
+    resetDebounce[player] = true
+    task.delay(1, function() resetDebounce[player] = nil end)
+    CheckpointService:Respawn(player)
+end)
+
+-- "Jogar novamente" (depois de terminar a corrida): volta pro início de tudo
+local fullResetDebounce = {}
+RequestFullReset.OnServerEvent:Connect(function(player)
+    if fullResetDebounce[player] then return end
+    fullResetDebounce[player] = true
+    task.delay(1, function() fullResetDebounce[player] = nil end)
+
+    local data = CheckpointService:GetData(player)
+    data.order = -1
+    data.position = mapInfo.hubSpawnPosition
+    CheckpointService:Respawn(player)
+end)
+
+-- Gera o mapa inteiro (hub + 3 zonas + final)
+local mapInfo = MapBuilder.Build()
+
+-- Liga o cronômetro: começa no checkpoint do hub, termina no pad final
+local hubCheckpoint = mapInfo.folder:FindFirstChild("Checkpoint_0_Hub")
+if hubCheckpoint then
+    RaceService:AttachToCheckpoint(hubCheckpoint)
+end
+RaceService:AttachToFinish(mapInfo.finishPad)
+
+local function onCharacterAdded(player, character)
+    character:SetAttribute("SpawnedAt", os.clock())
+
+    local humanoid = character:WaitForChild("Humanoid")
+    CatRigService.Setup(player, character)
+
+    -- se ainda não tem checkpoint, usa o spawn do hub
+    local data = CheckpointService:GetData(player)
+    if not data.position then
+        CheckpointService:SetSpawn(player, mapInfo.hubSpawnPosition)
+    end
+
+    humanoid.Died:Connect(function()
+        -- o gato "nunca morre de verdade" (sem dano), mas por segurança,
+        -- se algo forçar a morte, respawna no checkpoint depois de um instante
+        task.delay(1, function()
+            if player and player.Parent then
+                player:LoadCharacter()
+            end
+        end)
+    end)
+end
+
+local function onPlayerAdded(player)
+    player.CharacterAdded:Connect(function(character)
+        onCharacterAdded(player, character)
+    end)
+    if player.Character then
+        onCharacterAdded(player, player.Character)
+    end
+end
+
+Players.PlayerAdded:Connect(onPlayerAdded)
+for _, player in ipairs(Players:GetPlayers()) do
+    onPlayerAdded(player)
+end
+
+print("[GatoParkour] Mapa gerado e servidor pronto. 🐾")
+]]></ProtectedString>
+  </Properties>
+</Item>
+<Item class="ModuleScript" referent="RBX21">
+  <Properties>
+    <string name="Name">MapBuilder</string>
+    <ProtectedString name="Source"><![CDATA[--[[
+    MapBuilder.lua
+    Gera todo o mapa do jogo por código (sem precisar de nenhum asset externo):
+      HUB -> Zona 1 "Telhados" (parkour + enigma de memória)
+          -> Zona 2 "Jardim Secreto" (água + enigma dos totens giratórios)
+          -> Zona 3 "Sótão Misterioso" (wall-jump + plataformas móveis + enigma do painel numérico)
+          -> Final "Telhado das Estrelas"
+
+    Cada zona termina com um "portão" (gate) que só abre quando o enigma é resolvido,
+    e cada zona começa com um checkpoint.
+
+    OBS: as distâncias de pulo foram calculadas para a config padrão de
+    src/ReplicatedStorage/Shared/CatConfig.lua. Se você alterar a força de pulo
+    ou a gravidade do Workspace, pode ser necessário reajustar os números aqui
+    (todas as posições estão em tabelas fáceis de editar).
+]]
+
+local Workspace = game:GetService("Workspace")
+local TweenService = game:GetService("TweenService")
+
+local CheckpointService = require(script.Parent.CheckpointService)
+local HazardService = require(script.Parent.HazardService)
+local PuzzleService = require(script.Parent.PuzzleService)
+
+HazardService.CheckpointService = CheckpointService
+
+local MapBuilder = {}
+
+-- ================= Helpers =================
+
+local FOLDER = Instance.new("Folder")
+FOLDER.Name = "GeneratedMap"
+
+local function newPart(props)
+    -- props.ClassName = classe do Instance ("Part", "WedgePart", ...). Padrão: "Part".
+    -- props.PartType  = formato do Part (Enum.PartType.Ball/Cylinder/Block), só vale pra classe "Part".
+    local part = Instance.new(props.ClassName or "Part")
+    part.Name = props.Name or "Part"
+    part.Size = props.Size or Vector3.new(4, 1, 4)
+    part.CFrame = props.CFrame or CFrame.new(0, 0, 0)
+    part.Anchored = props.Anchored ~= false
+    part.CanCollide = props.CanCollide ~= false
+    part.Material = props.Material or Enum.Material.SmoothPlastic
+    part.Color = props.Color or Color3.fromRGB(160, 160, 160)
+    part.Parent = props.Parent or FOLDER
+    if props.Transparency then part.Transparency = props.Transparency end
+    if props.PartType and part:IsA("Part") then part.Shape = props.PartType end
+    return part
+end
+
+local function platform(name, position, size, color, material)
+    return newPart({
+        Name = name,
+        Size = size,
+        CFrame = CFrame.new(position),
+        Color = color or Color3.fromRGB(150, 130, 110),
+        Material = material or Enum.Material.WoodPlanks,
+    })
+end
+
+local function sign(text, position, size)
+    local part = newPart({
+        Name = "Sign",
+        Size = size or Vector3.new(10, 4, 0.6),
+        CFrame = CFrame.new(position),
+        Color = Color3.fromRGB(35, 30, 45),
+        Material = Enum.Material.SmoothPlastic,
+        CanCollide = false,
+    })
+    local gui = Instance.new("SurfaceGui")
+    gui.Face = Enum.NormalId.Front
+    gui.Parent = part
+    gui.LightInfluence = 0
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.fromScale(1, 1)
+    label.BackgroundTransparency = 1
+    label.Text = text
+    label.TextColor3 = Color3.fromRGB(255, 230, 150)
+    label.Font = Enum.Font.FredokaOne
+    label.TextScaled = true
+    label.Parent = gui
+    return part
+end
+
+local function checkpointPad(name, position, order)
+    local pad = newPart({
+        Name = name,
+        Size = Vector3.new(6, 0.4, 6),
+        CFrame = CFrame.new(position),
+        Color = Color3.fromRGB(120, 255, 190),
+        Material = Enum.Material.Neon,
+        CanCollide = false,
+    })
+    CheckpointService:CreateCheckpoint(pad, order, name)
+    return pad
+end
+
+local function waterStrip(name, position, size)
+    local water = newPart({
+        Name = name,
+        Size = size,
+        CFrame = CFrame.new(position),
+        CanCollide = false,
+    })
+    HazardService:CreateWaterHazard(water)
+    return water
+end
+
+local function gateDoor(name, position, size)
+    return newPart({
+        Name = name,
+        Size = size,
+        CFrame = CFrame.new(position),
+        Color = Color3.fromRGB(90, 60, 50),
+        Material = Enum.Material.Wood,
+    })
+end
+
+-- cria uma sequência de plataformas em zigue-zague subindo suavemente (parkour de telhado)
+local function buildZigZagPath(baseName, startPos, count, dx, dyRange, dzAmplitude, sizeRange, color)
+    local platforms = {}
+    local pos = startPos
+    for i = 1, count do
+        local zOffset = math.sin(i * 0.9) * dzAmplitude
+        local yOffset = (math.random() * (dyRange.max - dyRange.min)) + dyRange.min
+        pos = pos + Vector3.new(dx, yOffset, 0)
+        local plat = platform(
+            baseName .. i,
+            Vector3.new(pos.X, pos.Y, pos.Z + zOffset),
+            Vector3.new(
+                math.random(sizeRange.min, sizeRange.max),
+                2,
+                math.random(sizeRange.min, sizeRange.max)
+            ),
+            color
+        )
+        table.insert(platforms, plat)
+        pos = Vector3.new(pos.X, pos.Y, pos.Z + zOffset)
+    end
+    return platforms, pos
+end
+
+-- ================= ZONA 0: HUB =================
+
+local function buildHub()
+    local hubFloor = platform("HubFloor", Vector3.new(0, 0, 0), Vector3.new(50, 2, 50), Color3.fromRGB(90, 150, 90), Enum.Material.Grass)
+
+    sign("🐾 GATO PARKOUR\nEnigmas Felinos 🐾", Vector3.new(0, 9, -23), Vector3.new(24, 8, 0.6))
+    sign("Controles:\nWASD - Mover | Espaço - Pular (segure p/ pulo mais alto)\nShift - Correr | Ctrl + Espaço - Salto Pounce (mais longe)\nE - Interagir | R - Voltar ao checkpoint", Vector3.new(18, 6, 0), Vector3.new(18, 7, 0.5))
+
+    -- caixas de treino (pulo curto -> médio -> agachado+pulo)
+    for i = 1, 3 do
+        platform("PracticeBox" .. i, Vector3.new(-14 + i * 6, 1 + i * 1.1, 14), Vector3.new(4, 1 + i * 1.4, 4), Color3.fromRGB(200, 170, 120), Enum.Material.Wood)
+    end
+
+    local spawn = Instance.new("SpawnLocation")
+    spawn.Name = "HubSpawn"
+    spawn.Size = Vector3.new(8, 1, 8)
+    spawn.CFrame = CFrame.new(0, 2, 10)
+    spawn.Anchored = true
+    spawn.CanCollide = true
+    spawn.Transparency = 1
+    spawn.Duration = 0
+    spawn.Parent = FOLDER
+
+    checkpointPad("Checkpoint_0_Hub", Vector3.new(0, 1.3, -5), 0)
+
+    return Vector3.new(0, 4, 10)
+end
+
+-- ================= ZONA 1: TELHADOS (parkour + memória) =================
+
+local function buildZone1()
+    sign("ZONA 1: TELHADOS\nSiga os telhados e resolva o enigma da memória!", Vector3.new(38, 8, -20), Vector3.new(18, 5, 0.5))
+
+    platform("Z1_Start", Vector3.new(40, 2, 0), Vector3.new(12, 2, 12), Color3.fromRGB(180, 90, 70), Enum.Material.Slate)
+
+    local platforms, lastPos = buildZigZagPath(
+        "Z1_Roof_",
+        Vector3.new(40, 3, 0),
+        9,
+        9,      -- avanço em X por plataforma
+        { min = 0.5, max = 3.5 },
+        6,      -- amplitude do zigue-zague em Z
+        { min = 5, max = 7 },
+        Color3.fromRGB(170, 95, 75)
+    )
+
+    -- pequena plataforma de pouso logo após o zigue-zague (fica mais fácil de acertar o checkpoint)
+    local landingPos = lastPos + Vector3.new(7, -1.5, 0)
+    platform("Z1_Landing", landingPos, Vector3.new(8, 2, 8), Color3.fromRGB(170, 95, 75))
+    checkpointPad("Checkpoint_1_Roofs", landingPos + Vector3.new(0, 1.5, 0), 1)
+
+    -- plataforma intermediária pra quebrar o vão grande até a arena (usa o Salto Pounce aqui!)
+    local midGapPos = landingPos + Vector3.new(11, -1, 0)
+    platform("Z1_MidGap", midGapPos, Vector3.new(6, 2, 6), Color3.fromRGB(170, 95, 75))
+
+    -- Arena do enigma de sequência (4 pads + portão)
+    local arenaCenter = midGapPos + Vector3.new(11, -1, 0)
+    platform("Z1_PuzzleFloor", arenaCenter, Vector3.new(22, 2, 18), Color3.fromRGB(120, 100, 90), Enum.Material.Concrete)
+
+    local pads = {}
+    local padPositions = {
+        arenaCenter + Vector3.new(-6, 1.5, -5),
+        arenaCenter + Vector3.new(6, 1.5, -5),
+        arenaCenter + Vector3.new(-6, 1.5, 5),
+        arenaCenter + Vector3.new(6, 1.5, 5),
+    }
+    for i, pos in ipairs(padPositions) do
+        pads[i] = newPart({
+            Name = "SequencePad" .. i,
+            Size = Vector3.new(4.5, 0.5, 4.5),
+            CFrame = CFrame.new(pos),
+            CanCollide = true,
+        })
+    end
+
+    sign("Memorize a sequência de cores\ne pise nos pisos na ordem certa!", arenaCenter + Vector3.new(0, 6, -12), Vector3.new(16, 4, 0.4))
+
+    local gate1 = gateDoor("Gate_Zone1", arenaCenter + Vector3.new(0, 6, 12), Vector3.new(20, 12, 2))
+    PuzzleService.CreateSequencePuzzle({ pads = pads, gate = gate1, length = 4, playSpeed = 0.6 })
+
+    checkpointPad("Checkpoint_1b_AfterPuzzle", arenaCenter + Vector3.new(0, 0, 16), 2)
+
+    return arenaCenter + Vector3.new(0, 2, 22)
+end
+
+-- ================= ZONA 2: JARDIM SECRETO (água + totens) =================
+
+local function buildZone2(entryPos)
+    local baseX = entryPos.X + 15
+    sign("ZONA 2: JARDIM SECRETO\nGatos odeiam água! Não caia nos canais.", Vector3.new(baseX, 8, entryPos.Z - 18), Vector3.new(20, 5, 0.5))
+
+    platform("Z2_Garden", Vector3.new(baseX, 1, entryPos.Z), Vector3.new(50, 2, 40), Color3.fromRGB(80, 140, 80), Enum.Material.Grass)
+
+    -- canais de água cruzando o jardim, com pedras de apoio (stepping stones)
+    for i = 1, 3 do
+        local waterZ = entryPos.Z - 12 + (i * 8)
+        waterStrip("Z2_Water" .. i, Vector3.new(baseX, 1.1, waterZ), Vector3.new(50, 0.6, 3))
+
+        for s = -2, 2 do
+            platform(
+                "Z2_Stone_" .. i .. "_" .. s,
+                Vector3.new(baseX + s * 8 + (i % 2 == 0 and 4 or 0), 1.6, waterZ),
+                Vector3.new(3.4, 1, 3.4),
+                Color3.fromRGB(140, 140, 150),
+                Enum.Material.Rock
+            )
+        end
+    end
+
+    -- Área dos totens
+    local totemAreaPos = Vector3.new(baseX, 1, entryPos.Z + 22)
+    platform("Z2_TotemFloor", totemAreaPos, Vector3.new(34, 2, 20), Color3.fromRGB(70, 120, 70), Enum.Material.Grass)
+
+    sign("Gire os totens (E) para que todos\nolhem na mesma direção do portão!", totemAreaPos + Vector3.new(0, 6, -8), Vector3.new(16, 4, 0.4))
+
+    local pillarSpecs = {
+        { offset = Vector3.new(-9, 0, 0), target = 1 },
+        { offset = Vector3.new(0, 0, 3),  target = 3 },
+        { offset = Vector3.new(9, 0, 0),  target = 2 },
+    }
+
+    local pillars = {}
+    for i, spec in ipairs(pillarSpecs) do
+        local basePos = totemAreaPos + spec.offset + Vector3.new(0, 3, 0)
+        local baseCFrame = CFrame.new(basePos)
+        local totem = newPart({
+            Name = "Totem" .. i,
+            Size = Vector3.new(2.2, 6, 2.2),
+            CFrame = baseCFrame,
+            Color = Color3.fromRGB(200, 150, 90),
+            Material = Enum.Material.Wood,
+        })
+        -- "olho" pintado numa face pra indicar a direção do totem
+        local eye = newPart({
+            Name = "Eye",
+            Size = Vector3.new(0.3, 1.2, 1.2),
+            CFrame = baseCFrame * CFrame.new(1.1, 1, 0),
+            Color = Color3.fromRGB(255, 220, 80),
+            Material = Enum.Material.Neon,
+            CanCollide = false,
+        })
+        eye.Parent = totem
+        local weld = Instance.new("WeldConstraint")
+        weld.Part0 = totem
+        weld.Part1 = eye
+        weld.Parent = totem
+
+        totem:SetAttribute("PuzzleIndex", i)
+        pillars[i] = { part = totem, baseCFrame = baseCFrame, target = spec.target, steps = 4 }
+    end
+
+    local gate2 = gateDoor("Gate_Zone2", totemAreaPos + Vector3.new(0, 6, 12), Vector3.new(18, 12, 2))
+    PuzzleService.CreateRotatorPuzzle({ pillars = pillars, gate = gate2 })
+
+    checkpointPad("Checkpoint_2_Garden", totemAreaPos, 3)
+    checkpointPad("Checkpoint_2b_AfterTotems", totemAreaPos + Vector3.new(0, 0, 16), 4)
+
+    return totemAreaPos + Vector3.new(0, 2, 22)
+end
+
+-- ================= ZONA 3: SÓTÃO MISTERIOSO (wall-jump + plataformas móveis + keypad) =================
+
+local function buildZone3(entryPos)
+    local baseX = entryPos.X + 15
+    sign("ZONA 3: SÓTÃO MISTERIOSO\nEscale as paredes e ache os 3 ratinhos!", Vector3.new(baseX, 10, entryPos.Z - 16), Vector3.new(20, 5, 0.5))
+
+    platform("Z3_Entry", Vector3.new(baseX, 1, entryPos.Z), Vector3.new(20, 2, 16), Color3.fromRGB(120, 100, 80), Enum.Material.WoodPlanks)
+
+    -- Corredor de wall-jump: duas paredes paralelas, o gato precisa saltar de uma pra outra subindo
+    local corridorZ = entryPos.Z
+    local wallGap = 6
+    local corridorHeight = 34
+    local wallA = newPart({
+        Name = "Z3_WallJumpA",
+        Size = Vector3.new(2, corridorHeight, 10),
+        CFrame = CFrame.new(baseX - wallGap / 2, corridorHeight / 2, corridorZ + 14),
+        Color = Color3.fromRGB(110, 90, 70),
+        Material = Enum.Material.Wood,
+    })
+    local wallB = newPart({
+        Name = "Z3_WallJumpB",
+        Size = Vector3.new(2, corridorHeight, 10),
+        CFrame = CFrame.new(baseX + wallGap / 2, corridorHeight / 2, corridorZ + 14),
+        Color = Color3.fromRGB(110, 90, 70),
+        Material = Enum.Material.Wood,
+    })
+    wallA:SetAttribute("WallJumpSurface", true)
+    wallB:SetAttribute("WallJumpSurface", true)
+
+    -- pequenas beiradas de apoio a cada trecho, pro jogador poder descansar se errar
+    for i = 1, 4 do
+        platform(
+            "Z3_RestLedge" .. i,
+            Vector3.new(baseX + (i % 2 == 0 and wallGap or -wallGap), i * 7, corridorZ + 14),
+            Vector3.new(4, 1, 4),
+            Color3.fromRGB(150, 120, 90)
+        )
+    end
+
+    local topLanding = platform("Z3_TopLanding", Vector3.new(baseX, corridorHeight + 2, corridorZ + 14), Vector3.new(16, 2, 14), Color3.fromRGB(130, 105, 85), Enum.Material.WoodPlanks)
+    checkpointPad("Checkpoint_3_TopOfWalls", Vector3.new(baseX, corridorHeight + 3.5, corridorZ + 14), 5)
+
+    -- Vigas do sótão com plataformas móveis sobre um vão
+    local pitStartZ = corridorZ + 24
+    platform("Z3_AtticFloorStart", Vector3.new(baseX, corridorHeight + 2, pitStartZ), Vector3.new(14, 2, 6), Color3.fromRGB(130, 105, 85))
+    local atticFloorEnd = platform("Z3_AtticFloorEnd", Vector3.new(baseX, corridorHeight + 2, pitStartZ + 40), Vector3.new(16, 2, 8), Color3.fromRGB(130, 105, 85))
+
+    local movingPlatformsData = {}
+    for i = 1, 3 do
+        local plat = platform(
+            "Z3_MovingPlank" .. i,
+            Vector3.new(baseX, corridorHeight + 2, pitStartZ + 8 + (i - 1) * 12),
+            Vector3.new(6, 1, 5),
+            Color3.fromRGB(160, 130, 95),
+            Enum.Material.WoodPlanks
+        )
+        table.insert(movingPlatformsData, plat)
+
+        local goingRight = i % 2 == 0
+        local travel = 9
+        local targetPos = plat.Position + Vector3.new(goingRight and travel or -travel, 0, 0)
+        local tween = TweenService:Create(plat, TweenInfo.new(2.2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { Position = targetPos })
+        tween:Play()
+    end
+
+    -- Ratinhos escondidos (collectibles) espalhados pelas vigas
+    local mouseSpots = {
+        { pos = Vector3.new(baseX - 8, corridorHeight + 4, pitStartZ + 14), digit = "4" },
+        { pos = Vector3.new(baseX + 9, corridorHeight + 6, pitStartZ + 26), digit = "8" },
+        { pos = Vector3.new(baseX, corridorHeight + 4, pitStartZ + 36), digit = "2" },
+    }
+    local mice = {}
+    for i, spot in ipairs(mouseSpots) do
+        -- pequena plataforma de apoio pro ratinho não ficar flutuando sem propósito
+        platform("Z3_MouseLedge" .. i, spot.pos - Vector3.new(0, 1.6, 0), Vector3.new(4, 0.6, 4), Color3.fromRGB(140, 110, 85))
+
+        local mouse = newPart({
+            Name = "Mouse" .. i,
+            PartType = Enum.PartType.Ball,
+            Size = Vector3.new(1.6, 1.6, 1.6),
+            CFrame = CFrame.new(spot.pos),
+            Color = Color3.fromRGB(120, 100, 100),
+            Material = Enum.Material.Fabric,
+            CanCollide = true,
+        })
+        local tag = Instance.new("BillboardGui")
+        tag.Size = UDim2.fromOffset(120, 40)
+        tag.StudsOffset = Vector3.new(0, 1.5, 0)
+        tag.AlwaysOnTop = true
+        tag.Parent = mouse
+        local label = Instance.new("TextLabel")
+        label.Size = UDim2.fromScale(1, 1)
+        label.BackgroundTransparency = 1
+        label.TextColor3 = Color3.fromRGB(255, 255, 255)
+        label.Text = "🐭"
+        label.TextScaled = true
+        label.Font = Enum.Font.FredokaOne
+        label.Parent = tag
+
+        table.insert(mice, { part = mouse, digit = spot.digit })
+    end
+
+    checkpointPad("Checkpoint_3b_Attic", Vector3.new(baseX, corridorHeight + 3.5, pitStartZ + 14), 6)
+
+    -- Painel numérico (keypad) e portão final do sótão
+    local keypadPos = atticFloorEnd.Position + Vector3.new(0, 4, 3)
+    local keypadPart = newPart({
+        Name = "KeypadTerminal",
+        Size = Vector3.new(4, 5, 1),
+        CFrame = CFrame.new(keypadPos),
+        Color = Color3.fromRGB(40, 40, 45),
+        Material = Enum.Material.Metal,
+        CanCollide = true,
+    })
+
+    local gui = Instance.new("SurfaceGui")
+    gui.Face = Enum.NormalId.Front
+    gui.Parent = keypadPart
+    gui.LightInfluence = 0
+
+    local grid = Instance.new("Frame")
+    grid.Size = UDim2.fromScale(1, 1)
+    grid.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+    grid.Parent = gui
+
+    local display = Instance.new("TextLabel")
+    display.Size = UDim2.new(1, 0, 0.2, 0)
+    display.BackgroundColor3 = Color3.fromRGB(10, 10, 12)
+    display.TextColor3 = Color3.fromRGB(120, 255, 150)
+    display.Font = Enum.Font.Code
+    display.TextScaled = true
+    display.Text = "___"
+    display.Parent = grid
+
+    local buttonsFrame = Instance.new("Frame")
+    buttonsFrame.Size = UDim2.new(1, 0, 0.8, 0)
+    buttonsFrame.Position = UDim2.new(0, 0, 0.2, 0)
+    buttonsFrame.BackgroundTransparency = 1
+    buttonsFrame.Parent = grid
+
+    local layout = Instance.new("UIGridLayout")
+    layout.CellSize = UDim2.fromScale(0.33, 0.25)
+    layout.CellPadding = UDim2.fromScale(0.005, 0.02)
+    layout.Parent = buttonsFrame
+
+    local keypadId = "Zone3Keypad"
+
+    -- Os botões só definem sua aparência e atributos aqui; o clique de fato é
+    -- capturado no CLIENTE (PuzzleClient.client.lua), que dispara o RemoteEvent
+    -- KeypadSubmit para o servidor (TextButton.MouseButton1Click só existe no cliente).
+    local labels = { "1","2","3","4","5","6","7","8","9","CLR","0","OK" }
+    for _, labelText in ipairs(labels) do
+        local btn = Instance.new("TextButton")
+        btn.Name = "Key_" .. labelText
+        btn.Text = labelText
+        btn.Font = Enum.Font.FredokaOne
+        btn.TextScaled = true
+        btn.BackgroundColor3 = (labelText == "CLR" and Color3.fromRGB(150, 60, 60)) or (labelText == "OK" and Color3.fromRGB(60, 150, 90)) or Color3.fromRGB(60, 60, 70)
+        btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+        btn:SetAttribute("KeypadId", keypadId)
+        btn:SetAttribute("Value", labelText)
+        btn.Parent = buttonsFrame
+    end
+    keypadPart:SetAttribute("KeypadId", keypadId)
+
+    local gate3 = gateDoor("Gate_Zone3", atticFloorEnd.Position + Vector3.new(0, 6, 8), Vector3.new(16, 12, 2))
+
+    PuzzleService.CreateKeypadPuzzle({
+        id = keypadId,
+        code = "482",
+        gate = gate3,
+        display = display,
+        mice = mice,
+    })
+
+    return atticFloorEnd.Position + Vector3.new(0, 2, 12)
+end
+
+-- ================= FINAL: TELHADO DAS ESTRELAS =================
+
+local function buildFinish(entryPos)
+    local finishPos = entryPos + Vector3.new(0, 0, 14)
+    platform("FinishFloor", finishPos, Vector3.new(26, 2, 26), Color3.fromRGB(60, 50, 90), Enum.Material.Neon)
+    sign("🏆 TELHADO DAS ESTRELAS 🏆\nVocê completou o desafio felino!", finishPos + Vector3.new(0, 8, -12), Vector3.new(20, 5, 0.5))
+
+    local finishPad = newPart({
+        Name = "FinishPad",
+        Size = Vector3.new(8, 0.4, 8),
+        CFrame = CFrame.new(finishPos + Vector3.new(0, 1.2, 0)),
+        Color = Color3.fromRGB(255, 215, 90),
+        Material = Enum.Material.Neon,
+        CanCollide = false,
+    })
+
+    checkpointPad("Checkpoint_Final", finishPos + Vector3.new(0, 0, -6), 7)
+
+    return finishPad
+end
+
+-- ================= BUILD =================
+
+function MapBuilder.Build()
+    FOLDER.Parent = Workspace
+
+    local hubSpawn = buildHub()
+    local afterZone1 = buildZone1()
+    local afterZone2 = buildZone2(afterZone1)
+    local afterZone3 = buildZone3(afterZone2)
+    local finishPad = buildFinish(afterZone3)
+
+    return {
+        hubSpawnPosition = hubSpawn,
+        finishPad = finishPad,
+        folder = FOLDER,
+    }
+end
+
+return MapBuilder
+]]></ProtectedString>
+  </Properties>
+</Item>
+<Item class="ModuleScript" referent="RBX22">
+  <Properties>
+    <string name="Name">PuzzleService</string>
+    <ProtectedString name="Source"><![CDATA[--[[
+    PuzzleService.lua
+    Contém a lógica dos 3 tipos de enigma do jogo:
+      1) Sequência de Pisos (jogo da memória - "Simon Says" felino)
+      2) Pilares Giratórios (alinhar os fios de lã)
+      3) Painel Numérico (achar os ratinhos escondidos pra descobrir o código)
+]]
+
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Debris = game:GetService("Debris")
+
+local Remotes = ReplicatedStorage:WaitForChild("Remotes")
+local SequenceState = Remotes:WaitForChild("SequenceState")
+local KeypadSubmit = Remotes:WaitForChild("KeypadSubmit")
+local KeypadFeedback = Remotes:WaitForChild("KeypadFeedback")
+local CollectibleGrabbed = Remotes:WaitForChild("CollectibleGrabbed")
+
+local PuzzleService = {}
+
+local PAD_COLORS = {
+    Color3.fromRGB(255, 90, 90),
+    Color3.fromRGB(90, 190, 255),
+    Color3.fromRGB(255, 210, 80),
+    Color3.fromRGB(120, 230, 120),
+}
+
+local function openGate(gate)
+    if not gate or gate:GetAttribute("Opened") then return end
+    gate:SetAttribute("Opened", true)
+
+    local sound = Instance.new("Sound")
+    sound.SoundId = "rbxassetid://9126854342" -- porta abrindo
+    sound.Volume = 0.7
+    sound.Parent = gate
+    sound:Play()
+    Debris:AddItem(sound, 3)
+
+    local targetCFrame = gate.CFrame * CFrame.new(0, -gate.Size.Y - 1, 0)
+    local tween = TweenService:Create(gate, TweenInfo.new(1.1, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+        CFrame = targetCFrame,
+        Transparency = 1,
+    })
+    gate.CanCollide = false
+    tween:Play()
+end
+
+local function flashPad(pad, duration)
+    local original = pad.Color
+    local highlight = pad:GetAttribute("HighlightColor")
+    pad.Material = Enum.Material.Neon
+    if highlight then
+        pad.Color = highlight
+    end
+    task.delay(duration, function()
+        if pad and pad.Parent then
+            pad.Material = Enum.Material.SmoothPlastic
+            pad.Color = original
+        end
+    end)
+end
+
+-- ============================================================
+-- 1) ENIGMA DE SEQUÊNCIA DE PISOS (memória)
+-- ============================================================
+function PuzzleService.CreateSequencePuzzle(cfg)
+    -- cfg = { pads = {Part,...}, gate = Part, length = number, playSpeed = number }
+    local pads = cfg.pads
+    local gate = cfg.gate
+    local length = cfg.length or 5
+    local playSpeed = cfg.playSpeed or 0.55
+
+    for i, pad in ipairs(pads) do
+        pad:SetAttribute("HighlightColor", PAD_COLORS[((i - 1) % #PAD_COLORS) + 1])
+        pad.Color = PAD_COLORS[((i - 1) % #PAD_COLORS) + 1]
+        pad.Material = Enum.Material.SmoothPlastic
+    end
+
+    local state = {
+        sequence = {},
+        playerProgress = {},
+        busy = false,
+        solved = false,
+    }
+
+    local function generateSequence()
+        state.sequence = {}
+        for i = 1, length do
+            state.sequence[i] = math.random(1, #pads)
+        end
+    end
+
+    local function playSequenceForAll()
+        state.busy = true
+        state.playerProgress = {}
+        for _, index in ipairs(state.sequence) do
+            flashPad(pads[index], playSpeed * 0.8)
+            SequenceState:FireAllClients("show", index)
+            task.wait(playSpeed)
+        end
+        SequenceState:FireAllClients("ready")
+        state.busy = false
+    end
+
+    local function startRound()
+        if state.solved then return end
+        generateSequence()
+        task.delay(1, playSequenceForAll)
+    end
+
+    for i, pad in ipairs(pads) do
+        pad.Touched:Connect(function(hit)
+            if state.solved or state.busy then return end
+            local character = hit:FindFirstAncestorOfClass("Model")
+            if not character then return end
+            local player = Players:GetPlayerFromCharacter(character)
+            if not player then return end
+
+            local progress = state.playerProgress[player] or 0
+            local expected = state.sequence[progress + 1]
+
+            if expected == i then
+                progress += 1
+                state.playerProgress[player] = progress
+                flashPad(pad, 0.25)
+                if progress >= #state.sequence then
+                    state.solved = true
+                    SequenceState:FireAllClients("solved")
+                    openGate(gate)
+                else
+                    SequenceState:FireClient(player, "correct", progress)
+                end
+            else
+                state.playerProgress[player] = 0
+                SequenceState:FireClient(player, "wrong")
+                pad.Color = Color3.fromRGB(255, 40, 40)
+                task.delay(0.35, function()
+                    if pad and pad.Parent then
+                        pad.Color = pad:GetAttribute("HighlightColor")
+                    end
+                end)
+                task.delay(1.2, startRound)
+            end
+        end)
+    end
+
+    startRound()
+
+    return state
+end
+
+-- ============================================================
+-- 2) ENIGMA DOS PILARES GIRATÓRIOS (fios de lã)
+-- ============================================================
+function PuzzleService.CreateRotatorPuzzle(cfg)
+    -- cfg = { pillars = { {part=Part, target=number(0-3), steps=number} , ... }, gate = Part }
+    local gate = cfg.gate
+    local pillars = cfg.pillars
+    local solved = false
+
+    for _, info in ipairs(pillars) do
+        info.current = 0
+        info.steps = info.steps or 4
+        info.part:SetAttribute("RotationIndex", 0)
+
+        local prompt = Instance.new("ProximityPrompt")
+        prompt.ActionText = "Girar Pilar"
+        prompt.ObjectText = "Fio de Lã"
+        prompt.HoldDuration = 0
+        prompt.MaxActivationDistance = 9
+        prompt.Parent = info.part
+
+        prompt.Triggered:Connect(function(player)
+            if solved then return end
+            info.current = (info.current + 1) % info.steps
+            info.part:SetAttribute("RotationIndex", info.current)
+
+            local anglePerStep = 360 / info.steps
+            local targetCFrame = info.baseCFrame * CFrame.Angles(0, math.rad(anglePerStep * info.current), 0)
+            local tween = TweenService:Create(info.part, TweenInfo.new(0.28, Enum.EasingStyle.Back), { CFrame = targetCFrame })
+            tween:Play()
+
+            -- (a própria rotação do part já replica normalmente pra todos os clientes)
+
+            -- checa se todos os pilares estão na posição correta
+            local allCorrect = true
+            for _, p in ipairs(pillars) do
+                if p.current ~= p.target then
+                    allCorrect = false
+                    break
+                end
+            end
+
+            if allCorrect then
+                solved = true
+                openGate(gate)
+            end
+        end)
+    end
+
+    return { pillars = pillars, gate = gate }
+end
+
+-- ============================================================
+-- 3) ENIGMA DO PAINEL NUMÉRICO (ratinhos escondidos)
+-- ============================================================
+function PuzzleService.CreateKeypadPuzzle(cfg)
+    -- cfg = { code = "482", gate = Part, mice = {{part=Part, digit="4"},...}, surfaceGui = SurfaceGui, display = TextLabel }
+    local code = cfg.code
+    local gate = cfg.gate
+    local display = cfg.display
+    local entered = ""
+    local solved = false
+    local foundDigits = {}
+
+    for _, mouseInfo in ipairs(cfg.mice) do
+        local part = mouseInfo.part
+        local digit = mouseInfo.digit
+        local grabbed = {}
+
+        part.Touched:Connect(function(hit)
+            local character = hit:FindFirstAncestorOfClass("Model")
+            if not character then return end
+            local player = Players:GetPlayerFromCharacter(character)
+            if not player then return end
+            if grabbed[player] or part:GetAttribute("Collected") then return end
+            grabbed[player] = true
+            part:SetAttribute("Collected", true)
+
+            foundDigits[digit] = true
+
+            local total = 0
+            for _ in pairs(cfg.mice) do total += 1 end
+            local foundCount = 0
+            for _ in pairs(foundDigits) do foundCount += 1 end
+
+            CollectibleGrabbed:FireClient(player, digit, foundCount, total)
+
+            part.Transparency = 1
+            part.CanCollide = false
+            task.delay(0.05, function()
+                for _, d in ipairs(part:GetDescendants()) do
+                    if d:IsA("BasePart") then d.Transparency = 1 end
+                end
+            end)
+        end)
+    end
+
+    KeypadSubmit.OnServerEvent:Connect(function(player, digitOrAction, keypadId)
+        if solved then return end
+        if keypadId ~= cfg.id then return end
+
+        if digitOrAction == "CLEAR" then
+            entered = ""
+        elseif digitOrAction == "ENTER" then
+            if entered == code then
+                solved = true
+                KeypadFeedback:FireClient(player, "correct", cfg.id)
+                openGate(gate)
+            else
+                KeypadFeedback:FireClient(player, "wrong", cfg.id)
+                entered = ""
+            end
+        else
+            if #entered < #code then
+                entered = entered .. tostring(digitOrAction)
+            end
+        end
+
+        if display then
+            display.Text = string.rep("•", #entered) .. string.rep("_", math.max(0, #code - #entered))
+        end
+        KeypadFeedback:FireClient(player, "update", cfg.id, entered)
+    end)
+
+    return { code = code }
+end
+
+return PuzzleService
+]]></ProtectedString>
+  </Properties>
+</Item>
+<Item class="ModuleScript" referent="RBX23">
+  <Properties>
+    <string name="Name">RaceService</string>
+    <ProtectedString name="Source"><![CDATA[--[[
+    RaceService.lua
+    Cronômetro da corrida: começa quando o jogador sai do HUB e termina
+    quando ele pisa no FinishPad. Mantém um "melhor tempo" em memória
+    (e tenta salvar em DataStore se a API estiver disponível/publicada).
+]]
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local RaceService = {}
+RaceService._startTimes = {}
+RaceService._bestTimes = {}
+
+local Remotes = ReplicatedStorage:WaitForChild("Remotes")
+local RaceFinished = Remotes:WaitForChild("RaceFinished")
+
+local dataStoreOk, dataStore = pcall(function()
+    return game:GetService("DataStoreService"):GetDataStore("CatParkour_BestTimes_v1")
+end)
+
+function RaceService:StartTimer(player)
+    if self._startTimes[player] then return end
+    self._startTimes[player] = os.clock()
+end
+
+function RaceService:AttachToCheckpoint(part)
+    part.Touched:Connect(function(hit)
+        local character = hit:FindFirstAncestorOfClass("Model")
+        if not character then return end
+        local player = Players:GetPlayerFromCharacter(character)
+        if not player then return end
+        self:StartTimer(player)
+    end)
+end
+
+function RaceService:AttachToFinish(finishPad)
+    local debounce = {}
+    finishPad.Touched:Connect(function(hit)
+        local character = hit:FindFirstAncestorOfClass("Model")
+        if not character then return end
+        local player = Players:GetPlayerFromCharacter(character)
+        if not player then return end
+        if debounce[player] then return end
+        debounce[player] = true
+        task.delay(2, function() debounce[player] = nil end)
+
+        local start = self._startTimes[player]
+        if not start then return end
+        local elapsed = os.clock() - start
+        self._startTimes[player] = nil
+
+        local best = self._bestTimes[player]
+        local isNewBest = not best or elapsed < best
+        if isNewBest then
+            self._bestTimes[player] = elapsed
+            if dataStoreOk then
+                task.spawn(function()
+                    pcall(function()
+                        dataStore:UpdateAsync(tostring(player.UserId), function(old)
+                            if not old or elapsed < old then
+                                return elapsed
+                            end
+                            return old
+                        end)
+                    end)
+                end)
+            end
+        end
+
+        RaceFinished:FireClient(player, elapsed, isNewBest)
+    end)
+end
+
+return RaceService
+]]></ProtectedString>
+  </Properties>
+</Item>
+</Item>
+</Item>
+<Item class="StarterPlayer" referent="RBX24">
+<Properties><string name="Name">StarterPlayer</string></Properties>
+<Item class="StarterPlayerScripts" referent="RBX25">
+<Properties><string name="Name">StarterPlayerScripts</string></Properties>
+<Item class="LocalScript" referent="RBX26">
+  <Properties>
+    <string name="Name">CameraController</string>
+    <ProtectedString name="Source"><![CDATA[--[[
+    CameraController.client.lua
+    Não substitui a câmera padrão do Roblox (que já faz um bom trabalho em 3ª pessoa),
+    só adiciona um "tempero" por cima dela: FOV dinâmico ao correr/pular e uma
+    leve inclinação de câmera nas curvas, pra dar sensação de velocidade e agilidade felina.
+]]
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+
+local player = Players.LocalPlayer
+local camera = Workspace.CurrentCamera
+
+local BASE_FOV = 70
+local SPRINT_FOV = 82
+local FOV_LERP_SPEED = 6
+
+local currentTiltAngle = 0
+local lastLookVector = nil
+
+local function getCharacterState()
+    local character = player.Character
+    if not character then return nil end
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    local root = character:FindFirstChild("HumanoidRootPart")
+    if not humanoid or not root then return nil end
+    return character, humanoid, root
+end
+
+RunService:BindToRenderStep("CatCameraFX", Enum.RenderPriority.Camera.Value + 1, function(dt)
+    camera = Workspace.CurrentCamera
+    if not camera then return end
+
+    local character, humanoid, root = getCharacterState()
+    if not character then
+        currentTiltAngle = 0
+        return
+    end
+
+    local isSprinting = character:GetAttribute("IsSprinting")
+    local targetFov = isSprinting and SPRINT_FOV or BASE_FOV
+    camera.FieldOfView += (targetFov - camera.FieldOfView) * math.clamp(FOV_LERP_SPEED * dt, 0, 1)
+
+    -- Leve "roll" de câmera baseado na velocidade de giro horizontal (sensação ágil)
+    local look = root.CFrame.LookVector
+    local targetTilt = 0
+    if lastLookVector then
+        local cross = lastLookVector:Cross(look)
+        local turnRate = cross.Y / math.max(dt, 1 / 240)
+        targetTilt = math.clamp(-turnRate * 0.35, -6, 6)
+    end
+    lastLookVector = look
+
+    currentTiltAngle += (targetTilt - currentTiltAngle) * math.clamp(8 * dt, 0, 1)
+
+    if math.abs(currentTiltAngle) > 0.01 then
+        camera.CFrame = camera.CFrame * CFrame.Angles(0, 0, math.rad(currentTiltAngle))
+    end
+end)
+
+player.CharacterAdded:Connect(function()
+    lastLookVector = nil
+    currentTiltAngle = 0
+end)
+]]></ProtectedString>
+  </Properties>
+</Item>
+<Item class="LocalScript" referent="RBX27">
+  <Properties>
+    <string name="Name">CatController</string>
+    <ProtectedString name="Source"><![CDATA[--[[
+    CatController.client.lua
+    Física custom de movimento do gato. Roda 100% no cliente (o cliente é o
+    "network owner" do próprio personagem, então isso replica normalmente).
+
+    Recursos implementados:
+      - Pulo com altura variável (segura pra pular mais alto, solta pra cortar o pulo)
+      - Salto "Pounce": agachar (Ctrl) + pular = salto maior e mais longe, pra frente
+      - Controle aéreo forte (gatos são muito ágeis no ar)
+      - Gravidade customizada: cai mais rápido do que sobe (queda "decidida")
+      - Reflexo de endireitamento: sempre tenta cair de pé
+      - Pouso com "squash & stretch" (achatamento realista de gato pousando)
+      - Quedas muito altas deixam o gato "atordoado" por um instante (sem dano)
+      - Wall Jump: pular fora de paredes no ar
+      - Ledge Mantle: escalar automaticamente beiradas na altura do peito
+      - Sprint com stamina (fôlego curto e explosivo, como gatos de verdade)
+]]
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local ContextActionService = game:GetService("ContextActionService")
+local Workspace = game:GetService("Workspace")
+local TweenService = game:GetService("TweenService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local CatConfig = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("CatConfig"))
+
+local player = Players.LocalPlayer
+
+-- ============= Estado =============
+
+local character, humanoid, rootPart
+local grounded = false
+local fallStartY = nil
+local lastGroundedTime = 0
+local isCrouching = false
+local isSprinting = false
+local stamina = CatConfig.MaxStamina
+local staminaAttrTimer = 0
+
+local jumpHeldSince = nil
+local jumpCooldownUntil = 0
+local hasSustained = false
+local jumpIsCuttable = false -- só o pulo normal (não-pounce, não-wall-jump) pode ser "cortado" ao soltar cedo
+
+local wallJumpCooldownUntil = 0
+local ledgeMantleCooldownUntil = 0
+local isMantling = false
+
+local RAY_PARAMS = RaycastParams.new()
+RAY_PARAMS.FilterType = Enum.RaycastFilterType.Exclude
+
+local function updateRayFilter()
+    if character then
+        RAY_PARAMS.FilterDescendantsInstances = { character }
+    end
+end
+
+-- ============= Utilitário: raycast simples =============
+
+local function raycast(origin, direction)
+    return Workspace:Raycast(origin, direction, RAY_PARAMS)
+end
+
+local function isGrounded()
+    if not rootPart then return false end
+    local hipHeight = (humanoid and humanoid.HipHeight or 1) 
+    local castLength = hipHeight + 1.1
+    local result = raycast(rootPart.Position, Vector3.new(0, -castLength, 0))
+    return result ~= nil, result
+end
+
+-- ============= Squash & Stretch (pouso) =============
+
+local function playLandSquash(intensity)
+    if not humanoid then return end
+    intensity = intensity or 1
+
+    -- BodyHeightScale/BodyWidthScale/BodyDepthScale são NumberValues filhos do Humanoid (padrão R15)
+    local heightScale = humanoid:FindFirstChild("BodyHeightScale")
+    local widthScale = humanoid:FindFirstChild("BodyWidthScale")
+    local depthScale = humanoid:FindFirstChild("BodyDepthScale")
+    if not (heightScale and widthScale and depthScale) then return end
+
+    local squashXZ = 1 + (CatConfig.LandSquashScaleXZ - 1) * intensity
+    local squashY = 1 - (1 - CatConfig.LandSquashScaleY) * intensity
+
+    local baseHeight, baseWidth, baseDepth = heightScale.Value, widthScale.Value, depthScale.Value
+
+    local squashTweenInfo = TweenInfo.new(CatConfig.LandSquashTime, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+    local squashTween = TweenService:Create(heightScale, squashTweenInfo, { Value = baseHeight * squashY })
+    local squashTweenW = TweenService:Create(widthScale, squashTweenInfo, { Value = baseWidth * squashXZ })
+    local squashTweenD = TweenService:Create(depthScale, squashTweenInfo, { Value = baseDepth * squashXZ })
+
+    squashTween:Play()
+    squashTweenW:Play()
+    squashTweenD:Play()
+
+    squashTween.Completed:Connect(function()
+        local stretchTweenInfo = TweenInfo.new(CatConfig.LandStretchTime, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+        TweenService:Create(heightScale, stretchTweenInfo, { Value = baseHeight }):Play()
+        TweenService:Create(widthScale, stretchTweenInfo, { Value = baseWidth }):Play()
+        TweenService:Create(depthScale, stretchTweenInfo, { Value = baseDepth }):Play()
+    end)
+end
+
+local function handleDazed()
+    character:SetAttribute("IsDazed", true)
+    local originalSpeed = humanoid.WalkSpeed
+    humanoid.WalkSpeed = originalSpeed * CatConfig.DazedSpeedMultiplier
+    task.delay(CatConfig.DazedDuration, function()
+        if humanoid and humanoid.Parent then
+            character:SetAttribute("IsDazed", false)
+        end
+    end)
+end
+
+-- ============= Detecção de parede (wall jump / ledge) =============
+
+local function getMoveDirectionOrLook()
+    if humanoid.MoveDirection.Magnitude > 0.05 then
+        return humanoid.MoveDirection.Unit
+    end
+    return rootPart.CFrame.LookVector
+end
+
+local function findWall()
+    local dir = getMoveDirectionOrLook()
+    local origin = rootPart.Position
+    local result = raycast(origin, dir * CatConfig.WallCheckDistance)
+    if result then
+        return result
+    end
+    -- também testa reto pra frente da câmera/olhar, caso o input não bata exatamente com a parede
+    local lookResult = raycast(origin, rootPart.CFrame.LookVector * CatConfig.WallCheckDistance)
+    return lookResult
+end
+
+local function tryLedgeMantle()
+    if not CatConfig.LedgeGrabEnabled then return false end
+    if isMantling then return false end
+    if os.clock() < ledgeMantleCooldownUntil then return false end
+
+    local dir = getMoveDirectionOrLook()
+    local lowerOrigin = rootPart.Position
+    local lowerHit = raycast(lowerOrigin, dir * 2.6)
+    if not lowerHit then return false end
+
+    local upperOrigin = rootPart.Position + Vector3.new(0, CatConfig.LedgeCheckHeight, 0)
+    local upperHit = raycast(upperOrigin, dir * 2.6)
+    if upperHit then return false end -- tem parede lá em cima também, não é uma beirada escalável
+
+    -- procura o topo da beirada descendo um raio a partir de um ponto acima e à frente
+    local ledgeProbeOrigin = upperOrigin + dir * 2.6
+    local downHit = raycast(ledgeProbeOrigin, Vector3.new(0, -CatConfig.LedgeCheckHeight - 1, 0))
+    if not downHit then return false end
+
+    isMantling = true
+    ledgeMantleCooldownUntil = os.clock() + 0.6
+
+    local targetPos = downHit.Position + Vector3.new(0, (humanoid.HipHeight + 1.6), 0) + dir * 1.2
+    local startCFrame = rootPart.CFrame
+    local targetCFrame = CFrame.new(targetPos, targetPos + rootPart.CFrame.LookVector)
+
+    rootPart.AssemblyLinearVelocity = Vector3.new()
+    rootPart.Anchored = true
+
+    local elapsed = 0
+    local connection
+    connection = RunService.Heartbeat:Connect(function(dt)
+        elapsed += dt
+        local alpha = math.clamp(elapsed / CatConfig.LedgeMantleTime, 0, 1)
+        rootPart.CFrame = startCFrame:Lerp(targetCFrame, alpha)
+        if alpha >= 1 then
+            connection:Disconnect()
+            rootPart.Anchored = false
+            rootPart.AssemblyLinearVelocity = Vector3.new(0, 4, 0)
+            isMantling = false
+        end
+    end)
+
+    return true
+end
+
+-- ============= Pulo =============
+
+local function computeJumpDirectionBoost()
+    local moveDir = humanoid.MoveDirection
+    if moveDir.Magnitude > 0.05 then
+        return moveDir.Unit
+    end
+    return rootPart.CFrame.LookVector
+end
+
+local function doJump(isPounce)
+    if os.clock() < jumpCooldownUntil then return end
+    jumpCooldownUntil = os.clock() + CatConfig.JumpCooldown
+
+    local currentVel = rootPart.AssemblyLinearVelocity
+    local jumpPower = isPounce and CatConfig.MaxChargedJumpPower or CatConfig.BaseJumpPower
+
+    local horizontalBoost = Vector3.new()
+    if isPounce then
+        horizontalBoost = computeJumpDirectionBoost() * CatConfig.ChargeForwardBoost
+    end
+
+    humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+
+    rootPart.AssemblyLinearVelocity = Vector3.new(
+        currentVel.X + horizontalBoost.X,
+        jumpPower,
+        currentVel.Z + horizontalBoost.Z
+    )
+
+    jumpHeldSince = os.clock()
+    hasSustained = false
+    jumpIsCuttable = not isPounce -- o salto pounce é uma ação só, não deve ser "cortado" ao soltar o botão
+    grounded = false
+    fallStartY = rootPart.Position.Y
+end
+
+local function tryWallJump()
+    if not CatConfig.WallJumpEnabled then return false end
+    if os.clock() < wallJumpCooldownUntil then return false end
+    if grounded then return false end
+
+    local hit = findWall()
+    if not hit then return false end
+
+    wallJumpCooldownUntil = os.clock() + CatConfig.WallJumpCooldown
+
+    local normal = hit.Normal
+    local currentVel = rootPart.AssemblyLinearVelocity
+    rootPart.AssemblyLinearVelocity = Vector3.new(
+        normal.X * CatConfig.WallJumpAwayPower,
+        CatConfig.WallJumpUpPower,
+        normal.Z * CatConfig.WallJumpAwayPower
+    )
+
+    humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+    jumpHeldSince = os.clock()
+    hasSustained = false
+    jumpIsCuttable = false -- wall jump também é uma ação só
+    return true
+end
+
+local function onJumpBegin()
+    if isMantling then return end
+
+    if grounded then
+        if isCrouching then
+            doJump(true) -- pounce
+        else
+            doJump(false)
+        end
+    else
+        -- no ar: tenta escalar uma beirada, senão tenta wall jump, senão nada (já pulou)
+        if not tryLedgeMantle() then
+            tryWallJump()
+        end
+    end
+end
+
+local function onJumpEnd()
+    -- corta o pulo normal se soltar cedo (salto "tap" curto vs. segurar = pulo alto).
+    -- Pounce e wall-jump são impulsos únicos e não são cortados.
+    if jumpHeldSince and not grounded and jumpIsCuttable then
+        local heldTime = os.clock() - jumpHeldSince
+        if heldTime < CatConfig.JumpSustainTime then
+            local vel = rootPart.AssemblyLinearVelocity
+            if vel.Y > 0 then
+                rootPart.AssemblyLinearVelocity = Vector3.new(vel.X, vel.Y * 0.45, vel.Z)
+            end
+        end
+    end
+    jumpHeldSince = nil
+end
+
+-- ============= Crouch / Sprint (Input) =============
+
+local function setCrouch(active)
+    isCrouching = active
+    character:SetAttribute("IsCrouching", active)
+    if humanoid then
+        humanoid.HipHeight = active and CatConfig.HipHeightCrouch or CatConfig.HipHeightStand
+    end
+end
+
+local function jumpAction(actionName, inputState)
+    if inputState == Enum.UserInputState.Begin then
+        onJumpBegin()
+    elseif inputState == Enum.UserInputState.End then
+        onJumpEnd()
+    end
+    return Enum.ContextActionResult.Pass
+end
+
+local function crouchAction(actionName, inputState)
+    if inputState == Enum.UserInputState.Begin then
+        setCrouch(true)
+    elseif inputState == Enum.UserInputState.End then
+        setCrouch(false)
+    end
+    return Enum.ContextActionResult.Pass
+end
+
+local function sprintAction(actionName, inputState)
+    if inputState == Enum.UserInputState.Begin then
+        isSprinting = true
+    elseif inputState == Enum.UserInputState.End then
+        isSprinting = false
+    end
+    return Enum.ContextActionResult.Pass
+end
+
+local function resetAction(actionName, inputState)
+    if inputState == Enum.UserInputState.Begin then
+        local remotes = ReplicatedStorage:WaitForChild("Remotes")
+        remotes:WaitForChild("RequestReset"):FireServer()
+    end
+    return Enum.ContextActionResult.Pass
+end
+
+-- ============= Loop principal (Heartbeat) =============
+
+local function updateMovementSpeed(dt)
+    if isCrouching then
+        humanoid.WalkSpeed = CatConfig.CrouchSpeed
+        return
+    end
+
+    local wantsSprint = isSprinting and stamina > CatConfig.MinStaminaToSprint and humanoid.MoveDirection.Magnitude > 0.05
+
+    if wantsSprint then
+        humanoid.WalkSpeed = CatConfig.SprintSpeed
+        stamina = math.max(0, stamina - CatConfig.SprintDrainRate * dt)
+    else
+        humanoid.WalkSpeed = CatConfig.WalkSpeed
+        stamina = math.min(CatConfig.MaxStamina, stamina + CatConfig.StaminaRegenRate * dt)
+    end
+
+    character:SetAttribute("IsSprinting", wantsSprint)
+
+    staminaAttrTimer += dt
+    if staminaAttrTimer > 0.1 then
+        staminaAttrTimer = 0
+        character:SetAttribute("Stamina", stamina)
+    end
+end
+
+local function updateAirPhysics(dt)
+    if isMantling or rootPart.Anchored then return end
+
+    local vel = rootPart.AssemblyLinearVelocity
+
+    -- Controle aéreo: dirige a velocidade horizontal em direção ao input, sem "travar" a inércia
+    local desiredSpeed = isSprinting and CatConfig.SprintSpeed or CatConfig.WalkSpeed
+    local desiredHorizontal = humanoid.MoveDirection * desiredSpeed
+    local currentHorizontal = Vector3.new(vel.X, 0, vel.Z)
+    local alpha = math.clamp(CatConfig.AirControl * dt * 6, 0, 1)
+    local newHorizontal = currentHorizontal:Lerp(desiredHorizontal, alpha)
+
+    -- Gravidade customizada: cai mais forte do que sobe
+    local gravity = Workspace.Gravity
+    local velY = vel.Y
+    if velY < 0 then
+        local extraGravity = gravity * (CatConfig.FallGravityMultiplier - 1)
+        velY = velY - extraGravity * dt
+    end
+    velY = math.max(velY, -CatConfig.TerminalFallSpeed)
+
+    -- Sustain: segurando o pulo normal durante a subida, adiciona um pouco de força extra (salto controlado)
+    if jumpHeldSince and jumpIsCuttable and velY > 0 then
+        local heldTime = os.clock() - jumpHeldSince
+        if heldTime < CatConfig.JumpSustainTime then
+            velY += CatConfig.JumpSustainForce * dt
+        end
+    end
+
+    rootPart.AssemblyLinearVelocity = Vector3.new(newHorizontal.X, velY, newHorizontal.Z)
+end
+
+local function onHeartbeat(dt)
+    if not rootPart or not humanoid or rootPart.Anchored then return end
+
+    local wasGrounded = grounded
+    local groundedNow, groundHit = isGrounded()
+    grounded = groundedNow
+    character:SetAttribute("IsGrounded", grounded)
+
+    if grounded then
+        if not wasGrounded then
+            -- ACABOU de aterrissar
+            local fallDistance = fallStartY and (fallStartY - rootPart.Position.Y) or 0
+            if fallDistance > CatConfig.SafeFallHeight * 0.4 then
+                local intensity = math.clamp(fallDistance / CatConfig.HardFallHeight, 0.2, 1.4)
+                playLandSquash(intensity)
+            end
+            if fallDistance > CatConfig.HardFallHeight then
+                handleDazed()
+            end
+            fallStartY = nil
+            hasSustained = false
+        end
+        lastGroundedTime = os.clock()
+    else
+        if wasGrounded then
+            fallStartY = rootPart.Position.Y
+        elseif fallStartY and rootPart.Position.Y > fallStartY then
+            fallStartY = rootPart.Position.Y -- estava subindo, recalibra o topo
+        end
+        updateAirPhysics(dt)
+    end
+
+    updateMovementSpeed(dt)
+end
+
+-- ============= Setup / Ciclo de vida do personagem =============
+
+local function onCharacterAdded(newCharacter)
+    character = newCharacter
+    humanoid = character:WaitForChild("Humanoid")
+    rootPart = character:WaitForChild("HumanoidRootPart")
+
+    grounded = true
+    fallStartY = nil
+    isCrouching = false
+    isSprinting = false
+    stamina = CatConfig.MaxStamina
+    jumpHeldSince = nil
+
+    updateRayFilter()
+
+    humanoid.HipHeight = CatConfig.HipHeightStand
+    humanoid.WalkSpeed = CatConfig.WalkSpeed
+end
+
+player.CharacterAdded:Connect(onCharacterAdded)
+if player.Character then
+    onCharacterAdded(player.Character)
+end
+
+RunService.Heartbeat:Connect(onHeartbeat)
+
+ContextActionService:BindAction("CatJump", jumpAction, false, Enum.KeyCode.Space, Enum.KeyCode.ButtonA)
+ContextActionService:BindAction("CatCrouch", crouchAction, false, Enum.KeyCode.LeftControl, Enum.KeyCode.ButtonL2)
+ContextActionService:BindAction("CatSprint", sprintAction, false, Enum.KeyCode.LeftShift, Enum.KeyCode.ButtonR1)
+ContextActionService:BindAction("CatReset", resetAction, false, Enum.KeyCode.R, Enum.KeyCode.ButtonY)
+]]></ProtectedString>
+  </Properties>
+</Item>
+<Item class="LocalScript" referent="RBX28">
+  <Properties>
+    <string name="Name">HUDController</string>
+    <ProtectedString name="Source"><![CDATA[--[[
+    HUDController.client.lua
+    Monta toda a interface do jogo em runtime (sem precisar de nenhum
+    arquivo de UI serializado): timer, stamina, contador de ratinhos,
+    avisos de checkpoint, splash de água e tela de finalização.
+]]
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+local Remotes = ReplicatedStorage:WaitForChild("Remotes")
+local CheckpointReached = Remotes:WaitForChild("CheckpointReached")
+local WaterSplash = Remotes:WaitForChild("WaterSplash")
+local RaceFinished = Remotes:WaitForChild("RaceFinished")
+local CollectibleGrabbed = Remotes:WaitForChild("CollectibleGrabbed")
+local SequenceState = Remotes:WaitForChild("SequenceState")
+local KeypadFeedback = Remotes:WaitForChild("KeypadFeedback")
+local RequestFullReset = Remotes:WaitForChild("RequestFullReset")
+
+-- ============= Base da UI =============
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "CatHUD"
+screenGui.ResetOnSpawn = false
+screenGui.IgnoreGuiInset = true
+screenGui.Parent = playerGui
+
+local function makeCorner(parent, radius)
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = radius or UDim.new(0, 10)
+    corner.Parent = parent
+    return corner
+end
+
+local function makeStroke(parent, color, thickness)
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = color or Color3.fromRGB(255, 255, 255)
+    stroke.Thickness = thickness or 1.5
+    stroke.Transparency = 0.4
+    stroke.Parent = parent
+    return stroke
+end
+
+-- ===== Timer (topo-esquerda) =====
+local timerFrame = Instance.new("Frame")
+timerFrame.Size = UDim2.fromOffset(160, 46)
+timerFrame.Position = UDim2.new(0, 16, 0, 16)
+timerFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
+timerFrame.BackgroundTransparency = 0.25
+timerFrame.Parent = screenGui
+makeCorner(timerFrame)
+makeStroke(timerFrame, Color3.fromRGB(255, 200, 120))
+
+local timerLabel = Instance.new("TextLabel")
+timerLabel.Size = UDim2.fromScale(1, 1)
+timerLabel.BackgroundTransparency = 1
+timerLabel.Text = "00:00.0"
+timerLabel.TextColor3 = Color3.fromRGB(255, 240, 210)
+timerLabel.Font = Enum.Font.Code
+timerLabel.TextScaled = true
+timerLabel.Parent = timerFrame
+
+-- ===== Stamina bar (topo-direita) =====
+local staminaFrame = Instance.new("Frame")
+staminaFrame.Size = UDim2.fromOffset(220, 20)
+staminaFrame.Position = UDim2.new(1, -236, 0, 16)
+staminaFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
+staminaFrame.BackgroundTransparency = 0.25
+staminaFrame.Parent = screenGui
+makeCorner(staminaFrame, UDim.new(1, 0))
+makeStroke(staminaFrame, Color3.fromRGB(120, 230, 255))
+
+local staminaFill = Instance.new("Frame")
+staminaFill.Size = UDim2.fromScale(1, 1)
+staminaFill.BackgroundColor3 = Color3.fromRGB(120, 230, 255)
+staminaFill.BorderSizePixel = 0
+staminaFill.Parent = staminaFrame
+makeCorner(staminaFill, UDim.new(1, 0))
+
+local staminaLabel = Instance.new("TextLabel")
+staminaLabel.Size = UDim2.fromScale(1, 1)
+staminaLabel.BackgroundTransparency = 1
+staminaLabel.Text = "FÔLEGO"
+staminaLabel.TextColor3 = Color3.fromRGB(20, 20, 26)
+staminaLabel.Font = Enum.Font.FredokaOne
+staminaLabel.TextScaled = true
+staminaLabel.ZIndex = 2
+staminaLabel.Parent = staminaFrame
+
+-- ===== Contador de ratinhos (abaixo da stamina) =====
+local mouseFrame = Instance.new("Frame")
+mouseFrame.Size = UDim2.fromOffset(220, 32)
+mouseFrame.Position = UDim2.new(1, -236, 0, 44)
+mouseFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
+mouseFrame.BackgroundTransparency = 0.25
+mouseFrame.Parent = screenGui
+mouseFrame.Visible = false
+makeCorner(mouseFrame)
+makeStroke(mouseFrame, Color3.fromRGB(255, 180, 120))
+
+local mouseLabel = Instance.new("TextLabel")
+mouseLabel.Size = UDim2.fromScale(1, 1)
+mouseLabel.BackgroundTransparency = 1
+mouseLabel.Text = "🐭 Ratinhos: 0/3"
+mouseLabel.TextColor3 = Color3.fromRGB(255, 230, 210)
+mouseLabel.Font = Enum.Font.FredokaOne
+mouseLabel.TextScaled = true
+mouseLabel.Parent = mouseFrame
+
+-- ===== Toasts (avisos, centro-inferior) =====
+local toastContainer = Instance.new("Frame")
+toastContainer.Size = UDim2.new(0, 480, 0, 200)
+toastContainer.AnchorPoint = Vector2.new(0.5, 1)
+toastContainer.Position = UDim2.new(0.5, 0, 1, -60)
+toastContainer.BackgroundTransparency = 1
+toastContainer.Parent = screenGui
+
+local toastLayout = Instance.new("UIListLayout")
+toastLayout.VerticalAlignment = Enum.VerticalAlignment.Bottom
+toastLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+toastLayout.Padding = UDim.new(0, 6)
+toastLayout.Parent = toastContainer
+
+local function showToast(text, color)
+    local toast = Instance.new("Frame")
+    toast.Size = UDim2.new(0, 0, 0, 36)
+    toast.AutomaticSize = Enum.AutomaticSize.X
+    toast.BackgroundColor3 = color or Color3.fromRGB(30, 30, 38)
+    toast.BackgroundTransparency = 0.1
+    toast.Parent = toastContainer
+    makeCorner(toast, UDim.new(0, 8))
+
+    local label = Instance.new("TextLabel")
+    label.AutomaticSize = Enum.AutomaticSize.X
+    label.Size = UDim2.new(0, 0, 1, 0)
+    label.Position = UDim2.fromOffset(14, 0)
+    label.BackgroundTransparency = 1
+    label.Text = text
+    label.TextColor3 = Color3.fromRGB(255, 255, 255)
+    label.Font = Enum.Font.FredokaOne
+    label.TextSize = 20
+    label.Parent = toast
+
+    local padding = Instance.new("UIPadding")
+    padding.PaddingLeft = UDim.new(0, 14)
+    padding.PaddingRight = UDim.new(0, 14)
+    padding.Parent = toast
+
+    toast.BackgroundTransparency = 1
+    label.TextTransparency = 1
+    TweenService:Create(toast, TweenInfo.new(0.25), { BackgroundTransparency = 0.1 }):Play()
+    TweenService:Create(label, TweenInfo.new(0.25), { TextTransparency = 0 }):Play()
+
+    task.delay(2.6, function()
+        local fadeOut = TweenService:Create(toast, TweenInfo.new(0.4), { BackgroundTransparency = 1 })
+        TweenService:Create(label, TweenInfo.new(0.4), { TextTransparency = 1 }):Play()
+        fadeOut:Play()
+        fadeOut.Completed:Connect(function()
+            toast:Destroy()
+        end)
+    end)
+end
+
+-- ===== Overlay de água (splash) =====
+local waterOverlay = Instance.new("Frame")
+waterOverlay.Size = UDim2.fromScale(1, 1)
+waterOverlay.BackgroundColor3 = Color3.fromRGB(60, 140, 255)
+waterOverlay.BackgroundTransparency = 1
+waterOverlay.ZIndex = 50
+waterOverlay.Parent = screenGui
+
+local function flashWater()
+    TweenService:Create(waterOverlay, TweenInfo.new(0.08), { BackgroundTransparency = 0.55 }):Play()
+    task.delay(0.1, function()
+        TweenService:Create(waterOverlay, TweenInfo.new(0.7), { BackgroundTransparency = 1 }):Play()
+    end)
+end
+
+-- ===== Tela de finalização =====
+local finishOverlay = Instance.new("Frame")
+finishOverlay.Size = UDim2.fromScale(1, 1)
+finishOverlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+finishOverlay.BackgroundTransparency = 1
+finishOverlay.Visible = false
+finishOverlay.ZIndex = 60
+finishOverlay.Parent = screenGui
+
+local finishPanel = Instance.new("Frame")
+finishPanel.Size = UDim2.fromOffset(420, 260)
+finishPanel.AnchorPoint = Vector2.new(0.5, 0.5)
+finishPanel.Position = UDim2.fromScale(0.5, 0.5)
+finishPanel.BackgroundColor3 = Color3.fromRGB(28, 24, 38)
+finishPanel.ZIndex = 61
+finishPanel.Parent = finishOverlay
+makeCorner(finishPanel, UDim.new(0, 18))
+makeStroke(finishPanel, Color3.fromRGB(255, 210, 110), 2)
+
+local finishTitle = Instance.new("TextLabel")
+finishTitle.Size = UDim2.new(1, 0, 0, 60)
+finishTitle.Position = UDim2.fromOffset(0, 20)
+finishTitle.BackgroundTransparency = 1
+finishTitle.Text = "🏆 Você chegou ao topo!"
+finishTitle.TextColor3 = Color3.fromRGB(255, 225, 160)
+finishTitle.Font = Enum.Font.FredokaOne
+finishTitle.TextScaled = true
+finishTitle.ZIndex = 62
+finishTitle.Parent = finishPanel
+
+local finishTimeLabel = Instance.new("TextLabel")
+finishTimeLabel.Size = UDim2.new(1, 0, 0, 60)
+finishTimeLabel.Position = UDim2.fromOffset(0, 90)
+finishTimeLabel.BackgroundTransparency = 1
+finishTimeLabel.Text = "Tempo: 00:00.0"
+finishTimeLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+finishTimeLabel.Font = Enum.Font.Code
+finishTimeLabel.TextScaled = true
+finishTimeLabel.ZIndex = 62
+finishTimeLabel.Parent = finishPanel
+
+local playAgainButton = Instance.new("TextButton")
+playAgainButton.Size = UDim2.fromOffset(220, 50)
+playAgainButton.AnchorPoint = Vector2.new(0.5, 0)
+playAgainButton.Position = UDim2.new(0.5, 0, 0, 170)
+playAgainButton.BackgroundColor3 = Color3.fromRGB(120, 200, 120)
+playAgainButton.Text = "🐾 Jogar novamente"
+playAgainButton.TextColor3 = Color3.fromRGB(20, 30, 20)
+playAgainButton.Font = Enum.Font.FredokaOne
+playAgainButton.TextScaled = true
+playAgainButton.ZIndex = 62
+playAgainButton.Parent = finishPanel
+makeCorner(playAgainButton)
+
+playAgainButton.MouseButton1Click:Connect(function()
+    finishOverlay.Visible = false
+    RequestFullReset:FireServer()
+end)
+
+-- ============= Lógica: timer =============
+
+local raceStartClock = nil
+local raceFinishedTime = nil
+
+RunService.RenderStepped:Connect(function()
+    if raceFinishedTime then return end
+    if not raceStartClock then return end
+    local elapsed = os.clock() - raceStartClock
+    local minutes = math.floor(elapsed / 60)
+    local seconds = elapsed % 60
+    timerLabel.Text = string.format("%02d:%04.1f", minutes, seconds)
+end)
+
+local function formatTime(t)
+    local minutes = math.floor(t / 60)
+    local seconds = t % 60
+    return string.format("%02d:%04.1f", minutes, seconds)
+end
+
+-- ============= Eventos do servidor =============
+
+CheckpointReached.OnClientEvent:Connect(function(label)
+    local prettyLabel = label:gsub("_", " ")
+    showToast("✅ " .. prettyLabel, Color3.fromRGB(40, 110, 60))
+    if label:find("Hub") then
+        raceStartClock = os.clock()
+        raceFinishedTime = nil
+        finishOverlay.Visible = false
+    end
+end)
+
+WaterSplash.OnClientEvent:Connect(function(message)
+    flashWater()
+    showToast("💦 " .. (message or "Gatos odeiam água!"), Color3.fromRGB(60, 90, 160))
+end)
+
+RaceFinished.OnClientEvent:Connect(function(elapsed, isNewBest)
+    raceFinishedTime = elapsed
+    finishTimeLabel.Text = "Tempo: " .. formatTime(elapsed) .. (isNewBest and "  🌟 Recorde!" or "")
+    finishOverlay.Visible = true
+    TweenService:Create(finishOverlay, TweenInfo.new(0.3), { BackgroundTransparency = 0.35 }):Play()
+end)
+
+CollectibleGrabbed.OnClientEvent:Connect(function(digit, foundCount, total)
+    mouseFrame.Visible = true
+    mouseLabel.Text = string.format("🐭 Ratinhos: %d/%d", foundCount, total)
+    showToast("🐭 Você achou um ratinho! Dígito revelado: " .. tostring(digit), Color3.fromRGB(150, 110, 60))
+end)
+
+SequenceState.OnClientEvent:Connect(function(status)
+    if status == "wrong" then
+        showToast("❌ Ordem errada! Observe de novo...", Color3.fromRGB(150, 50, 50))
+    elseif status == "solved" then
+        showToast("🎉 Sequência correta! Portão aberto.", Color3.fromRGB(50, 140, 90))
+    elseif status == "ready" then
+        showToast("👉 Agora é sua vez! Pise na ordem.", Color3.fromRGB(60, 90, 150))
+    end
+end)
+
+KeypadFeedback.OnClientEvent:Connect(function(status)
+    if status == "correct" then
+        showToast("🔓 Código correto! Portão aberto.", Color3.fromRGB(50, 140, 90))
+    elseif status == "wrong" then
+        showToast("❌ Código incorreto. Tente de novo.", Color3.fromRGB(150, 50, 50))
+    end
+end)
+
+-- ============= Loop: stamina bar =============
+
+local function getCharacterAttribute(name, default)
+    local character = player.Character
+    if not character then return default end
+    local value = character:GetAttribute(name)
+    if value == nil then return default end
+    return value
+end
+
+RunService.Heartbeat:Connect(function()
+    local staminaRatio = getCharacterAttribute("Stamina", 100) / 100
+    staminaFill.Size = UDim2.fromScale(math.clamp(staminaRatio, 0, 1), 1)
+    staminaFill.BackgroundColor3 = staminaRatio < 0.25 and Color3.fromRGB(255, 110, 110) or Color3.fromRGB(120, 230, 255)
+end)
+
+-- ============= Painel de controles (canto inferior esquerdo) =============
+
+local controlsFrame = Instance.new("Frame")
+controlsFrame.Size = UDim2.fromOffset(260, 150)
+controlsFrame.Position = UDim2.new(0, 16, 1, -166)
+controlsFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
+controlsFrame.BackgroundTransparency = 0.35
+controlsFrame.Parent = screenGui
+makeCorner(controlsFrame)
+makeStroke(controlsFrame, Color3.fromRGB(200, 200, 220))
+
+local controlsLabel = Instance.new("TextLabel")
+controlsLabel.Size = UDim2.new(1, -16, 1, -16)
+controlsLabel.Position = UDim2.fromOffset(8, 8)
+controlsLabel.BackgroundTransparency = 1
+controlsLabel.TextColor3 = Color3.fromRGB(230, 230, 240)
+controlsLabel.Font = Enum.Font.Gotham
+controlsLabel.TextSize = 14
+controlsLabel.TextXAlignment = Enum.TextXAlignment.Left
+controlsLabel.TextYAlignment = Enum.TextYAlignment.Top
+controlsLabel.TextWrapped = true
+controlsLabel.Text = "🐾 CONTROLES\nWASD — Mover\nEspaço — Pular (segure = mais alto)\nCtrl + Espaço — Salto Pounce\nShift — Correr\nE — Interagir\nR — Voltar ao checkpoint"
+controlsLabel.Parent = controlsFrame
+]]></ProtectedString>
+  </Properties>
+</Item>
+<Item class="LocalScript" referent="RBX29">
+  <Properties>
+    <string name="Name">PuzzleClient</string>
+    <ProtectedString name="Source"><![CDATA[--[[
+    PuzzleClient.client.lua
+    Liga os cliques dos botões do painel numérico (SurfaceGui no mundo 3D)
+    ao RemoteEvent do servidor. TextButton.MouseButton1Click só existe no
+    cliente, por isso esse "meio de campo" é necessário.
+
+    Os pisos de sequência e os totens giratórios não precisam de nada aqui:
+    o piso usa .Touched (colisão) e o totem usa ProximityPrompt, ambos já
+    disparam eventos no servidor automaticamente.
+]]
+
+local Workspace = game:GetService("Workspace")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Remotes = ReplicatedStorage:WaitForChild("Remotes")
+local KeypadSubmit = Remotes:WaitForChild("KeypadSubmit")
+
+local connectedButtons = {}
+
+local function connectButton(button)
+    if connectedButtons[button] then return end
+    connectedButtons[button] = true
+
+    local keypadId = button:GetAttribute("KeypadId")
+    local value = button:GetAttribute("Value")
+    if not keypadId or not value then return end
+
+    button.MouseButton1Click:Connect(function()
+        if value == "CLR" then
+            KeypadSubmit:FireServer("CLEAR", keypadId)
+        elseif value == "OK" then
+            KeypadSubmit:FireServer("ENTER", keypadId)
+        else
+            KeypadSubmit:FireServer(value, keypadId)
+        end
+    end)
+end
+
+local function scanForButtons(root)
+    for _, descendant in ipairs(root:GetDescendants()) do
+        if descendant:IsA("TextButton") and descendant:GetAttribute("KeypadId") then
+            connectButton(descendant)
+        end
+    end
+end
+
+local mapFolder = Workspace:WaitForChild("GeneratedMap", 15)
+if mapFolder then
+    scanForButtons(mapFolder)
+    mapFolder.DescendantAdded:Connect(function(descendant)
+        if descendant:IsA("TextButton") and descendant:GetAttribute("KeypadId") then
+            connectButton(descendant)
+        end
+    end)
+end
+]]></ProtectedString>
+  </Properties>
+</Item>
+</Item>
+<Item class="StarterCharacterScripts" referent="RBX30">
+<Properties><string name="Name">StarterCharacterScripts</string></Properties>
+<Item class="LocalScript" referent="RBX31">
+  <Properties>
+    <string name="Name">CatVisualEffects</string>
+    <ProtectedString name="Source"><![CDATA[--[[
+    CatVisualEffects.client.lua
+    Roda uma vez por personagem (StarterCharacterScripts é clonado pro
+    character toda vez que o jogador nasce). Cuida dos detalhes visuais
+    que vendem a ilusão de "gato": rabo balançando, orelhas reagindo ao
+    pouso e passos de pata alternados.
+]]
+
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local Debris = game:GetService("Debris")
+
+local character = script.Parent
+local humanoid = character:WaitForChild("Humanoid")
+local rootPart = character:WaitForChild("HumanoidRootPart")
+
+-- ============= Rabo (spring/pêndulo simples) =============
+
+local tailFolder = character:WaitForChild("CatTail", 5)
+local tailJoints = {}
+
+if tailFolder then
+    local previous = character:FindFirstChild("LowerTorso")
+    if previous then
+        for i = 1, 5 do
+            local motor = previous:FindFirstChild("TailJoint" .. i)
+            if motor then
+                table.insert(tailJoints, { motor = motor, baseC0 = motor.C0, index = i })
+                previous = motor.Part1
+            end
+        end
+    end
+end
+
+local lastVelocity = Vector3.new()
+local swayPhase = 0
+
+local function updateTail(dt)
+    if #tailJoints == 0 then return end
+
+    local vel = rootPart.AssemblyLinearVelocity
+    local accel = (vel - lastVelocity) / math.max(dt, 1 / 240)
+    lastVelocity = vel
+
+    swayPhase += dt * 3.2
+
+    -- o rabo reage à aceleração horizontal (efeito "contrapeso") + uma leve ondulação natural
+    local localAccel = rootPart.CFrame:VectorToObjectSpace(accel)
+    local lagX = math.clamp(-localAccel.X * 0.01, -0.6, 0.6)
+    local lagZ = math.clamp(-localAccel.Z * 0.01, -0.6, 0.6)
+
+    for _, joint in ipairs(tailJoints) do
+        local amplitude = 0.12 + (joint.index * 0.05)
+        local wave = math.sin(swayPhase - joint.index * 0.6) * amplitude
+        joint.motor.C0 = joint.baseC0 * CFrame.Angles(lagZ * 0.5, wave + lagX * 0.5, 0)
+    end
+end
+
+-- ============= Orelhas (reação ao pouso) =============
+
+local function twitchEars()
+    local earFolder = character:FindFirstChild("CatEars")
+    if not earFolder then return end
+    -- pequeno "flick": escala rápida de tamanho pra simular o movimento da orelha
+    for _, ear in ipairs(earFolder:GetChildren()) do
+        if ear:IsA("BasePart") then
+            local originalSize = ear.Size
+            local tweenDown = TweenService:Create(ear, TweenInfo.new(0.08, Enum.EasingStyle.Quad), { Size = originalSize * Vector3.new(1, 0.6, 1) })
+            tweenDown:Play()
+            tweenDown.Completed:Connect(function()
+                TweenService:Create(ear, TweenInfo.new(0.12, Enum.EasingStyle.Back), { Size = originalSize }):Play()
+            end)
+        end
+    end
+end
+
+character:GetAttributeChangedSignal("IsGrounded"):Connect(function()
+    if character:GetAttribute("IsGrounded") then
+        twitchEars()
+    end
+end)
+
+-- ============= Passos de pata (sons alternados) =============
+
+local FOOTSTEP_IDS = {
+    "rbxassetid://9126687728",
+    "rbxassetid://9126687728",
+}
+local stepTimer = 0
+local stepToggle = false
+
+local function playFootstep()
+    local sound = Instance.new("Sound")
+    sound.SoundId = FOOTSTEP_IDS[1]
+    sound.Volume = 0.18
+    sound.PlaybackSpeed = stepToggle and 1.05 or 0.95
+    stepToggle = not stepToggle
+    sound.Parent = rootPart
+    sound:Play()
+    Debris:AddItem(sound, 2)
+end
+
+local function updateFootsteps(dt)
+    local grounded = character:GetAttribute("IsGrounded")
+    local speed = rootPart.AssemblyLinearVelocity.Magnitude
+
+    if grounded and speed > 2 then
+        stepTimer -= dt
+        if stepTimer <= 0 then
+            playFootstep()
+            -- passos mais rápidos quando correndo, mais espaçados quando andando
+            stepTimer = math.clamp(2.2 / speed, 0.12, 0.55)
+        end
+    else
+        stepTimer = 0
+    end
+end
+
+RunService.Heartbeat:Connect(function(dt)
+    if not character.Parent then return end
+    updateTail(dt)
+    updateFootsteps(dt)
+end)
+]]></ProtectedString>
+  </Properties>
+</Item>
+</Item>
+</Item>
+<Item class="StarterGui" referent="RBX32">
+<Properties><string name="Name">StarterGui</string></Properties>
+</Item>
+</roblox>
