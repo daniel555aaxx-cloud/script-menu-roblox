@@ -1,0 +1,13 @@
+# Rojo / build artifacts
+*.rbxl
+*.rbxlx
+sourcemap.json
+/build/
+
+# Aftman / Foreman tool caches
+.aftman/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
