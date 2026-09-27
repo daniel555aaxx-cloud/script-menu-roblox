@@ -3,6 +3,7 @@
 *.rbxlx
 sourcemap.json
 /build/
+/dist/
 
 # Aftman / Foreman tool caches
 .aftman/

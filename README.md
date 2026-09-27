@@ -105,7 +105,31 @@ src/
 
 ## ▶️ Como abrir e jogar
 
-### Opção A — Rojo (recomendado, mantém tudo em código/GitHub)
+### Opção A — Arquivo pronto (.rbxlx) — mais rápido, sem instalar nada
+
+Se você só quer testar o jogo sem instalar o Rojo, gere (ou baixe, se
+disponibilizado no chat) o arquivo `.rbxlx`:
+
+```bash
+python3 tools/build_rbxlx.py
+# gera dist/GatoParkourEnigmasFelinos.rbxlx
+```
+
+Esse script lê todos os arquivos de `src/` e monta um **place file** do
+Roblox (formato XML) já com todos os scripts nos serviços certos — o mapa em
+si é gerado em tempo real pelo `MapBuilder.lua` assim que o jogo começa, então
+não precisa "assar" nenhuma parte no arquivo.
+
+1. Abra o Roblox Studio.
+2. `File > Open from File...` e selecione o `.rbxlx` gerado.
+3. Clique em ▶ **Play** — o mapa aparece na hora.
+4. Se quiser publicar/subir pro Roblox, use `File > Publish to Roblox As...`.
+
+> Esse arquivo foi montado por um script Python (não exportado pelo Studio),
+> então se o Studio reclamar de alguma propriedade específica ao abrir, use a
+> Opção B (Rojo) abaixo, que é o fluxo 100% suportado oficialmente.
+
+### Opção B — Rojo (recomendado para desenvolvimento contínuo)
 
 1. Instale o **Roblox Studio**.
 2. Instale o **plugin do Rojo** no Studio (loja de plugins, procure "Rojo").
