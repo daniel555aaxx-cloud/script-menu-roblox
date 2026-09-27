@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd" version="4">
 <External>null</External><External>nil</External>
-<Item class="Workspace" referent="RBXE756B049EFAB47F284F97F9B0940C107"><Properties><string name="Name">Workspace</string></Properties></Item>
-<Item class="Players" referent="RBX0E1D6FF744B543AC89A10654CBD2422D"><Properties><string name="Name">Players</string></Properties></Item>
-<Item class="Lighting" referent="RBXF91E0A62BFE34A6CB303470A8564FD10"><Properties><string name="Name">Lighting</string></Properties></Item>
-<Item class="ReplicatedFirst" referent="RBX2938A0F74A554C3E956C031A6746C831"><Properties><string name="Name">ReplicatedFirst</string></Properties></Item>
-<Item class="ReplicatedStorage" referent="RBX2AEB403BB1634519B921E54B6BF59AEA"><Properties><string name="Name">ReplicatedStorage</string></Properties></Item>
-<Item class="ServerScriptService" referent="RBX14319203467F428FB4D36C2C1F52D148"><Properties><string name="Name">ServerScriptService</string></Properties><Item class="Script" referent="RBXBB689226E24F4D32BB991950DFC6BC1C"><Properties><string name="Name">BhopGame</string><bool name="Disabled">false</bool><ProtectedString name="Source"><![CDATA[-- Bhop Starter: gera uma pista original, checkpoints e cronômetro no servidor.
+<Item class="Workspace" referent="RBX8D3469E814084E63A1A71BDC3BF86F83"><Properties><string name="Name">Workspace</string></Properties></Item>
+<Item class="Players" referent="RBX4993426A8C154C19A6C613B8856B62BA"><Properties><string name="Name">Players</string></Properties></Item>
+<Item class="Lighting" referent="RBXCAA878B93C544E5EA34DA73317005EE5"><Properties><string name="Name">Lighting</string></Properties></Item>
+<Item class="ReplicatedFirst" referent="RBX45B623E55F2A446FAA1F945C7570AAB1"><Properties><string name="Name">ReplicatedFirst</string></Properties></Item>
+<Item class="ReplicatedStorage" referent="RBX8CE42B6A43854F99A915B3A0725473FD"><Properties><string name="Name">ReplicatedStorage</string></Properties></Item>
+<Item class="ServerScriptService" referent="RBX6127FDC410E74BEAA1055EE87A205EA3"><Properties><string name="Name">ServerScriptService</string></Properties><Item class="Script" referent="RBX9B4B3842CEA0477998427D284697093A"><Properties><bool name="Disabled">false</bool><string name="Name">BhopGame</string><ProtectedString name="Source"><![CDATA[-- Bhop Starter: gera uma pista original, checkpoints e cronômetro no servidor.
 -- Coloque em ServerScriptService como Script.
 
 local Players = game:GetService("Players")
@@ -204,6 +204,10 @@ local function setupPlayer(player)
 	best.Parent = leaderstats
 
 	player.CharacterAdded:Connect(function(character)
+		local humanoid = character:WaitForChild("Humanoid")
+		humanoid.UseJumpPower = true
+		humanoid.WalkSpeed = 0
+		humanoid.JumpPower = 0
 		task.wait(0.2)
 		if not checkpointForPlayer[player] then
 			checkpointForPlayer[player] = startPoint
@@ -249,12 +253,12 @@ end)
 
 print(("Bhop Starter: pista criada com %d plataformas."):format(COURSE_PARTS))
 ]]></ProtectedString></Properties></Item></Item>
-<Item class="ServerStorage" referent="RBXB3290C175197496BB352A3DA4B22B066"><Properties><string name="Name">ServerStorage</string></Properties></Item>
-<Item class="StarterGui" referent="RBXCA580F98275C4F75A6570B2A62B9B1A3"><Properties><string name="Name">StarterGui</string></Properties></Item>
-<Item class="StarterPack" referent="RBX8341EBCB19574E9085DA10CCF7B09C0C"><Properties><string name="Name">StarterPack</string></Properties></Item>
-<Item class="StarterPlayer" referent="RBX05C41237191A42F390DF9FA47B784EF0"><Properties><string name="Name">StarterPlayer</string></Properties><Item class="StarterPlayerScripts" referent="RBX22966A7F0E854601808DBFC2DFD78A79"><Properties><string name="Name">StarterPlayerScripts</string></Properties><Item class="LocalScript" referent="RBX2BEC2ED4197F438F9909482DCA581DA6"><Properties><string name="Name">BhopController</string><bool name="Disabled">false</bool><ProtectedString name="Source"><![CDATA[-- Controle de bunny hop e air-strafe para a experiência própria.
--- Coloque como LocalScript em StarterPlayer > StarterPlayerScripts.
--- O movimento padrão do Roblox continua cuidando do teclado, gamepad e controles touch.
+<Item class="ServerStorage" referent="RBX686752C55AD64470BDAD84DBC0693AFC"><Properties><string name="Name">ServerStorage</string></Properties></Item>
+<Item class="StarterGui" referent="RBXAFBDE6CC555A46D097BF7D0AEFD24A8D"><Properties><string name="Name">StarterGui</string></Properties></Item>
+<Item class="StarterPack" referent="RBXE457B581589044298813F639B50A9616"><Properties><string name="Name">StarterPack</string></Properties></Item>
+<Item class="StarterPlayer" referent="RBX1660261FC27C4D5D97D4E3C9A4322D0C"><Properties><float name="CameraMaxZoomDistance">0.5</float><float name="CameraMinZoomDistance">0.5</float><token name="CameraMode">1</token><string name="Name">StarterPlayer</string></Properties><Item class="StarterPlayerScripts" referent="RBXB43B27665122468CB98959E285104298"><Properties><string name="Name">StarterPlayerScripts</string></Properties><Item class="LocalScript" referent="RBX19830FA5B5794AA8AAD53F3E0162C3D3"><Properties><bool name="Disabled">false</bool><string name="Name">BhopController</string><ProtectedString name="Source"><![CDATA[-- Bhop movement controller for this original Roblox experience.
+-- First-person + Source-style ground friction/acceleration, air acceleration and air-strafe.
+-- Put this LocalScript in StarterPlayer > StarterPlayerScripts.
 
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
@@ -262,89 +266,254 @@ local RunService = game:GetService("RunService")
 
 local player = Players.LocalPlayer
 
-local BASE_WALK_SPEED = 16
-local MAX_WALK_SPEED = 42
-local MAX_AIR_SPEED = 76
-local AIR_ACCELERATION = 32
-local AIR_DRAG = 0.985
+-- Tune these values in Studio Play tests to set the feel/difficulty.
+local FIRST_PERSON_FOV = 82
+local GROUND_MAX_SPEED = 24
+local GROUND_ACCEL = 14
+local GROUND_FRICTION = 5.2
+local STOP_SPEED = 7
+local AIR_ACCEL = 12
+local AIR_WISH_SPEED_CAP = 30
+local AIR_DRAG = 0.015
+local JUMP_SPEED = 52
+local MAX_SPEED = 115
+local JUMP_BUFFER_SECONDS = 0.12
+local SURF_MIN_NORMAL_Y = 0.08
+local SURF_MAX_NORMAL_Y = 0.88
+local SURF_ACCEL = 8
 
+local keysDown = {}
 local jumpHeld = false
-local characterConnections = {}
+local jumpBufferUntil = 0
+local controls
+local currentConnection
+local currentHumanoid
 
-local function disconnectCharacterConnections()
-	for _, connection in characterConnections do
-		connection:Disconnect()
+-- Get Roblox's standard control vector for thumbsticks and the mobile joystick.
+pcall(function()
+	local playerModule = require(player:WaitForChild("PlayerScripts"):WaitForChild("PlayerModule"))
+	controls = playerModule:GetControls()
+end)
+
+local function setFirstPerson()
+	player.CameraMode = Enum.CameraMode.LockFirstPerson
+	player.CameraMinZoomDistance = 0.5
+	player.CameraMaxZoomDistance = 0.5
+	local camera = workspace.CurrentCamera
+	if camera then
+		camera.FieldOfView = FIRST_PERSON_FOV
 	end
-	table.clear(characterConnections)
+end
+
+local function getInputVector(humanoid)
+	local x = (keysDown[Enum.KeyCode.D] and 1 or 0) - (keysDown[Enum.KeyCode.A] and 1 or 0)
+	local z = (keysDown[Enum.KeyCode.W] and 1 or 0) - (keysDown[Enum.KeyCode.S] and 1 or 0)
+
+	if x ~= 0 or z ~= 0 then
+		local magnitude = math.sqrt(x * x + z * z)
+		return x / magnitude, z / magnitude
+	end
+
+	if controls then
+		local move = controls:GetMoveVector()
+		if move.Magnitude > 0.05 then
+			local localX = move.X
+			local localZ = -move.Z
+			local magnitude = math.sqrt(localX * localX + localZ * localZ)
+			return localX / magnitude, localZ / magnitude
+		end
+	end
+
+	-- Fallback for Roblox control schemes that expose only Humanoid.MoveDirection.
+	local direction = humanoid.MoveDirection
+	local camera = workspace.CurrentCamera
+	if direction.Magnitude > 0.05 and camera then
+		local flatForward = Vector3.new(camera.CFrame.LookVector.X, 0, camera.CFrame.LookVector.Z)
+		local flatRight = Vector3.new(camera.CFrame.RightVector.X, 0, camera.CFrame.RightVector.Z)
+		if flatForward.Magnitude > 0 and flatRight.Magnitude > 0 then
+			flatForward = flatForward.Unit
+			flatRight = flatRight.Unit
+			return direction:Dot(flatRight), direction:Dot(flatForward)
+		end
+	end
+
+	return 0, 0
+end
+
+local function getWishDirection(localX, localForward)
+	if math.abs(localX) < 0.001 and math.abs(localForward) < 0.001 then
+		return Vector3.zero
+	end
+
+	local camera = workspace.CurrentCamera
+	if not camera then
+		return Vector3.zero
+	end
+
+	local forward = Vector3.new(camera.CFrame.LookVector.X, 0, camera.CFrame.LookVector.Z)
+	local right = Vector3.new(camera.CFrame.RightVector.X, 0, camera.CFrame.RightVector.Z)
+	if forward.Magnitude < 0.001 or right.Magnitude < 0.001 then
+		return Vector3.zero
+	end
+
+	local wish = right.Unit * localX + forward.Unit * localForward
+	if wish.Magnitude > 1 then
+		wish = wish.Unit
+	end
+	return wish
+end
+
+local function accelerate(velocity, wishDirection, wishSpeed, acceleration, deltaTime)
+	if wishDirection.Magnitude < 0.001 or wishSpeed <= 0 then
+		return velocity
+	end
+
+	local currentSpeed = velocity:Dot(wishDirection)
+	local addSpeed = wishSpeed - currentSpeed
+	if addSpeed <= 0 then
+		return velocity
+	end
+
+	local accelerationSpeed = math.min(acceleration * wishSpeed * deltaTime, addSpeed)
+	return velocity + wishDirection * accelerationSpeed
+end
+
+local function applyGroundFriction(velocity, deltaTime)
+	local speed = velocity.Magnitude
+	if speed < 0.01 then
+		return Vector3.zero
+	end
+
+	local control = math.max(speed, STOP_SPEED)
+	local newSpeed = math.max(0, speed - control * GROUND_FRICTION * deltaTime)
+	return velocity * (newSpeed / speed)
+end
+
+local function getGroundHit(character, root, humanoid, raycastParams)
+	local castLength = humanoid.HipHeight + root.Size.Y * 0.5 + 0.45
+	return workspace:Raycast(root.Position, Vector3.new(0, -castLength, 0), raycastParams)
 end
 
 local function setupCharacter(character)
-	disconnectCharacterConnections()
+	if currentConnection then
+		currentConnection:Disconnect()
+		currentConnection = nil
+	end
+
+	setFirstPerson()
 	local humanoid = character:WaitForChild("Humanoid")
 	local root = character:WaitForChild("HumanoidRootPart")
+	currentHumanoid = humanoid
 
 	humanoid.UseJumpPower = true
-	humanoid.JumpPower = 50
-	humanoid.WalkSpeed = BASE_WALK_SPEED
+	humanoid.JumpPower = 0 -- jump impulse is applied by this controller
+	humanoid.WalkSpeed = 0 -- default locomotion is replaced by the bhop controller
+	humanoid.AutoRotate = true
 
-	local heartbeatConnection = RunService.Heartbeat:Connect(function(deltaTime)
-		if not character.Parent or humanoid.Health <= 0 then
+	local raycastParams = RaycastParams.new()
+	raycastParams.FilterType = Enum.RaycastFilterType.Exclude
+	raycastParams.FilterDescendantsInstances = { character }
+
+	currentConnection = RunService.PreSimulation:Connect(function(deltaTime)
+		if not character.Parent or humanoid.Health <= 0 or not root.Parent then
 			return
 		end
 
-		-- Segurar espaço ativa auto-hop; humanoid.Jump também respeita o botão touch padrão.
-		if jumpHeld or humanoid.Jump then
-			if humanoid.FloorMaterial ~= Enum.Material.Air then
-				humanoid.Jump = true
+		local localX, localForward = getInputVector(humanoid)
+		local wishDirection = getWishDirection(localX, localForward)
+		local wishSpeed = wishDirection.Magnitude > 0 and GROUND_MAX_SPEED or 0
+		local groundHit = getGroundHit(character, root, humanoid, raycastParams)
+		local grounded = groundHit ~= nil and root.AssemblyLinearVelocity.Y <= 2
+		local surfNormal
+		local onSurf = false
+
+		if groundHit then
+			local hitPart = groundHit.Instance
+			onSurf = hitPart:GetAttribute("SurfSurface") == true
+				or hitPart:GetAttribute("MovementSurface") == "Surf"
+			if onSurf and groundHit.Normal.Y >= SURF_MIN_NORMAL_Y and groundHit.Normal.Y <= SURF_MAX_NORMAL_Y then
+				surfNormal = groundHit.Normal
+			else
+				onSurf = false
 			end
 		end
 
 		local velocity = root.AssemblyLinearVelocity
 		local horizontal = Vector3.new(velocity.X, 0, velocity.Z)
-		local speed = horizontal.Magnitude
+		local wantsJump = jumpHeld or humanoid.Jump or os.clock() <= jumpBufferUntil
 
-		if humanoid.FloorMaterial == Enum.Material.Air then
-			local inputDirection = humanoid.MoveDirection
-			inputDirection = Vector3.new(inputDirection.X, 0, inputDirection.Z)
-
-			if inputDirection.Magnitude > 0.05 then
-				inputDirection = inputDirection.Unit
-				local accelerated = horizontal + inputDirection * AIR_ACCELERATION * deltaTime
-				if accelerated.Magnitude > MAX_AIR_SPEED then
-					accelerated = accelerated.Unit * MAX_AIR_SPEED
-				end
-				horizontal = accelerated
-			else
-				horizontal *= AIR_DRAG
-			end
-
-			root.AssemblyLinearVelocity = Vector3.new(horizontal.X, velocity.Y, horizontal.Z)
-			speed = horizontal.Magnitude
+		-- Momentum-preserving auto-bhop: holding jump skips landing friction and jumps on contact.
+		if grounded and wantsJump then
+			velocity = Vector3.new(velocity.X, JUMP_SPEED, velocity.Z)
+			humanoid.Jump = false
+			jumpBufferUntil = 0
+			horizontal = Vector3.new(velocity.X, 0, velocity.Z)
+			-- A jump leaves the ramp plane; do not project away its upward impulse.
+			onSurf = false
+			surfNormal = nil
+		elseif grounded and not onSurf then
+			horizontal = applyGroundFriction(horizontal, deltaTime)
 		end
 
-		-- Ajuste gradual de velocidade máxima no chão conforme o momentum adquirido.
-		humanoid.WalkSpeed = math.clamp(BASE_WALK_SPEED + math.max(0, speed - BASE_WALK_SPEED) * 0.28, BASE_WALK_SPEED, MAX_WALK_SPEED)
+		if onSurf and surfNormal then
+			-- Surf ramps are ordinary parts tagged with the SurfSurface attribute.
+			-- Project gravity and steering onto the ramp plane to preserve the glide.
+			local fullGravity = Vector3.new(0, -workspace.Gravity, 0)
+			local tangentGravity = fullGravity - surfNormal * fullGravity:Dot(surfNormal)
+			velocity = velocity - surfNormal * velocity:Dot(surfNormal) + tangentGravity * deltaTime
+			local projectedWish = wishDirection - surfNormal * wishDirection:Dot(surfNormal)
+			if projectedWish.Magnitude > 0.001 then
+				velocity = accelerate(velocity, projectedWish.Unit, GROUND_MAX_SPEED, SURF_ACCEL, deltaTime)
+			end
+		elseif grounded then
+			horizontal = accelerate(horizontal, wishDirection, wishSpeed, GROUND_ACCEL, deltaTime)
+			velocity = Vector3.new(horizontal.X, velocity.Y, horizontal.Z)
+		else
+			-- Source-style air acceleration: cap wish speed, not total momentum.
+			local airWishSpeed = math.min(wishSpeed, AIR_WISH_SPEED_CAP)
+			local airVelocity = Vector3.new(velocity.X, 0, velocity.Z)
+			airVelocity = accelerate(airVelocity, wishDirection, airWishSpeed, AIR_ACCEL, deltaTime)
+			airVelocity *= math.max(0, 1 - AIR_DRAG * deltaTime)
+			velocity = Vector3.new(airVelocity.X, velocity.Y, airVelocity.Z)
+		end
+
+		local finalHorizontal = Vector3.new(velocity.X, 0, velocity.Z)
+		if finalHorizontal.Magnitude > MAX_SPEED then
+			finalHorizontal = finalHorizontal.Unit * MAX_SPEED
+		end
+		root.AssemblyLinearVelocity = Vector3.new(finalHorizontal.X, velocity.Y, finalHorizontal.Z)
 	end)
-	table.insert(characterConnections, heartbeatConnection)
+
+	setFirstPerson()
 end
 
-UserInputService.InputBegan:Connect(function(input, processed)
-	if input.KeyCode == Enum.KeyCode.Space then
+UserInputService.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.Keyboard then
+		keysDown[input.KeyCode] = true
+	end
+
+	if input.KeyCode == Enum.KeyCode.Space or input.KeyCode == Enum.KeyCode.ButtonA then
 		jumpHeld = true
+		jumpBufferUntil = os.clock() + JUMP_BUFFER_SECONDS
 	end
 end)
 
 UserInputService.InputEnded:Connect(function(input)
-	if input.KeyCode == Enum.KeyCode.Space then
+	if input.UserInputType == Enum.UserInputType.Keyboard then
+		keysDown[input.KeyCode] = nil
+	end
+
+	if input.KeyCode == Enum.KeyCode.Space or input.KeyCode == Enum.KeyCode.ButtonA then
 		jumpHeld = false
 	end
 end)
 
+-- Enforce first person again if the character respawns or camera scripts reset.
 player.CharacterAdded:Connect(setupCharacter)
 if player.Character then
 	task.spawn(setupCharacter, player.Character)
 end
-]]></ProtectedString></Properties></Item><Item class="LocalScript" referent="RBXF17916BF7AA545CA97E64F7302B91FB1"><Properties><string name="Name">BhopHUD</string><bool name="Disabled">false</bool><ProtectedString name="Source"><![CDATA[-- HUD: velocidade, tempo da tentativa, checkpoint, recorde e botão de reset.
+]]></ProtectedString></Properties></Item><Item class="LocalScript" referent="RBXBCDAF459230543998582EE6BFE2945E3"><Properties><bool name="Disabled">false</bool><string name="Name">BhopHUD</string><ProtectedString name="Source"><![CDATA[-- HUD: velocidade, tempo da tentativa, checkpoint, recorde e botão de reset.
 -- Coloque como LocalScript em StarterPlayer > StarterPlayerScripts.
 
 local Players = game:GetService("Players")
@@ -361,6 +530,20 @@ gui.Name = "BhopHUD"
 gui.ResetOnSpawn = false
 gui.IgnoreGuiInset = true
 gui.Parent = playerGui
+
+-- Mira discreta para orientar a câmera em primeira pessoa.
+local crosshair = Instance.new("Frame")
+crosshair.Name = "Crosshair"
+crosshair.AnchorPoint = Vector2.new(0.5, 0.5)
+crosshair.Position = UDim2.fromScale(0.5, 0.5)
+crosshair.Size = UDim2.fromOffset(5, 5)
+crosshair.BackgroundColor3 = Color3.fromRGB(245, 250, 255)
+crosshair.BorderSizePixel = 0
+crosshair.ZIndex = 10
+crosshair.Parent = gui
+local crosshairCorner = Instance.new("UICorner")
+crosshairCorner.CornerRadius = UDim.new(1, 0)
+crosshairCorner.Parent = crosshair
 
 local panel = Instance.new("Frame")
 panel.Name = "StatsPanel"
@@ -469,14 +652,14 @@ RunService.RenderStepped:Connect(function()
 	local best = player:GetAttribute("BestTime") or 0
 	bestLabel.Text = best > 0 and ("Recorde: " .. formatTime(best)) or "Toque na plataforma azul para iniciar"
 end)
-]]></ProtectedString></Properties></Item><Item class="LocalScript" referent="RBX5071A93DBEEF451190829CDE91447EB7"><Properties><string name="Name">MovementFX</string><bool name="Disabled">false</bool><ProtectedString name="Source"><![CDATA[-- Feedback visual leve de velocidade: FOV responsivo e balanço suave da câmera.
+]]></ProtectedString></Properties></Item><Item class="LocalScript" referent="RBX35A56D703E1949BFA177B2F205E06B25"><Properties><bool name="Disabled">false</bool><string name="Name">MovementFX</string><ProtectedString name="Source"><![CDATA[-- Feedback visual leve de velocidade: FOV responsivo e balanço suave da câmera.
 -- Coloque como LocalScript em StarterPlayer > StarterPlayerScripts.
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
 local player = Players.LocalPlayer
-local BASE_FOV = 70
+local BASE_FOV = 82
 local MAX_EXTRA_FOV = 12
 local OFFSET_STRENGTH = 0.12
 
@@ -513,7 +696,7 @@ player.CharacterAdded:Connect(bindCharacter)
 if player.Character then
 	task.spawn(bindCharacter, player.Character)
 end
-]]></ProtectedString></Properties></Item><Item class="LocalScript" referent="RBXD929D88E107C4FF9B165961D99B07504"><Properties><string name="Name">BhopAnimations</string><bool name="Disabled">false</bool><ProtectedString name="Source"><![CDATA[-- Opcional: animações próprias de salto e aterrissagem.
+]]></ProtectedString></Properties></Item><Item class="LocalScript" referent="RBXDAE647C319B04F7EAA78812B3469D64F"><Properties><bool name="Disabled">false</bool><string name="Name">BhopAnimations</string><ProtectedString name="Source"><![CDATA[-- Opcional: animações próprias de salto e aterrissagem.
 -- Antes de usar, publique animações criadas por você e preencha os IDs abaixo.
 -- Coloque como LocalScript em StarterPlayer > StarterPlayerScripts.
 
@@ -561,8 +744,8 @@ player.CharacterAdded:Connect(setup)
 if player.Character then
 	task.spawn(setup, player.Character)
 end
-]]></ProtectedString></Properties></Item></Item><Item class="StarterCharacterScripts" referent="RBX7F1DD93DE27E47F9979D0BF1F7B2E531"><Properties><string name="Name">StarterCharacterScripts</string></Properties></Item></Item>
-<Item class="Teams" referent="RBX60F6717420FC485EA64AF0692604093C"><Properties><string name="Name">Teams</string></Properties></Item>
-<Item class="SoundService" referent="RBXF818C0E077904B9C82802DE9A2E8B2E9"><Properties><string name="Name">SoundService</string></Properties></Item>
-<Item class="TextChatService" referent="RBX8D3F0A9348B84716990263B315236E15"><Properties><string name="Name">TextChatService</string></Properties></Item>
+]]></ProtectedString></Properties></Item></Item><Item class="StarterCharacterScripts" referent="RBX41912E10A3234CC6809C82E655DCFF64"><Properties><string name="Name">StarterCharacterScripts</string></Properties></Item></Item>
+<Item class="Teams" referent="RBX85FC0E95B79942A191757B41B37B3919"><Properties><string name="Name">Teams</string></Properties></Item>
+<Item class="SoundService" referent="RBX337B8770E5DE4306AA7375D068CFDC86"><Properties><string name="Name">SoundService</string></Properties></Item>
+<Item class="TextChatService" referent="RBXED991D44FAD34661AB4FD90B4D711D9F"><Properties><string name="Name">TextChatService</string></Properties></Item>
 </roblox>

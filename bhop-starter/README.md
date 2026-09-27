@@ -11,26 +11,33 @@ Também é possível reconstruir o `.rbxlx` a partir das pastas de código com R
 ## O que vem pronto
 
 - Pista de treino em zigue-zague gerada no servidor, com 24 plataformas.
-- Bunny hop ao segurar Espaço e aceleração direcional no ar.
+- Câmera travada em primeira pessoa, com mira central discreta.
+- Movimento bhop com atrito/aceleração no chão, air-strafe, momentum, pulo automático e buffer de pulo.
+- Física de surf habilitável em rampas marcadas com o atributo `SurfSurface = true` ou `MovementSurface = "Surf"`.
 - Checkpoints verdes, início azul, chegada amarela e retorno ao último checkpoint ao cair.
 - Cronômetro de tentativa, velocidade, checkpoint e recorde da sessão no HUD.
 - Botão **RESET** e tecla **R**.
 - Feedback visual procedural de velocidade (FOV e balanço leve da câmera).
 - Suporte opcional a animações de salto/aterrissagem criadas e publicadas por você.
 
-> O recorde atual fica na sessão e não é salvo entre sessões. A física é um ponto de partida: teste e ajuste os valores para o ritmo que você quer.
+> O recorde atual fica na sessão e não é salvo entre sessões. O foco é reproduzir a sensação central de movimento (primeira pessoa, bhop, air-strafe e momentum) com física própria; não é uma cópia integral de menus, mapas, cosméticos ou progressão do Bhop Pro. A física precisa ser testada e ajustada no Roblox Studio.
 
-## Como instalar no Roblox Studio
+## Como abrir e testar
 
-1. Crie uma experiência nova no Roblox Studio (o modelo **Baseplate** serve). Para abrir o **Explorador**, procure a opção **Janela > Explorador** ou o botão **Explorador** na aba **Início**. Para mostrar o painel de erros, procure **Janela > Saída**. Dependendo da versão/idioma, esses itens podem aparecer como *Window*, *Explorer* e *Output*.
-2. No **Explorador**, apague a peça `Baseplate` para ela não ficar sob a pista. O script cria o próprio ponto de spawn. Os nomes dos serviços e pastas do Roblox, como `ServerScriptService` e `StarterPlayer`, normalmente continuam em inglês.
-3. No **Explorador**, encontre `ServerScriptService`, passe o mouse sobre ele e clique no botão **+**. Insira um **Script**, renomeie para `BhopGame` e cole o conteúdo de [`ServerScriptService/BhopGame.server.lua`](ServerScriptService/BhopGame.server.lua).
-4. Encontre `StarterPlayer > StarterPlayerScripts`. Clique no **+** de `StarterPlayerScripts` e insira três **Scripts locais** (podem aparecer como *LocalScript*), com estes nomes e conteúdos:
-   - `BhopController` ← [`StarterPlayerScripts/BhopController.client.lua`](StarterPlayerScripts/BhopController.client.lua)
-   - `BhopHUD` ← [`StarterPlayerScripts/BhopHUD.client.lua`](StarterPlayerScripts/BhopHUD.client.lua)
-   - `MovementFX` ← [`StarterPlayerScripts/MovementFX.client.lua`](StarterPlayerScripts/MovementFX.client.lua)
-5. Clique no botão **Executar** (ícone ▶; em algumas versões ainda aparece como *Play*). A pista será criada automaticamente. Use WASD, mouse e Espaço. Toque na faixa azul para iniciar o tempo; R/RESET retorna ao checkpoint.
-6. Para testar com várias pessoas, abra a aba **Teste** e escolha **Iniciar** ou **Iniciar servidor** com 2 ou mais jogadores (o texto pode variar um pouco entre versões). A pista é compartilhada; cada jogador tem seu próprio tempo e checkpoint.
+1. No Studio, escolha **Arquivo > Abrir do arquivo...** e selecione `BhopStarter.rbxlx`.
+2. Clique em **Executar** (ícone ▶; pode aparecer como *Play*). A câmera fica travada em primeira pessoa e a pista é criada ao iniciar.
+3. Corra até a faixa azul para iniciar o cronômetro. Segure Espaço para encadear pulos e use A/D junto com a rotação do mouse para fazer air-strafe.
+4. Para testar com várias pessoas, abra a aba **Teste** e escolha **Iniciar** ou **Iniciar servidor** com 2 ou mais jogadores.
+5. Para publicar na sua conta, escolha **Arquivo > Publicar no Roblox como...** e crie/selecione uma experiência.
+
+### Instalação manual (alternativa)
+
+Se preferir inserir os scripts em uma experiência existente, abra **Janela > Explorador** (ou o botão **Explorador** na aba **Início**) e **Janela > Saída**. Em algumas versões/idiomas, esses itens podem aparecer como *Window*, *Explorer* e *Output*.
+
+- Em `ServerScriptService`, crie um **Script** chamado `BhopGame` e cole [`ServerScriptService/BhopGame.server.lua`](ServerScriptService/BhopGame.server.lua).
+- Em `StarterPlayer > StarterPlayerScripts`, crie **Scripts locais** para `BhopController`, `BhopHUD` e `MovementFX`, usando os arquivos correspondentes em [`StarterPlayerScripts`](StarterPlayerScripts).
+- Para usar animações próprias, adicione também `BhopAnimations` conforme a seção abaixo.
+- Os nomes dos serviços e pastas, como `ServerScriptService` e `StarterPlayer`, normalmente continuam em inglês no Explorador.
 
 ### Controles
 
@@ -52,9 +59,13 @@ O Roblox já aplica animações padrão de avatar. O arquivo `MovementFX` dá se
 
 Não incluí IDs fictícios: animações publicadas são assets vinculados à conta/grupo e precisam ser criadas/publicadas pelo desenvolvedor.
 
-## Ajustes de dificuldade
+## Física e rampas de surf
 
-Em `BhopGame.server.lua`, altere `COURSE_PARTS` e `SPACING` para mudar a extensão e os vãos da pista. Em `BhopController.client.lua`, os valores `AIR_ACCELERATION`, `MAX_AIR_SPEED`, `BASE_WALK_SPEED` e `MAX_WALK_SPEED` controlam aceleração e velocidade. `MovementFX.client.lua` controla o FOV e o balanço visual.
+Em `BhopController.client.lua`, os valores `GROUND_MAX_SPEED`, `GROUND_ACCEL`, `GROUND_FRICTION`, `AIR_ACCEL`, `AIR_WISH_SPEED_CAP`, `JUMP_SPEED` e `MAX_SPEED` definem a sensação do movimento. Segurar Espaço conserva o momentum ao aterrissar; A/D e a rotação da câmera mudam a direção do air-strafe.
+
+Para marcar uma rampa como superfície de surf, selecione a peça no **Explorador**, abra **Propriedades > Atributos**, adicione um atributo booleano `SurfSurface` com valor `true` (ou um atributo string `MovementSurface` com valor `Surf`). Use uma rampa inclinada; a física projeta gravidade e direção de controle sobre o plano da superfície enquanto o jogador está sobre ela.
+
+Em `BhopGame.server.lua`, altere `COURSE_PARTS` e `SPACING` para mudar a extensão e os vãos da pista. `MovementFX.client.lua` controla o FOV e o balanço visual.
 
 ## Observações
 

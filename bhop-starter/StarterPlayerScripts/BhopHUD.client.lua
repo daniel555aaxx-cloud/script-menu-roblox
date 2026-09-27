@@ -16,6 +16,20 @@ gui.ResetOnSpawn = false
 gui.IgnoreGuiInset = true
 gui.Parent = playerGui
 
+-- Mira discreta para orientar a câmera em primeira pessoa.
+local crosshair = Instance.new("Frame")
+crosshair.Name = "Crosshair"
+crosshair.AnchorPoint = Vector2.new(0.5, 0.5)
+crosshair.Position = UDim2.fromScale(0.5, 0.5)
+crosshair.Size = UDim2.fromOffset(5, 5)
+crosshair.BackgroundColor3 = Color3.fromRGB(245, 250, 255)
+crosshair.BorderSizePixel = 0
+crosshair.ZIndex = 10
+crosshair.Parent = gui
+local crosshairCorner = Instance.new("UICorner")
+crosshairCorner.CornerRadius = UDim.new(1, 0)
+crosshairCorner.Parent = crosshair
+
 local panel = Instance.new("Frame")
 panel.Name = "StatsPanel"
 panel.AnchorPoint = Vector2.new(0.5, 0)

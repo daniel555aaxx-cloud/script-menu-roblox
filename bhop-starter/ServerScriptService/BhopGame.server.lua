@@ -196,6 +196,10 @@ local function setupPlayer(player)
 	best.Parent = leaderstats
 
 	player.CharacterAdded:Connect(function(character)
+		local humanoid = character:WaitForChild("Humanoid")
+		humanoid.UseJumpPower = true
+		humanoid.WalkSpeed = 0
+		humanoid.JumpPower = 0
 		task.wait(0.2)
 		if not checkpointForPlayer[player] then
 			checkpointForPlayer[player] = startPoint

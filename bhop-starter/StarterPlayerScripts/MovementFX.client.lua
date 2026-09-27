@@ -5,7 +5,7 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
 local player = Players.LocalPlayer
-local BASE_FOV = 70
+local BASE_FOV = 82
 local MAX_EXTRA_FOV = 12
 local OFFSET_STRENGTH = 0.12
 
