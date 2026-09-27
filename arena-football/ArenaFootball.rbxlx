@@ -1,0 +1,910 @@
+<?xml version="1.0" encoding="utf-8"?>
+<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd" version="4">
+<External>null</External><External>nil</External>
+<Item class="Workspace" referent="RBX02943F56229948BD9B1C607BC4CEC789"><Properties><string name="Name">Workspace</string></Properties></Item>
+<Item class="Players" referent="RBX632C6B6FA5E84AD9BE0DFEDFFCB06654"><Properties><string name="Name">Players</string></Properties></Item>
+<Item class="Lighting" referent="RBX5FDC4FC073224898BE84E35D87050E55"><Properties><string name="Name">Lighting</string></Properties></Item>
+<Item class="ReplicatedStorage" referent="RBX7EABEF5BD29E450DAB879DB32FE9C4F1"><Properties><string name="Name">ReplicatedStorage</string></Properties></Item>
+<Item class="ServerScriptService" referent="RBX87C30152E90644C88B555C67BFBB0F8B"><Properties><string name="Name">ServerScriptService</string></Properties><Item class="Script" referent="RBXADA1DE6FBDC34903BB1DDDE00FDAF85B"><Properties><bool name="Disabled">false</bool><string name="Name">Match</string><ProtectedString name="Source"><![CDATA[-- ARENA FOOTBALL: original small-sided football prototype for Roblox.
+-- Server-owned match, ball, score, goals, stamina and action validation.
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Teams = game:GetService("Teams")
+local RunService = game:GetService("RunService")
+local Lighting = game:GetService("Lighting")
+
+local MATCH_SECONDS = 180
+local HOME_NAME = "RUBRO FC"
+local AWAY_NAME = "AZUL FC"
+local HOME_SPEED = 18
+local SPRINT_SPEED = 26
+local STAMINA_DRAIN = 26
+local STAMINA_RECOVER = 18
+
+local remotes = ReplicatedStorage:FindFirstChild("FootballRemotes") or Instance.new("Folder")
+remotes.Name = "FootballRemotes"
+remotes.Parent = ReplicatedStorage
+
+local actionEvent = remotes:FindFirstChild("Action") or Instance.new("RemoteEvent")
+actionEvent.Name = "Action"
+actionEvent.Parent = remotes
+local sprintEvent = remotes:FindFirstChild("Sprint") or Instance.new("RemoteEvent")
+sprintEvent.Name = "Sprint"
+sprintEvent.Parent = remotes
+
+local function makePart(parent, name, size, position, color, material, anchored, canCollide)
+	local part = Instance.new("Part")
+	part.Name = name
+	part.Size = size
+	part.Position = position
+	part.Color = color
+	part.Material = material or Enum.Material.SmoothPlastic
+	part.Anchored = anchored ~= false
+	part.CanCollide = canCollide ~= false
+	part.TopSurface = Enum.SurfaceType.Smooth
+	part.BottomSurface = Enum.SurfaceType.Smooth
+	part.Parent = parent
+	return part
+end
+
+local function makeLine(parent, name, size, position)
+	local line = makePart(parent, name, size, position, Color3.fromRGB(238, 246, 235), Enum.Material.SmoothPlastic, true, false)
+	line.CastShadow = false
+	return line
+end
+
+-- Build an original compact stadium and pitch.
+local previous = workspace:FindFirstChild("ArenaFootball")
+if previous then
+	previous:Destroy()
+end
+local stadium = Instance.new("Folder")
+stadium.Name = "ArenaFootball"
+stadium.Parent = workspace
+
+Lighting.ClockTime = 17.2
+Lighting.Brightness = 2.2
+Lighting.Ambient = Color3.fromRGB(115, 126, 145)
+Lighting.OutdoorAmbient = Color3.fromRGB(140, 150, 165)
+
+makePart(stadium, "Pitch", Vector3.new(108, 2, 168), Vector3.new(0, -1, 0), Color3.fromRGB(36, 128, 65), Enum.Material.Grass, true, true)
+makePart(stadium, "CenterLine", Vector3.new(0.18, 0.08, 164), Vector3.new(0, 0.06, 0), Color3.fromRGB(242, 246, 238), Enum.Material.SmoothPlastic, true, false)
+makeLine(stadium, "TouchlineNorth", Vector3.new(100, 0.08, 0.18), Vector3.new(0, 0.06, -78))
+makeLine(stadium, "TouchlineSouth", Vector3.new(100, 0.08, 0.18), Vector3.new(0, 0.06, 78))
+makeLine(stadium, "GoalLineWest", Vector3.new(0.18, 0.08, 156), Vector3.new(-49, 0.06, 0))
+makeLine(stadium, "GoalLineEast", Vector3.new(0.18, 0.08, 156), Vector3.new(49, 0.06, 0))
+local centerSpot = makePart(stadium, "CenterSpot", Vector3.new(0.08, 0.8, 0.8), Vector3.new(0, 0.08, 0), Color3.fromRGB(242, 246, 238), Enum.Material.SmoothPlastic, true, false)
+centerSpot.Shape = Enum.PartType.Cylinder
+centerSpot.CFrame = CFrame.new(0, 0.08, 0) * CFrame.Angles(0, 0, math.pi / 2)
+
+-- Thin segments form a clean painted center circle.
+for i = 1, 40 do
+	local angle = ((i - 0.5) / 40) * math.pi * 2
+	local x = math.cos(angle) * 12
+	local z = math.sin(angle) * 12
+	local segment = makeLine(stadium, ("CenterCircle_%02d"):format(i), Vector3.new(0.18, 0.08, 1.9), Vector3.new(x, 0.07, z))
+	segment.CFrame = CFrame.lookAt(Vector3.new(x, 0.07, z), Vector3.new(x - math.sin(angle), 0.07, z + math.cos(angle)))
+end
+
+local function drawBox(name, zCenter, depth)
+	local halfWidth = 20
+	local innerZ = zCenter > 0 and zCenter - depth / 2 or zCenter + depth / 2
+	local outerZ = zCenter > 0 and zCenter + depth / 2 or zCenter - depth / 2
+	makeLine(stadium, name .. "_Left", Vector3.new(0.18, 0.08, depth), Vector3.new(-halfWidth, 0.07, zCenter))
+	makeLine(stadium, name .. "_Right", Vector3.new(0.18, 0.08, depth), Vector3.new(halfWidth, 0.07, zCenter))
+	makeLine(stadium, name .. "_Front", Vector3.new(halfWidth * 2, 0.08, 0.18), Vector3.new(0, 0.07, innerZ))
+	makeLine(stadium, name .. "_Back", Vector3.new(halfWidth * 2, 0.08, 0.18), Vector3.new(0, 0.07, outerZ))
+end
+
+drawBox("NorthPenaltyArea", 66, 24)
+drawBox("SouthPenaltyArea", -66, 24)
+drawBox("NorthGoalArea", 74, 10)
+drawBox("SouthGoalArea", -74, 10)
+
+local postColor = Color3.fromRGB(242, 245, 240)
+local function makeGoal(prefix, z)
+	local backZ = z > 0 and z + 7 or z - 7
+	for _, side in ipairs({-1, 1}) do
+		makePart(stadium, prefix .. "Post" .. side, Vector3.new(0.8, 8, 0.8), Vector3.new(side * 10, 4, z), postColor, Enum.Material.Metal, true, true)
+		makePart(stadium, prefix .. "NetSide" .. side, Vector3.new(0.18, 7.8, 7), Vector3.new(side * 10, 4, (z + backZ) / 2), Color3.fromRGB(205, 214, 220), Enum.Material.Fabric, true, false).Transparency = 0.55
+	end
+	makePart(stadium, prefix .. "Crossbar", Vector3.new(20.8, 0.8, 0.8), Vector3.new(0, 8, z), postColor, Enum.Material.Metal, true, true)
+	makePart(stadium, prefix .. "NetBack", Vector3.new(20, 7.8, 0.18), Vector3.new(0, 4, backZ), Color3.fromRGB(210, 220, 225), Enum.Material.Fabric, true, false).Transparency = 0.55
+	for i = -4, 4 do
+		makeLine(stadium, prefix .. "NetCordX" .. i, Vector3.new(0.08, 7.5, 0.08), Vector3.new(i * 2, 4, backZ - (z > 0 and 0.2 or -0.2)))
+	end
+	for i = 1, 3 do
+		makeLine(stadium, prefix .. "NetCordY" .. i, Vector3.new(20, 0.08, 0.08), Vector3.new(0, i * 1.8, backZ - (z > 0 and 0.2 or -0.2)))
+	end
+
+	local goalTrigger = makePart(stadium, prefix .. "GoalTrigger", Vector3.new(19, 7.4, 5), Vector3.new(0, 4, z + (z > 0 and 2.7 or -2.7)), Color3.new(1, 1, 1), Enum.Material.SmoothPlastic, true, false)
+	goalTrigger.Transparency = 1
+	goalTrigger.CanTouch = true
+	return goalTrigger
+end
+
+-- Rubro attacks the north (+Z) goal; Azul attacks the south (-Z) goal.
+local northGoal = makeGoal("NorthGoal", 80)
+local southGoal = makeGoal("SouthGoal", -80)
+
+-- Simple grandstands, floodlight poles and invisible boundaries.
+for _, side in ipairs({-1, 1}) do
+	for row = 1, 3 do
+		local x = side * (58 + row * 4)
+		local stand = makePart(stadium, ("SideStand_%d_%d"):format(side, row), Vector3.new(7, 5 + row * 2, 142), Vector3.new(x, 2 + row * 1.4, 0), (row % 2 == 0) and Color3.fromRGB(36, 51, 76) or Color3.fromRGB(47, 63, 89), Enum.Material.Metal, true, true)
+		stand.CastShadow = true
+	end
+	local pole = makePart(stadium, "FloodlightPole_" .. side, Vector3.new(1.2, 34, 1.2), Vector3.new(side * 76, 17, 0), Color3.fromRGB(47, 54, 67), Enum.Material.Metal, true, true)
+	local lamp = makePart(stadium, "Floodlight_" .. side, Vector3.new(12, 1, 3), Vector3.new(side * 76, 35, 0), Color3.fromRGB(255, 244, 203), Enum.Material.Neon, true, false)
+	local pointLight = Instance.new("PointLight")
+	pointLight.Brightness = 2.5
+	pointLight.Range = 80
+	pointLight.Color = Color3.fromRGB(255, 241, 208)
+	pointLight.Parent = lamp
+	pole.CastShadow = true
+end
+for _, z in ipairs({-94, 94}) do
+	for row = 1, 2 do
+		makePart(stadium, "EndStand_" .. z .. "_" .. row, Vector3.new(112, 7, 6), Vector3.new(0, row * 3, z + row * (z > 0 and 5 or -5)), Color3.fromRGB(40, 55, 81), Enum.Material.Metal, true, true)
+	end
+end
+makePart(stadium, "BoundaryWest", Vector3.new(1, 12, 190), Vector3.new(-56, 5, 0), Color3.new(1, 1, 1), Enum.Material.SmoothPlastic, true, true).Transparency = 1
+makePart(stadium, "BoundaryEast", Vector3.new(1, 12, 190), Vector3.new(56, 5, 0), Color3.new(1, 1, 1), Enum.Material.SmoothPlastic, true, true).Transparency = 1
+makePart(stadium, "BoundaryNorth", Vector3.new(112, 12, 1), Vector3.new(0, 5, 101), Color3.new(1, 1, 1), Enum.Material.SmoothPlastic, true, true).Transparency = 1
+makePart(stadium, "BoundarySouth", Vector3.new(112, 12, 1), Vector3.new(0, 5, -101), Color3.new(1, 1, 1), Enum.Material.SmoothPlastic, true, true).Transparency = 1
+
+local ball = Instance.new("Part")
+ball.Name = "MatchBall"
+ball.Shape = Enum.PartType.Ball
+ball.Size = Vector3.new(2.2, 2.2, 2.2)
+ball.Position = Vector3.new(0, 1.25, 0)
+ball.Color = Color3.fromRGB(248, 248, 236)
+ball.Material = Enum.Material.SmoothPlastic
+ball.CustomPhysicalProperties = PhysicalProperties.new(0.72, 0.46, 0.42, 1, 1)
+ball.Anchored = false
+ball.CanCollide = true
+ball.CanTouch = true
+ball.Parent = stadium
+ball:SetAttribute("PossessorUserId", 0)
+ball:SetNetworkOwner(nil)
+
+-- Teams.
+for _, name in ipairs({"RUBRO FC", "AZUL FC"}) do
+	local oldTeam = Teams:FindFirstChild(name)
+	if oldTeam then oldTeam:Destroy() end
+end
+local homeTeam = Instance.new("Team")
+homeTeam.Name = HOME_NAME
+homeTeam.TeamColor = BrickColor.new("Bright red")
+homeTeam.AutoAssignable = false
+homeTeam.Parent = Teams
+local awayTeam = Instance.new("Team")
+awayTeam.Name = AWAY_NAME
+awayTeam.TeamColor = BrickColor.new("Bright blue")
+awayTeam.AutoAssignable = false
+awayTeam.Parent = Teams
+
+local function addTeamSpawn(name, team, position)
+	local spawn = Instance.new("SpawnLocation")
+	spawn.Name = name
+	spawn.Size = Vector3.new(8, 1, 8)
+	spawn.Position = position
+	spawn.Anchored = true
+	spawn.Neutral = false
+	spawn.TeamColor = team.TeamColor
+	spawn.Duration = 0
+	spawn.Transparency = 1
+	spawn.Parent = stadium
+end
+addTeamSpawn("RubroSpawn", homeTeam, Vector3.new(0, 0.5, -42))
+addTeamSpawn("AzulSpawn", awayTeam, Vector3.new(0, 0.5, 42))
+
+workspace:SetAttribute("HomeName", HOME_NAME)
+workspace:SetAttribute("AwayName", AWAY_NAME)
+workspace:SetAttribute("HomeScore", 0)
+workspace:SetAttribute("AwayScore", 0)
+workspace:SetAttribute("MatchDuration", MATCH_SECONDS)
+workspace:SetAttribute("MatchStartedAt", 0)
+workspace:SetAttribute("MatchEnded", false)
+workspace:SetAttribute("BallCarrierUserId", 0)
+workspace:SetAttribute("LastGoalMessage", "")
+workspace:SetAttribute("GoalSequence", 0)
+
+local possessor = nil
+local pickupBlockedUntil = 0
+local goalDebounceUntil = 0
+local actionCooldowns = {}
+local sprintRequested = {}
+local stamina = {}
+local playerSpawnSequence = 0
+
+local function getRoot(player)
+	local character = player.Character
+	if not character then return nil end
+	local humanoid = character:FindFirstChildOfClass("Humanoid")
+	local root = character:FindFirstChild("HumanoidRootPart")
+	if not humanoid or humanoid.Health <= 0 or not root then return nil end
+	return root
+end
+
+local function setPossessor(player)
+	possessor = player
+	ball:SetAttribute("PossessorUserId", player and player.UserId or 0)
+	workspace:SetAttribute("BallCarrierUserId", player and player.UserId or 0)
+	if player then
+		ball.Anchored = true
+		ball.CanCollide = false
+		ball.AssemblyLinearVelocity = Vector3.zero
+		ball.AssemblyAngularVelocity = Vector3.zero
+	else
+		ball.Anchored = false
+		ball.CanCollide = true
+		pcall(function() ball:SetNetworkOwner(nil) end)
+	end
+end
+
+local function detachBall()
+	possessor = nil
+	ball:SetAttribute("PossessorUserId", 0)
+	workspace:SetAttribute("BallCarrierUserId", 0)
+	ball.Anchored = false
+	ball.CanCollide = true
+	pcall(function() ball:SetNetworkOwner(nil) end)
+end
+
+local function findPassTarget(player)
+	local root = getRoot(player)
+	if not root then return nil end
+	local forward = root.CFrame.LookVector
+	local bestPlayer, bestScore = nil, -math.huge
+	for _, candidate in ipairs(Players:GetPlayers()) do
+		if candidate ~= player and candidate.Team == player.Team then
+			local targetRoot = getRoot(candidate)
+			if targetRoot then
+				local offset = targetRoot.Position - ball.Position
+				local distance = offset.Magnitude
+				if distance <= 62 and distance > 1 then
+					local alignment = forward:Dot(offset.Unit)
+					local score = alignment * 36 - distance * 0.22
+					if alignment > -0.05 and score > bestScore then
+						bestPlayer, bestScore = candidate, score
+					end
+				end
+			end
+		end
+	end
+	return bestPlayer
+end
+
+local function validAim(aim)
+	if typeof(aim) ~= "Vector3" or aim.Magnitude < 0.1 then return nil end
+	local horizontal = Vector3.new(aim.X, 0, aim.Z)
+	if horizontal.Magnitude < 0.1 then return nil end
+	return horizontal.Unit, math.clamp(aim.Y, -0.2, 0.7)
+end
+
+local function releaseShot(player, aim, charge)
+	local root = getRoot(player)
+	local direction, lift = validAim(aim)
+	if not root or not direction then return end
+	charge = typeof(charge) == "number" and math.clamp(charge, 0, 1) or 0.25
+
+	local origin = (root.CFrame * CFrame.new(0, -1.2, -3.1)).Position
+	detachBall()
+	ball.CFrame = CFrame.new(origin)
+	ball.AssemblyLinearVelocity = direction * (82 + charge * 82) + Vector3.new(0, 12 + charge * 26 + lift * 14, 0)
+	ball.AssemblyAngularVelocity = Vector3.new(12, 18, -9)
+	pickupBlockedUntil = os.clock() + 0.55
+end
+
+local function scoreGoal(scoringTeam)
+	if os.clock() < goalDebounceUntil or workspace:GetAttribute("MatchEnded") then return end
+	goalDebounceUntil = os.clock() + 2.2
+	if scoringTeam == homeTeam then
+		workspace:SetAttribute("HomeScore", (workspace:GetAttribute("HomeScore") or 0) + 1)
+		workspace:SetAttribute("LastGoalMessage", "GOL DO RUBRO FC!")
+	else
+		workspace:SetAttribute("AwayScore", (workspace:GetAttribute("AwayScore") or 0) + 1)
+		workspace:SetAttribute("LastGoalMessage", "GOL DO AZUL FC!")
+	end
+	workspace:SetAttribute("GoalSequence", (workspace:GetAttribute("GoalSequence") or 0) + 1)
+
+	setPossessor(nil)
+	ball.Anchored = true
+	ball.CanCollide = false
+	ball.CFrame = CFrame.new(0, 1.25, 0)
+	ball.AssemblyLinearVelocity = Vector3.zero
+	ball.AssemblyAngularVelocity = Vector3.zero
+	pickupBlockedUntil = os.clock() + 1.4
+	task.delay(1.25, function()
+		if ball and ball.Parent and not workspace:GetAttribute("MatchEnded") then
+			ball.Anchored = false
+			ball.CanCollide = true
+			pcall(function() ball:SetNetworkOwner(nil) end)
+		end
+	end)
+end
+
+northGoal.Touched:Connect(function(hit)
+	if hit == ball then scoreGoal(homeTeam) end
+end)
+southGoal.Touched:Connect(function(hit)
+	if hit == ball then scoreGoal(awayTeam) end
+end)
+
+local function assignTeam(player)
+	local homeCount, awayCount = 0, 0
+	for _, member in ipairs(Players:GetPlayers()) do
+		if member ~= player then
+			if member.Team == homeTeam then homeCount += 1 end
+			if member.Team == awayTeam then awayCount += 1 end
+		end
+	end
+	player.Team = homeCount <= awayCount and homeTeam or awayTeam
+end
+
+local function setupPlayer(player)
+	assignTeam(player)
+	stamina[player] = 100
+	sprintRequested[player] = false
+	player:SetAttribute("Stamina", 100)
+	player:SetAttribute("ShotCharge", 0)
+
+	local function setupCharacter(character)
+		local humanoid = character:WaitForChild("Humanoid")
+		humanoid.WalkSpeed = HOME_SPEED
+		humanoid.UseJumpPower = true
+		humanoid.JumpPower = 38
+		playerSpawnSequence += 1
+		local sequence = playerSpawnSequence
+		task.wait(0.1)
+		local x = ((sequence - 1) % 5 - 2) * 5
+		local isHome = player.Team == homeTeam
+		local z = isHome and -42 or 42
+		local yaw = isHome and math.pi or 0
+		if character.Parent then
+			character:PivotTo(CFrame.new(x, 3, z) * CFrame.Angles(0, yaw, 0))
+		end
+	end
+	player.CharacterAdded:Connect(setupCharacter)
+	if player.Character then
+		task.spawn(setupCharacter, player.Character)
+	end
+
+	if workspace:GetAttribute("MatchStartedAt") == 0 then
+		workspace:SetAttribute("MatchStartedAt", workspace:GetServerTimeNow())
+	end
+end
+
+Players.PlayerAdded:Connect(setupPlayer)
+for _, player in ipairs(Players:GetPlayers()) do
+	setupPlayer(player)
+end
+
+Players.PlayerRemoving:Connect(function(player)
+	if possessor == player then
+		setPossessor(nil)
+	end
+	actionCooldowns[player] = nil
+	sprintRequested[player] = nil
+	stamina[player] = nil
+end)
+
+sprintEvent.OnServerEvent:Connect(function(player, active)
+	if typeof(active) == "boolean" then
+		sprintRequested[player] = active
+	end
+end)
+
+actionEvent.OnServerEvent:Connect(function(player, action, aim, charge)
+	if typeof(action) ~= "string" or workspace:GetAttribute("MatchEnded") then return end
+	local now = os.clock()
+	if actionCooldowns[player] and now - actionCooldowns[player] < 0.18 then return end
+
+	if action == "Shoot" then
+		if possessor ~= player then return end
+		actionCooldowns[player] = now
+		releaseShot(player, aim, charge)
+	elseif action == "Pass" then
+		if possessor ~= player then return end
+		local root = getRoot(player)
+		if not root then return end
+		actionCooldowns[player] = now
+		local target = findPassTarget(player)
+		local direction
+		if target and getRoot(target) then
+			direction = (getRoot(target).Position - ball.Position).Unit
+		else
+			direction = root.CFrame.LookVector
+		end
+		detachBall()
+		ball.CFrame = CFrame.new((root.CFrame * CFrame.new(0, -1.2, -3)).Position)
+		ball.AssemblyLinearVelocity = Vector3.new(direction.X, 0, direction.Z).Unit * 72 + Vector3.new(0, 8, 0)
+		ball.AssemblyAngularVelocity = Vector3.new(7, 10, -5)
+		pickupBlockedUntil = now + 0.35
+	elseif action == "Tackle" then
+		if possessor == player or not possessor or player.Team == possessor.Team then return end
+		local root = getRoot(player)
+		local targetRoot = getRoot(possessor)
+		if root and targetRoot and (root.Position - ball.Position).Magnitude <= 8 then
+			actionCooldowns[player] = now
+			local direction = root.CFrame.LookVector
+			setPossessor(player)
+			pickupBlockedUntil = now + 0.15
+		end
+	end
+end)
+
+RunService.Heartbeat:Connect(function(deltaTime)
+	-- Server-maintained sprint stamina.
+	for player, currentStamina in pairs(stamina) do
+		local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+		if humanoid and humanoid.Health > 0 then
+			if sprintRequested[player] and currentStamina > 0 then
+				currentStamina = math.max(0, currentStamina - STAMINA_DRAIN * deltaTime)
+				humanoid.WalkSpeed = SPRINT_SPEED
+				if currentStamina <= 0 then sprintRequested[player] = false end
+			else
+				currentStamina = math.min(100, currentStamina + STAMINA_RECOVER * deltaTime)
+				humanoid.WalkSpeed = HOME_SPEED
+			end
+			stamina[player] = currentStamina
+			player:SetAttribute("Stamina", currentStamina)
+		end
+	end
+
+	-- Possessed ball follows the carrier's feet; free ball remains server-owned physics.
+	if possessor then
+		local root = getRoot(possessor)
+		if root then
+			ball.CFrame = root.CFrame * CFrame.new(0, -1.8, -2.6)
+		else
+			setPossessor(nil)
+		end
+	elseif os.clock() >= pickupBlockedUntil and ball.Parent then
+		local speed = ball.AssemblyLinearVelocity.Magnitude
+		if speed < 42 then
+			local bestPlayer, bestDistance = nil, 4.8
+			for _, player in ipairs(Players:GetPlayers()) do
+				local root = getRoot(player)
+				if root then
+					local distance = (root.Position - ball.Position).Magnitude
+					if distance < bestDistance then
+						bestPlayer, bestDistance = player, distance
+					end
+				end
+			end
+			if bestPlayer then setPossessor(bestPlayer) end
+		end
+	end
+
+	if ball.Position.Y < -10 or math.abs(ball.Position.X) > 70 or math.abs(ball.Position.Z) > 115 then
+		setPossessor(nil)
+		ball.Anchored = true
+		ball.CanCollide = false
+		ball.CFrame = CFrame.new(0, 1.25, 0)
+		ball.AssemblyLinearVelocity = Vector3.zero
+		task.delay(0.5, function()
+			if ball and ball.Parent then
+				ball.Anchored = false
+				ball.CanCollide = true
+				pickupBlockedUntil = os.clock() + 0.7
+			end
+		end)
+	end
+end)
+
+task.spawn(function()
+	while true do
+		task.wait(0.25)
+		local startTime = workspace:GetAttribute("MatchStartedAt") or 0
+		if startTime > 0 and not workspace:GetAttribute("MatchEnded") then
+			if workspace:GetServerTimeNow() - startTime >= MATCH_SECONDS then
+				workspace:SetAttribute("MatchEnded", true)
+				local homeScore = workspace:GetAttribute("HomeScore") or 0
+				local awayScore = workspace:GetAttribute("AwayScore") or 0
+				local result = homeScore == awayScore and "EMPATE!" or (homeScore > awayScore and "RUBRO FC VENCEU!" or "AZUL FC VENCEU!")
+				workspace:SetAttribute("LastGoalMessage", "FIM DE JOGO — " .. result)
+				if possessor then setPossessor(nil) end
+			end
+		end
+	end
+end)
+
+print("ARENA FOOTBALL carregado: partida, campo, bola e comandos prontos.")
+]]></ProtectedString></Properties></Item></Item>
+<Item class="ServerStorage" referent="RBX38418B98AEFA450999CD461989423CA9"><Properties><string name="Name">ServerStorage</string></Properties></Item>
+<Item class="StarterGui" referent="RBX376A64C51F30453982D28AC1FF3060F7"><Properties><string name="Name">StarterGui</string></Properties></Item>
+<Item class="StarterPlayer" referent="RBX529BB2B43C4A40A7847EDDAF6A43710F"><Properties><float name="CameraMaxZoomDistance">18</float><float name="CameraMinZoomDistance">9</float><token name="CameraMode">0</token><string name="Name">StarterPlayer</string></Properties><Item class="StarterPlayerScripts" referent="RBX3A94D4CEBE3748F1BAB337A94516693A"><Properties><string name="Name">StarterPlayerScripts</string></Properties><Item class="LocalScript" referent="RBX83A8C35DDFFA43A68D5854149E6624E5"><Properties><bool name="Disabled">false</bool><string name="Name">FootballClient</string><ProtectedString name="Source"><![CDATA[-- Client input/camera for ARENA FOOTBALL. Server validates all ball actions.
+-- Controls: WASD, Shift sprint, hold mouse 1/E to charge a shot, Q pass, F tackle.
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local remotes = ReplicatedStorage:WaitForChild("FootballRemotes")
+local actionEvent = remotes:WaitForChild("Action")
+local sprintEvent = remotes:WaitForChild("Sprint")
+
+player.CameraMode = Enum.CameraMode.Classic
+player.CameraMinZoomDistance = 9
+player.CameraMaxZoomDistance = 18
+
+local charging = false
+local chargeStartedAt = 0
+local sprinting = false
+local mobileGui
+
+local function hasBall()
+	return (workspace:GetAttribute("BallCarrierUserId") or 0) == player.UserId
+end
+
+local function getAimDirection()
+	local camera = workspace.CurrentCamera
+	return camera and camera.CFrame.LookVector or Vector3.new(0, 0, -1)
+end
+
+local function beginShot()
+	if not hasBall() or charging then return end
+	charging = true
+	chargeStartedAt = os.clock()
+	player:SetAttribute("ShotCharge", 0)
+end
+
+local function releaseShot()
+	if not charging then return end
+	charging = false
+	local charge = math.clamp((os.clock() - chargeStartedAt) / 1.15, 0.15, 1)
+	player:SetAttribute("ShotCharge", 0)
+	actionEvent:FireServer("Shoot", getAimDirection(), charge)
+end
+
+local function passBall()
+	if hasBall() then
+		actionEvent:FireServer("Pass")
+	end
+end
+
+local function tackle()
+	actionEvent:FireServer("Tackle")
+end
+
+local function setSprint(active)
+	if sprinting == active then return end
+	sprinting = active
+	sprintEvent:FireServer(active)
+end
+
+UserInputService.InputBegan:Connect(function(input, processed)
+	if processed then return end
+	if input.UserInputType == Enum.UserInputType.MouseButton1
+		or input.KeyCode == Enum.KeyCode.E
+		or input.KeyCode == Enum.KeyCode.ButtonR2 then
+		beginShot()
+	elseif input.KeyCode == Enum.KeyCode.Q or input.KeyCode == Enum.KeyCode.ButtonX then
+		passBall()
+	elseif input.KeyCode == Enum.KeyCode.F or input.KeyCode == Enum.KeyCode.ButtonB then
+		tackle()
+	elseif input.KeyCode == Enum.KeyCode.LeftShift or input.KeyCode == Enum.KeyCode.ButtonL3 then
+		setSprint(true)
+	end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1
+		or input.KeyCode == Enum.KeyCode.E
+		or input.KeyCode == Enum.KeyCode.ButtonR2 then
+		releaseShot()
+	elseif input.KeyCode == Enum.KeyCode.LeftShift or input.KeyCode == Enum.KeyCode.ButtonL3 then
+		setSprint(false)
+	end
+end)
+
+-- Touch controls for phones/tablets: charge shot by holding its button.
+if UserInputService.TouchEnabled then
+	local gui = Instance.new("ScreenGui")
+	gui.Name = "FootballTouchControls"
+	gui.ResetOnSpawn = false
+	gui.IgnoreGuiInset = true
+	gui.Parent = player:WaitForChild("PlayerGui")
+	mobileGui = gui
+
+	local tray = Instance.new("Frame")
+	tray.Name = "ActionTray"
+	tray.AnchorPoint = Vector2.new(1, 1)
+	tray.Position = UDim2.new(1, -18, 1, -22)
+	tray.Size = UDim2.fromOffset(230, 170)
+	tray.BackgroundTransparency = 1
+	tray.Parent = gui
+
+	local function makeButton(name, title, position, size, color)
+		local button = Instance.new("TextButton")
+		button.Name = name
+		button.Position = position
+		button.Size = size
+		button.BackgroundColor3 = color
+		button.BackgroundTransparency = 0.12
+		button.BorderSizePixel = 0
+		button.Font = Enum.Font.GothamBold
+		button.Text = title
+		button.TextColor3 = Color3.new(1, 1, 1)
+		button.TextSize = 14
+		button.TextWrapped = true
+		button.Parent = tray
+		local corner = Instance.new("UICorner")
+		corner.CornerRadius = UDim.new(1, 0)
+		corner.Parent = button
+		local stroke = Instance.new("UIStroke")
+		stroke.Color = Color3.fromRGB(240, 240, 240)
+		stroke.Transparency = 0.68
+		stroke.Parent = button
+		return button
+	end
+
+	local shootButton = makeButton("Shoot", "CHUTE", UDim2.fromOffset(139, 76), UDim2.fromOffset(82, 82), Color3.fromRGB(202, 65, 51))
+	shootButton.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+			beginShot()
+		end
+	end)
+	shootButton.InputEnded:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+			releaseShot()
+		end
+	end)
+
+	local passButton = makeButton("Pass", "PASSE", UDim2.fromOffset(73, 95), UDim2.fromOffset(60, 60), Color3.fromRGB(47, 112, 190))
+	passButton.Activated:Connect(passBall)
+	local tackleButton = makeButton("Tackle", "DESARME", UDim2.fromOffset(8, 45), UDim2.fromOffset(68, 68), Color3.fromRGB(210, 137, 44))
+	tackleButton.Activated:Connect(tackle)
+	local sprintButton = makeButton("Sprint", "CORRER", UDim2.fromOffset(78, 22), UDim2.fromOffset(60, 58), Color3.fromRGB(50, 130, 87))
+	sprintButton.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.Touch then setSprint(true) end
+	end)
+	sprintButton.InputEnded:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.Touch then setSprint(false) end
+	end)
+end
+
+RunService.RenderStepped:Connect(function()
+	if charging then
+		player:SetAttribute("ShotCharge", math.clamp((os.clock() - chargeStartedAt) / 1.15, 0, 1))
+	end
+end)
+
+player.CharacterAdded:Connect(function()
+	charging = false
+	setSprint(false)
+end)
+]]></ProtectedString></Properties></Item><Item class="LocalScript" referent="RBXBF2A4758E26F441EBEFB44FA0DCF3BCE"><Properties><bool name="Disabled">false</bool><string name="Name">FootballHUD</string><ProtectedString name="Source"><![CDATA[-- Match scoreboard, goal callout, possession state and stamina/shot bars.
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+local touchMode = UserInputService.TouchEnabled
+local gui = Instance.new("ScreenGui")
+gui.Name = "ArenaFootballHUD"
+gui.ResetOnSpawn = false
+gui.IgnoreGuiInset = true
+gui.DisplayOrder = 20
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local function addCorner(instance, radius)
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, radius)
+	corner.Parent = instance
+	return corner
+end
+
+local scorePanel = Instance.new("Frame")
+scorePanel.Name = "Scoreboard"
+scorePanel.AnchorPoint = Vector2.new(0.5, 0)
+scorePanel.Position = UDim2.new(0.5, 0, 0, 18)
+scorePanel.Size = UDim2.new(0.9, 0, 0, 82)
+local scoreConstraint = Instance.new("UISizeConstraint")
+scoreConstraint.MinSize = Vector2.new(300, 82)
+scoreConstraint.MaxSize = Vector2.new(470, 100)
+scoreConstraint.Parent = scorePanel
+scorePanel.BackgroundColor3 = Color3.fromRGB(14, 20, 28)
+scorePanel.BackgroundTransparency = 0.12
+scorePanel.BorderSizePixel = 0
+scorePanel.Parent = gui
+addCorner(scorePanel, 12)
+local panelStroke = Instance.new("UIStroke")
+panelStroke.Color = Color3.fromRGB(190, 205, 220)
+panelStroke.Transparency = 0.68
+panelStroke.Parent = scorePanel
+
+local scoreText = Instance.new("TextLabel")
+scoreText.Name = "Score"
+scoreText.Position = UDim2.new(0, 10, 0, 7)
+scoreText.Size = UDim2.new(1, -20, 0, 38)
+scoreText.BackgroundTransparency = 1
+scoreText.Font = Enum.Font.GothamBlack
+scoreText.TextColor3 = Color3.fromRGB(250, 250, 247)
+scoreText.TextSize = 24
+scoreText.TextScaled = true
+local scoreTextConstraint = Instance.new("UITextSizeConstraint")
+scoreTextConstraint.MinTextSize = 14
+scoreTextConstraint.MaxTextSize = 24
+scoreTextConstraint.Parent = scoreText
+scoreText.Text = "RUBRO FC   0 — 0   AZUL FC"
+scoreText.Parent = scorePanel
+
+local timerText = Instance.new("TextLabel")
+timerText.Name = "Timer"
+timerText.Position = UDim2.new(0, 10, 0, 46)
+timerText.Size = UDim2.new(1, -20, 0, 24)
+timerText.BackgroundTransparency = 1
+timerText.Font = Enum.Font.GothamBold
+timerText.TextColor3 = Color3.fromRGB(174, 205, 232)
+timerText.TextSize = 16
+timerText.Text = "03:00"
+timerText.Parent = scorePanel
+
+local goalCallout = Instance.new("TextLabel")
+goalCallout.Name = "GoalCallout"
+goalCallout.AnchorPoint = Vector2.new(0.5, 0.5)
+goalCallout.Position = UDim2.new(0.5, 0, 0.27, 0)
+goalCallout.Size = UDim2.new(0.9, 0, 0, 64)
+local goalConstraint = Instance.new("UISizeConstraint")
+goalConstraint.MinSize = Vector2.new(300, 64)
+goalConstraint.MaxSize = Vector2.new(500, 80)
+goalConstraint.Parent = goalCallout
+goalCallout.BackgroundColor3 = Color3.fromRGB(12, 18, 25)
+goalCallout.BackgroundTransparency = 0.15
+goalCallout.BorderSizePixel = 0
+goalCallout.Font = Enum.Font.GothamBlack
+goalCallout.TextColor3 = Color3.fromRGB(255, 226, 105)
+goalCallout.TextSize = touchMode and 22 or 32
+goalCallout.Text = ""
+goalCallout.Visible = false
+goalCallout.Parent = gui
+addCorner(goalCallout, 12)
+
+local possessionText = Instance.new("TextLabel")
+possessionText.Name = "Possession"
+possessionText.AnchorPoint = Vector2.new(0.5, 1)
+possessionText.Position = touchMode and UDim2.new(0.5, 0, 1, -198) or UDim2.new(0.5, 0, 1, -30)
+possessionText.Size = UDim2.new(0.9, 0, 0, 34)
+local possessionConstraint = Instance.new("UISizeConstraint")
+possessionConstraint.MinSize = Vector2.new(270, 34)
+possessionConstraint.MaxSize = Vector2.new(500, 46)
+possessionConstraint.Parent = possessionText
+possessionText.BackgroundColor3 = Color3.fromRGB(15, 22, 30)
+possessionText.BackgroundTransparency = 0.22
+possessionText.BorderSizePixel = 0
+possessionText.Font = Enum.Font.GothamBold
+possessionText.TextColor3 = Color3.fromRGB(245, 247, 250)
+possessionText.TextSize = touchMode and 12 or 16
+possessionText.Text = "Aproxime-se da bola"
+possessionText.Parent = gui
+addCorner(possessionText, 9)
+
+local staminaFrame = Instance.new("Frame")
+staminaFrame.Name = "StaminaFrame"
+staminaFrame.AnchorPoint = Vector2.new(0, 1)
+staminaFrame.Position = touchMode and UDim2.new(0, 16, 0, 128) or UDim2.new(0, 24, 1, -28)
+staminaFrame.Size = UDim2.new(0, touchMode and 190 or 220, 0, 24)
+staminaFrame.BackgroundColor3 = Color3.fromRGB(19, 26, 31)
+staminaFrame.BorderSizePixel = 0
+staminaFrame.Parent = gui
+addCorner(staminaFrame, 8)
+local staminaFill = Instance.new("Frame")
+staminaFill.Name = "Fill"
+staminaFill.Position = UDim2.new(0, 3, 0, 3)
+staminaFill.Size = UDim2.new(1, -6, 1, -6)
+staminaFill.BackgroundColor3 = Color3.fromRGB(72, 220, 135)
+staminaFill.BorderSizePixel = 0
+staminaFill.Parent = staminaFrame
+addCorner(staminaFill, 6)
+local staminaText = Instance.new("TextLabel")
+staminaText.Name = "Label"
+staminaText.Size = UDim2.fromScale(1, 1)
+staminaText.BackgroundTransparency = 1
+staminaText.Font = Enum.Font.GothamBold
+staminaText.TextColor3 = Color3.new(1, 1, 1)
+staminaText.TextSize = 12
+staminaText.Text = "FÔLEGO 100%"
+staminaText.ZIndex = 2
+staminaText.Parent = staminaFrame
+
+local chargeFrame = Instance.new("Frame")
+chargeFrame.Name = "ShotChargeFrame"
+chargeFrame.AnchorPoint = Vector2.new(0.5, 1)
+chargeFrame.Position = touchMode and UDim2.new(0.5, 0, 1, -270) or UDim2.new(0.5, 0, 1, -75)
+chargeFrame.Size = UDim2.new(0, 250, 0, 18)
+chargeFrame.BackgroundColor3 = Color3.fromRGB(20, 25, 30)
+chargeFrame.BorderSizePixel = 0
+chargeFrame.Visible = false
+chargeFrame.Parent = gui
+addCorner(chargeFrame, 7)
+local chargeFill = Instance.new("Frame")
+chargeFill.Name = "Fill"
+chargeFill.Size = UDim2.new(0, 0, 1, 0)
+chargeFill.BackgroundColor3 = Color3.fromRGB(255, 190, 57)
+chargeFill.BorderSizePixel = 0
+chargeFill.Parent = chargeFrame
+addCorner(chargeFill, 7)
+
+local hint = Instance.new("TextLabel")
+hint.Name = "ControlsHint"
+hint.Visible = not touchMode
+hint.AnchorPoint = Vector2.new(0, 1)
+hint.Position = UDim2.new(0, 24, 1, -60)
+hint.Size = UDim2.new(0, 340, 0, 30)
+hint.BackgroundTransparency = 1
+hint.Font = Enum.Font.GothamMedium
+hint.TextColor3 = Color3.fromRGB(222, 230, 236)
+hint.TextSize = 12
+hint.TextXAlignment = Enum.TextXAlignment.Left
+hint.Text = "Shift correr • Clique/E chutar • Q passe • F desarme"
+hint.Parent = gui
+
+local lastGoalSequence = 0
+local goalHideAt = 0
+local function formatTime(seconds)
+	seconds = math.max(0, math.floor(seconds))
+	return string.format("%02d:%02d", math.floor(seconds / 60), seconds % 60)
+end
+
+RunService.RenderStepped:Connect(function()
+	local homeName = workspace:GetAttribute("HomeName") or "RUBRO FC"
+	local awayName = workspace:GetAttribute("AwayName") or "AZUL FC"
+	local homeScore = workspace:GetAttribute("HomeScore") or 0
+	local awayScore = workspace:GetAttribute("AwayScore") or 0
+	scoreText.Text = string.format("%s   %d — %d   %s", homeName, homeScore, awayScore, awayName)
+
+	local startedAt = workspace:GetAttribute("MatchStartedAt") or 0
+	local duration = workspace:GetAttribute("MatchDuration") or 180
+	local ended = workspace:GetAttribute("MatchEnded") == true
+	if startedAt <= 0 then
+		timerText.Text = "AGUARDANDO JOGADORES"
+	elseif ended then
+		timerText.Text = "FIM DE JOGO"
+	else
+		timerText.Text = formatTime(duration - (workspace:GetServerTimeNow() - startedAt))
+	end
+
+	local carrierId = workspace:GetAttribute("BallCarrierUserId") or 0
+	if carrierId == player.UserId then
+		possessionText.Text = "VOCÊ ESTÁ COM A BOLA  •  Clique/E chuta  •  Q passa"
+	elseif carrierId == 0 then
+		possessionText.Text = "DISPUTA A BOLA  •  Clique/E chuta ao dominar"
+	else
+		local carrier = Players:GetPlayerByUserId(carrierId)
+		possessionText.Text = carrier and ("BOLA COM " .. string.upper(carrier.DisplayName)) or "BOLA EM JOGO"
+	end
+
+	local stamina = math.clamp(player:GetAttribute("Stamina") or 100, 0, 100)
+	staminaFill.Size = UDim2.new(stamina / 100, -6 * stamina / 100, 1, -6)
+	staminaText.Text = string.format("FÔLEGO %d%%", math.floor(stamina + 0.5))
+	staminaFill.BackgroundColor3 = stamina < 25 and Color3.fromRGB(235, 87, 75) or Color3.fromRGB(72, 220, 135)
+
+	local charge = math.clamp(player:GetAttribute("ShotCharge") or 0, 0, 1)
+	chargeFrame.Visible = charge > 0 and carrierId == player.UserId
+	chargeFill.Size = UDim2.new(charge, 0, 1, 0)
+	chargeFill.BackgroundColor3 = Color3.fromRGB(255, math.floor(220 - charge * 100), 55)
+
+	local message = workspace:GetAttribute("LastGoalMessage") or ""
+	local sequence = workspace:GetAttribute("GoalSequence") or 0
+	if message ~= "" and sequence ~= lastGoalSequence then
+		lastGoalSequence = sequence
+		goalCallout.Text = message
+		goalCallout.Visible = true
+		goalHideAt = os.clock() + 3
+	end
+	if goalCallout.Visible and os.clock() >= goalHideAt then
+		goalCallout.Visible = false
+	end
+end)
+]]></ProtectedString></Properties></Item></Item></Item>
+<Item class="Teams" referent="RBX73458A57E7DF4305B8D87DA3D2A749ED"><Properties><string name="Name">Teams</string></Properties></Item>
+<Item class="SoundService" referent="RBX7B5E793ED0504DD0B2EC44AD53602D72"><Properties><string name="Name">SoundService</string></Properties></Item>
+<Item class="TextChatService" referent="RBX1DD31ACA3E894DDB96B497A3DB90C39B"><Properties><string name="Name">TextChatService</string></Properties></Item>
+</roblox>

@@ -1,0 +1,31 @@
+{
+  "name": "Arena Football",
+  "tree": {
+    "$className": "DataModel",
+    "Workspace": { "$className": "Workspace" },
+    "Players": { "$className": "Players" },
+    "Lighting": { "$className": "Lighting" },
+    "ReplicatedStorage": { "$className": "ReplicatedStorage" },
+    "ServerScriptService": {
+      "$className": "ServerScriptService",
+      "$path": "ServerScriptService"
+    },
+    "ServerStorage": { "$className": "ServerStorage" },
+    "StarterGui": { "$className": "StarterGui" },
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+      "$properties": {
+        "CameraMode": "Classic",
+        "CameraMinZoomDistance": 9,
+        "CameraMaxZoomDistance": 18
+      },
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+        "$path": "StarterPlayerScripts"
+      }
+    },
+    "Teams": { "$className": "Teams" },
+    "SoundService": { "$className": "SoundService" },
+    "TextChatService": { "$className": "TextChatService" }
+  }
+}
