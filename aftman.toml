@@ -1,0 +1,5 @@
+# Gerenciador de ferramentas (opcional). Se você usa https://github.com/LPGhatguy/aftman
+# ou o Rokit (https://github.com/rojo-rbx/rokit), rode `aftman install` / `rokit install`
+# nesta pasta para instalar automaticamente a versão certa do Rojo.
+[tools]
+rojo = "rojo-rbx/rojo@7.7.0"

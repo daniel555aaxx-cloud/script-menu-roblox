@@ -1,0 +1,56 @@
+{
+  "name": "GatoParkour-EnigmasFelinos",
+  "tree": {
+    "$className": "DataModel",
+
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      "Shared": {
+        "$path": "src/ReplicatedStorage/Shared"
+      },
+      "Remotes": {
+        "$className": "Folder",
+        "SequenceState": { "$className": "RemoteEvent" },
+        "KeypadSubmit": { "$className": "RemoteEvent" },
+        "KeypadFeedback": { "$className": "RemoteEvent" },
+        "CheckpointReached": { "$className": "RemoteEvent" },
+        "WaterSplash": { "$className": "RemoteEvent" },
+        "RaceFinished": { "$className": "RemoteEvent" },
+        "CollectibleGrabbed": { "$className": "RemoteEvent" },
+        "RequestReset": { "$className": "RemoteEvent" },
+        "RequestFullReset": { "$className": "RemoteEvent" }
+      }
+    },
+
+    "ServerScriptService": {
+      "$className": "ServerScriptService",
+      "Server": {
+        "$path": "src/ServerScriptService/Server"
+      }
+    },
+
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+      "StarterPlayerScripts": {
+        "$path": "src/StarterPlayer/StarterPlayerScripts"
+      },
+      "StarterCharacterScripts": {
+        "$path": "src/StarterPlayer/StarterCharacterScripts"
+      }
+    },
+
+    "StarterGui": {
+      "$className": "StarterGui",
+      "$properties": {
+        "ScreenOrientation": "LandscapePreferred"
+      }
+    },
+
+    "Workspace": {
+      "$className": "Workspace",
+      "$properties": {
+        "Gravity": 130
+      }
+    }
+  }
+}
