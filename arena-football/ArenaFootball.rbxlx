@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd" version="4">
 <External>null</External><External>nil</External>
-<Item class="Workspace" referent="RBXDDC642AB69B04953A9EA6F1E263895A6"><Properties><string name="Name">Workspace</string></Properties></Item>
-<Item class="Players" referent="RBXA0E129D133B54865A8D0F697BB34FF7E"><Properties><string name="Name">Players</string></Properties></Item>
-<Item class="Lighting" referent="RBX322250EF7E9E4640913740FE33F0BF92"><Properties><string name="Name">Lighting</string></Properties></Item>
-<Item class="ReplicatedStorage" referent="RBX45354A5C2AB24DCDAD5E6BEE41020D2F"><Properties><string name="Name">ReplicatedStorage</string></Properties></Item>
-<Item class="ServerScriptService" referent="RBX5742305BDDD44684988FA9B8EB607528"><Properties><string name="Name">ServerScriptService</string></Properties><Item class="Script" referent="RBX95C1493037914CFDBCF06180BC79617B"><Properties><bool name="Disabled">false</bool><string name="Name">Match</string><ProtectedString name="Source"><![CDATA[-- ARENA FOOTBALL: original small-sided football prototype for Roblox.
+<Item class="Workspace" referent="RBX6B202985BE2348F59A5DD6EEFD16B87A"><Properties><string name="Name">Workspace</string></Properties></Item>
+<Item class="Players" referent="RBX4E50176355264D6D8A31FCBC9938A900"><Properties><string name="Name">Players</string></Properties></Item>
+<Item class="Lighting" referent="RBXD54AD3D3F3D7467B808CB11286B264A5"><Properties><string name="Name">Lighting</string></Properties></Item>
+<Item class="ReplicatedStorage" referent="RBX751B263E5E364DACA31ED096086B20D6"><Properties><string name="Name">ReplicatedStorage</string></Properties></Item>
+<Item class="ServerScriptService" referent="RBXBD0C4432DF4447F4B02E2823902E8433"><Properties><string name="Name">ServerScriptService</string></Properties><Item class="Script" referent="RBX8F6C1A07B5CD46C8989E378833F98984"><Properties><bool name="Disabled">false</bool><string name="Name">Match</string><ProtectedString name="Source"><![CDATA[-- ARENA FOOTBALL: original small-sided football prototype for Roblox.
 -- Server-owned match, ball, score, goals, stamina and action validation.
 
 local Players = game:GetService("Players")
@@ -230,18 +230,49 @@ local function getRoot(player)
 	return root
 end
 
+local dribbleWeld = nil
+local positionBallAtFeet
+
 local function setPossessor(player)
+	if dribbleWeld then
+		dribbleWeld:Destroy()
+		dribbleWeld = nil
+	end
+
 	possessor = player
 	ball:SetAttribute("PossessorUserId", player and player.UserId or 0)
 	workspace:SetAttribute("BallCarrierUserId", player and player.UserId or 0)
 	if player then
-		ball.Anchored = true
+		local root = getRoot(player)
+		if not root then
+			possessor = nil
+			ball:SetAttribute("PossessorUserId", 0)
+			workspace:SetAttribute("BallCarrierUserId", 0)
+			return
+		end
+
+		ball.Anchored = false
 		ball.CanCollide = false
+		ball.Massless = true
 		ball.AssemblyLinearVelocity = Vector3.zero
 		ball.AssemblyAngularVelocity = Vector3.zero
+		positionBallAtFeet(player, root)
+
+		-- Weld into the player's character assembly while dribbling. This makes the
+		-- ball follow locally with the carrier instead of lagging behind server CFrames.
+		local weld = Instance.new("Weld")
+		weld.Name = "BallDribbleWeld"
+		weld.Part0 = root
+		weld.Part1 = ball
+		weld.C0 = root.CFrame:ToObjectSpace(ball.CFrame)
+		weld.C1 = CFrame.new()
+		weld.Parent = root
+		dribbleWeld = weld
+		pcall(function() ball:SetNetworkOwner(player) end)
 	else
 		ball.Anchored = false
 		ball.CanCollide = true
+		ball.Massless = false
 		pcall(function() ball:SetNetworkOwner(nil) end)
 	end
 end
@@ -273,7 +304,7 @@ local function getGroundY(character, root, humanoid)
 	return root.Position.Y - humanoid.HipHeight - root.Size.Y * 0.5
 end
 
-local function positionBallAtFeet(player, root)
+positionBallAtFeet = function(player, root)
 	local character = player.Character
 	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
 	if not humanoid then return end
@@ -292,11 +323,16 @@ local function positionBallAtFeet(player, root)
 end
 
 local function detachBall()
+	if dribbleWeld then
+		dribbleWeld:Destroy()
+		dribbleWeld = nil
+	end
 	possessor = nil
 	ball:SetAttribute("PossessorUserId", 0)
 	workspace:SetAttribute("BallCarrierUserId", 0)
 	ball.Anchored = false
 	ball.CanCollide = true
+	ball.Massless = false
 	pcall(function() ball:SetNetworkOwner(nil) end)
 end
 
@@ -514,13 +550,14 @@ RunService.Heartbeat:Connect(function(deltaTime)
 		end
 	end
 
-	-- Possessed ball follows the carrier's feet; free ball remains server-owned physics.
+	-- While possessed, a weld carries the ball with the avatar's physics assembly.
+	-- Only repair missing/invalid welds here; don't server-step the ball behind the client.
 	if possessor then
 		local root = getRoot(possessor)
-		if root then
-			positionBallAtFeet(possessor, root)
-		else
+		if not root then
 			setPossessor(nil)
+		elseif not dribbleWeld or dribbleWeld.Part0 ~= root then
+			setPossessor(possessor)
 		end
 	elseif os.clock() >= pickupBlockedUntil and ball.Parent then
 		local speed = ball.AssemblyLinearVelocity.Magnitude
@@ -574,9 +611,9 @@ end)
 
 print("ARENA FOOTBALL carregado: partida, campo, bola e comandos prontos.")
 ]]></ProtectedString></Properties></Item></Item>
-<Item class="ServerStorage" referent="RBX471500B145B84BCB85C7D2BC876A2EBE"><Properties><string name="Name">ServerStorage</string></Properties></Item>
-<Item class="StarterGui" referent="RBX59CD390B535241019E868B98AB29F537"><Properties><string name="Name">StarterGui</string></Properties></Item>
-<Item class="StarterPlayer" referent="RBX02BC96E821B94D1B97C0EEA1D34F23D7"><Properties><float name="CameraMaxZoomDistance">18</float><float name="CameraMinZoomDistance">9</float><token name="CameraMode">0</token><string name="Name">StarterPlayer</string></Properties><Item class="StarterPlayerScripts" referent="RBX2849594999EE48AEA11D0FE8C9CF6921"><Properties><string name="Name">StarterPlayerScripts</string></Properties><Item class="LocalScript" referent="RBX62D3A3B343C7482BA6235C96099294D8"><Properties><bool name="Disabled">false</bool><string name="Name">FootballClient</string><ProtectedString name="Source"><![CDATA[-- Client input/camera for ARENA FOOTBALL. Server validates all ball actions.
+<Item class="ServerStorage" referent="RBX844ED4C31A08478D9E6C730C6438B15B"><Properties><string name="Name">ServerStorage</string></Properties></Item>
+<Item class="StarterGui" referent="RBXA70F0A2C29F242E786644FC2FC58D3C0"><Properties><string name="Name">StarterGui</string></Properties></Item>
+<Item class="StarterPlayer" referent="RBXA3EA904EC27244DFAE257E97C2AFD95B"><Properties><float name="CameraMaxZoomDistance">18</float><float name="CameraMinZoomDistance">9</float><token name="CameraMode">0</token><string name="Name">StarterPlayer</string></Properties><Item class="StarterPlayerScripts" referent="RBX03893F55118D41A5BA5806C4A886C251"><Properties><string name="Name">StarterPlayerScripts</string></Properties><Item class="LocalScript" referent="RBX03D5EB604DC9410183EB5FE9A3511813"><Properties><bool name="Disabled">false</bool><string name="Name">FootballClient</string><ProtectedString name="Source"><![CDATA[-- Client input/camera for ARENA FOOTBALL. Server validates all ball actions.
 -- Controls: WASD, Shift sprint, hold mouse 1/E to charge a shot, Q pass, F tackle.
 
 local Players = game:GetService("Players")
@@ -739,7 +776,7 @@ player.CharacterAdded:Connect(function()
 	charging = false
 	setSprint(false)
 end)
-]]></ProtectedString></Properties></Item><Item class="LocalScript" referent="RBX3AB2A41931BB46A1A233312F6033A31F"><Properties><bool name="Disabled">false</bool><string name="Name">FootballHUD</string><ProtectedString name="Source"><![CDATA[-- Match scoreboard, goal callout, possession state and stamina/shot bars.
+]]></ProtectedString></Properties></Item><Item class="LocalScript" referent="RBXD697A7DF908F4C3CB380025CCF922E7D"><Properties><bool name="Disabled">false</bool><string name="Name">FootballHUD</string><ProtectedString name="Source"><![CDATA[-- Match scoreboard, goal callout, possession state and stamina/shot bars.
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -964,7 +1001,7 @@ RunService.RenderStepped:Connect(function()
 	end
 end)
 ]]></ProtectedString></Properties></Item></Item></Item>
-<Item class="Teams" referent="RBX4DA747ED34444CAA9EC16FAE19993E35"><Properties><string name="Name">Teams</string></Properties></Item>
-<Item class="SoundService" referent="RBXEDF72E78AD4241789582C62ABEDAC8CD"><Properties><string name="Name">SoundService</string></Properties></Item>
-<Item class="TextChatService" referent="RBX1E347CC907FA453FA6D3E0BD09DC9FCE"><Properties><string name="Name">TextChatService</string></Properties></Item>
+<Item class="Teams" referent="RBXF0E9D18CAF11475C84DDF928E9E2C65F"><Properties><string name="Name">Teams</string></Properties></Item>
+<Item class="SoundService" referent="RBX48DE4FCEFF844C37A2A995461E9037A9"><Properties><string name="Name">SoundService</string></Properties></Item>
+<Item class="TextChatService" referent="RBX3E324CC18F9F49ED90920FB51B2FAF6A"><Properties><string name="Name">TextChatService</string></Properties></Item>
 </roblox>

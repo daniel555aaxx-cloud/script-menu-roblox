@@ -223,18 +223,49 @@ local function getRoot(player)
 	return root
 end
 
+local dribbleWeld = nil
+local positionBallAtFeet
+
 local function setPossessor(player)
+	if dribbleWeld then
+		dribbleWeld:Destroy()
+		dribbleWeld = nil
+	end
+
 	possessor = player
 	ball:SetAttribute("PossessorUserId", player and player.UserId or 0)
 	workspace:SetAttribute("BallCarrierUserId", player and player.UserId or 0)
 	if player then
-		ball.Anchored = true
+		local root = getRoot(player)
+		if not root then
+			possessor = nil
+			ball:SetAttribute("PossessorUserId", 0)
+			workspace:SetAttribute("BallCarrierUserId", 0)
+			return
+		end
+
+		ball.Anchored = false
 		ball.CanCollide = false
+		ball.Massless = true
 		ball.AssemblyLinearVelocity = Vector3.zero
 		ball.AssemblyAngularVelocity = Vector3.zero
+		positionBallAtFeet(player, root)
+
+		-- Weld into the player's character assembly while dribbling. This makes the
+		-- ball follow locally with the carrier instead of lagging behind server CFrames.
+		local weld = Instance.new("Weld")
+		weld.Name = "BallDribbleWeld"
+		weld.Part0 = root
+		weld.Part1 = ball
+		weld.C0 = root.CFrame:ToObjectSpace(ball.CFrame)
+		weld.C1 = CFrame.new()
+		weld.Parent = root
+		dribbleWeld = weld
+		pcall(function() ball:SetNetworkOwner(player) end)
 	else
 		ball.Anchored = false
 		ball.CanCollide = true
+		ball.Massless = false
 		pcall(function() ball:SetNetworkOwner(nil) end)
 	end
 end
@@ -266,7 +297,7 @@ local function getGroundY(character, root, humanoid)
 	return root.Position.Y - humanoid.HipHeight - root.Size.Y * 0.5
 end
 
-local function positionBallAtFeet(player, root)
+positionBallAtFeet = function(player, root)
 	local character = player.Character
 	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
 	if not humanoid then return end
@@ -285,11 +316,16 @@ local function positionBallAtFeet(player, root)
 end
 
 local function detachBall()
+	if dribbleWeld then
+		dribbleWeld:Destroy()
+		dribbleWeld = nil
+	end
 	possessor = nil
 	ball:SetAttribute("PossessorUserId", 0)
 	workspace:SetAttribute("BallCarrierUserId", 0)
 	ball.Anchored = false
 	ball.CanCollide = true
+	ball.Massless = false
 	pcall(function() ball:SetNetworkOwner(nil) end)
 end
 
@@ -507,13 +543,14 @@ RunService.Heartbeat:Connect(function(deltaTime)
 		end
 	end
 
-	-- Possessed ball follows the carrier's feet; free ball remains server-owned physics.
+	-- While possessed, a weld carries the ball with the avatar's physics assembly.
+	-- Only repair missing/invalid welds here; don't server-step the ball behind the client.
 	if possessor then
 		local root = getRoot(possessor)
-		if root then
-			positionBallAtFeet(possessor, root)
-		else
+		if not root then
 			setPossessor(nil)
+		elseif not dribbleWeld or dribbleWeld.Part0 ~= root then
+			setPossessor(possessor)
 		end
 	elseif os.clock() >= pickupBlockedUntil and ball.Parent then
 		local speed = ball.AssemblyLinearVelocity.Magnitude
