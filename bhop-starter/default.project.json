@@ -1,0 +1,53 @@
+{
+  "name": "Bhop Starter",
+  "tree": {
+    "$className": "DataModel",
+    "Workspace": {
+      "$className": "Workspace"
+    },
+    "Players": {
+      "$className": "Players"
+    },
+    "Lighting": {
+      "$className": "Lighting"
+    },
+    "ReplicatedFirst": {
+      "$className": "ReplicatedFirst"
+    },
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage"
+    },
+    "ServerScriptService": {
+      "$className": "ServerScriptService",
+      "$path": "ServerScriptService"
+    },
+    "ServerStorage": {
+      "$className": "ServerStorage"
+    },
+    "StarterGui": {
+      "$className": "StarterGui"
+    },
+    "StarterPack": {
+      "$className": "StarterPack"
+    },
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+        "$path": "StarterPlayerScripts"
+      },
+      "StarterCharacterScripts": {
+        "$className": "StarterCharacterScripts"
+      }
+    },
+    "Teams": {
+      "$className": "Teams"
+    },
+    "SoundService": {
+      "$className": "SoundService"
+    },
+    "TextChatService": {
+      "$className": "TextChatService"
+    }
+  }
+}

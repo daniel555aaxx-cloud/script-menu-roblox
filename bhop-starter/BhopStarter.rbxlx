@@ -1,0 +1,568 @@
+<?xml version="1.0" encoding="utf-8"?>
+<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd" version="4">
+<External>null</External><External>nil</External>
+<Item class="Workspace" referent="RBXE756B049EFAB47F284F97F9B0940C107"><Properties><string name="Name">Workspace</string></Properties></Item>
+<Item class="Players" referent="RBX0E1D6FF744B543AC89A10654CBD2422D"><Properties><string name="Name">Players</string></Properties></Item>
+<Item class="Lighting" referent="RBXF91E0A62BFE34A6CB303470A8564FD10"><Properties><string name="Name">Lighting</string></Properties></Item>
+<Item class="ReplicatedFirst" referent="RBX2938A0F74A554C3E956C031A6746C831"><Properties><string name="Name">ReplicatedFirst</string></Properties></Item>
+<Item class="ReplicatedStorage" referent="RBX2AEB403BB1634519B921E54B6BF59AEA"><Properties><string name="Name">ReplicatedStorage</string></Properties></Item>
+<Item class="ServerScriptService" referent="RBX14319203467F428FB4D36C2C1F52D148"><Properties><string name="Name">ServerScriptService</string></Properties><Item class="Script" referent="RBXBB689226E24F4D32BB991950DFC6BC1C"><Properties><string name="Name">BhopGame</string><bool name="Disabled">false</bool><ProtectedString name="Source"><![CDATA[-- Bhop Starter: gera uma pista original, checkpoints e cronômetro no servidor.
+-- Coloque em ServerScriptService como Script.
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local COURSE_NAME = "BhopCourse"
+local COURSE_PARTS = 24
+local SPACING = 22
+
+local resetEvent = ReplicatedStorage:FindFirstChild("BhopReset")
+if not resetEvent then
+	resetEvent = Instance.new("RemoteEvent")
+	resetEvent.Name = "BhopReset"
+	resetEvent.Parent = ReplicatedStorage
+end
+
+local oldCourse = workspace:FindFirstChild(COURSE_NAME)
+if oldCourse then
+	oldCourse:Destroy()
+end
+
+local course = Instance.new("Folder")
+course.Name = COURSE_NAME
+course.Parent = workspace
+
+local function makePart(name, size, position, color, material)
+	local part = Instance.new("Part")
+	part.Name = name
+	part.Size = size
+	part.Position = position
+	part.Anchored = true
+	part.Color = color
+	part.Material = material or Enum.Material.SmoothPlastic
+	part.TopSurface = Enum.SurfaceType.Smooth
+	part.BottomSurface = Enum.SurfaceType.Smooth
+	part.Parent = course
+	return part
+end
+
+local function playerFromHit(hit)
+	local character = hit:FindFirstAncestorOfClass("Model")
+	if not character then
+		return nil
+	end
+	return Players:GetPlayerFromCharacter(character)
+end
+
+local checkpointForPlayer = {}
+local touchCooldown = {}
+local resetCooldown = {}
+local function canTouch(player, key)
+	local now = os.clock()
+	local bucket = touchCooldown[player]
+	if not bucket then
+		bucket = {}
+		touchCooldown[player] = bucket
+	end
+	if bucket[key] and now - bucket[key] < 0.8 then
+		return false
+	end
+	bucket[key] = now
+	return true
+end
+
+local function addTouchPad(name, position, color, onTouch)
+	local pad = makePart(name, Vector3.new(7, 0.35, 7), position, color, Enum.Material.Neon)
+	pad.CanCollide = false
+	pad.CanTouch = true
+	pad.Touched:Connect(function(hit)
+		local player = playerFromHit(hit)
+		if player then
+			onTouch(player, pad)
+		end
+	end)
+	return pad
+end
+
+-- Plataforma inicial e ponto de renascimento.
+makePart("StartPlatform", Vector3.new(30, 2, 30), Vector3.new(0, 0, 8), Color3.fromRGB(37, 43, 58), Enum.Material.Slate)
+local spawn = Instance.new("SpawnLocation")
+spawn.Name = "BhopSpawn"
+spawn.Size = Vector3.new(8, 1, 8)
+spawn.Position = Vector3.new(0, 1.5, 8)
+spawn.Anchored = true
+spawn.Neutral = true
+spawn.Duration = 0
+spawn.AllowTeamChangeOnTouch = false
+spawn.Parent = course
+
+local startPoint = CFrame.new(0, 4, 8)
+addTouchPad("StartPad", Vector3.new(0, 1.1, -1), Color3.fromRGB(0, 210, 255), function(player)
+	if not canTouch(player, "start") then
+		return
+	end
+	checkpointForPlayer[player] = startPoint
+	player:SetAttribute("Checkpoint", 0)
+	player:SetAttribute("RunStartTime", workspace:GetServerTimeNow())
+	player:SetAttribute("RunActive", true)
+	player:SetAttribute("RunFinished", false)
+end)
+
+-- Plataformas em zigue-zague: layout próprio, feito para servir de pista de treino.
+for index = 1, COURSE_PARTS do
+	local z = 8 - (index * SPACING)
+	local x = math.sin(index * 0.72) * 8
+	local y = math.floor((index - 1) / 6) * 2
+	local platform = makePart(
+		("Platform_%02d"):format(index),
+		Vector3.new(16, 2, 14),
+		Vector3.new(x, y, z),
+		(index % 2 == 0) and Color3.fromRGB(67, 83, 110) or Color3.fromRGB(53, 67, 92),
+		Enum.Material.Slate
+	)
+	platform:SetAttribute("CourseIndex", index)
+
+	if index % 4 == 0 then
+		local checkpointIndex = index
+		addTouchPad(
+			("Checkpoint_%02d"):format(index),
+			Vector3.new(x, y + 1.1, z),
+			Color3.fromRGB(70, 255, 150),
+			function(player)
+				if not canTouch(player, "checkpoint_" .. checkpointIndex) then
+					return
+				end
+				checkpointForPlayer[player] = CFrame.new(x, y + 5, z)
+				player:SetAttribute("Checkpoint", checkpointIndex)
+			end
+		)
+	end
+end
+
+local finishZ = 8 - ((COURSE_PARTS + 1) * SPACING)
+local finishY = math.floor((COURSE_PARTS - 1) / 6) * 2
+local finishX = math.sin((COURSE_PARTS + 1) * 0.72) * 8
+makePart("FinishPlatform", Vector3.new(28, 2, 24), Vector3.new(finishX, finishY, finishZ), Color3.fromRGB(37, 43, 58), Enum.Material.Slate)
+addTouchPad("FinishPad", Vector3.new(finishX, finishY + 1.1, finishZ), Color3.fromRGB(255, 194, 55), function(player)
+	if not canTouch(player, "finish") or not player:GetAttribute("RunActive") then
+		return
+	end
+
+	local startTime = player:GetAttribute("RunStartTime")
+	if typeof(startTime) ~= "number" then
+		return
+	end
+
+	local elapsed = math.max(0, workspace:GetServerTimeNow() - startTime)
+	player:SetAttribute("RunActive", false)
+	player:SetAttribute("RunFinished", true)
+	player:SetAttribute("LastRunTime", elapsed)
+
+	local best = player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("BestTime")
+	if best and (best.Value == 0 or elapsed < best.Value) then
+		best.Value = elapsed
+		player:SetAttribute("BestTime", elapsed)
+	end
+end)
+
+-- Uma base abaixo da pista evita quedas infinitas e facilita os testes.
+local killPlane = makePart("ResetPlane", Vector3.new(600, 2, 1200), Vector3.new(0, -45, finishZ / 2), Color3.fromRGB(32, 35, 45), Enum.Material.Slate)
+killPlane.Transparency = 0.35
+killPlane.Touched:Connect(function(hit)
+	local player = playerFromHit(hit)
+	if not player or not canTouch(player, "fallreset") then
+		return
+	end
+	local character = player.Character
+	if character then
+		character:PivotTo(checkpointForPlayer[player] or startPoint)
+		local root = character:FindFirstChild("HumanoidRootPart")
+		if root then
+			root.AssemblyLinearVelocity = Vector3.zero
+			root.AssemblyAngularVelocity = Vector3.zero
+		end
+	end
+end)
+
+local function setupPlayer(player)
+	if player:FindFirstChild("leaderstats") then
+		return
+	end
+	player:SetAttribute("Checkpoint", 0)
+	player:SetAttribute("RunActive", false)
+	player:SetAttribute("RunFinished", false)
+	player:SetAttribute("LastRunTime", 0)
+	player:SetAttribute("BestTime", 0)
+
+	local leaderstats = Instance.new("Folder")
+	leaderstats.Name = "leaderstats"
+	leaderstats.Parent = player
+
+	local best = Instance.new("NumberValue")
+	best.Name = "BestTime"
+	best.Value = 0
+	best.Parent = leaderstats
+
+	player.CharacterAdded:Connect(function(character)
+		task.wait(0.2)
+		if not checkpointForPlayer[player] then
+			checkpointForPlayer[player] = startPoint
+		end
+		-- A cada nova vida, volta ao último checkpoint alcançado.
+		if player:GetAttribute("Checkpoint") and player:GetAttribute("Checkpoint") > 0 then
+			character:PivotTo(checkpointForPlayer[player])
+		end
+	end)
+end
+
+Players.PlayerAdded:Connect(setupPlayer)
+for _, player in Players:GetPlayers() do
+	setupPlayer(player)
+end
+
+resetEvent.OnServerEvent:Connect(function(player)
+	local now = os.clock()
+	if resetCooldown[player] and now - resetCooldown[player] < 1 then
+		return
+	end
+	resetCooldown[player] = now
+
+	local character = player.Character
+	local checkpoint = checkpointForPlayer[player] or startPoint
+	if not character or not character.Parent then
+		return
+	end
+
+	character:PivotTo(checkpoint)
+	local root = character:FindFirstChild("HumanoidRootPart")
+	if root then
+		root.AssemblyLinearVelocity = Vector3.zero
+		root.AssemblyAngularVelocity = Vector3.zero
+	end
+end)
+
+Players.PlayerRemoving:Connect(function(player)
+	checkpointForPlayer[player] = nil
+	touchCooldown[player] = nil
+	resetCooldown[player] = nil
+end)
+
+print(("Bhop Starter: pista criada com %d plataformas."):format(COURSE_PARTS))
+]]></ProtectedString></Properties></Item></Item>
+<Item class="ServerStorage" referent="RBXB3290C175197496BB352A3DA4B22B066"><Properties><string name="Name">ServerStorage</string></Properties></Item>
+<Item class="StarterGui" referent="RBXCA580F98275C4F75A6570B2A62B9B1A3"><Properties><string name="Name">StarterGui</string></Properties></Item>
+<Item class="StarterPack" referent="RBX8341EBCB19574E9085DA10CCF7B09C0C"><Properties><string name="Name">StarterPack</string></Properties></Item>
+<Item class="StarterPlayer" referent="RBX05C41237191A42F390DF9FA47B784EF0"><Properties><string name="Name">StarterPlayer</string></Properties><Item class="StarterPlayerScripts" referent="RBX22966A7F0E854601808DBFC2DFD78A79"><Properties><string name="Name">StarterPlayerScripts</string></Properties><Item class="LocalScript" referent="RBX2BEC2ED4197F438F9909482DCA581DA6"><Properties><string name="Name">BhopController</string><bool name="Disabled">false</bool><ProtectedString name="Source"><![CDATA[-- Controle de bunny hop e air-strafe para a experiência própria.
+-- Coloque como LocalScript em StarterPlayer > StarterPlayerScripts.
+-- O movimento padrão do Roblox continua cuidando do teclado, gamepad e controles touch.
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+
+local BASE_WALK_SPEED = 16
+local MAX_WALK_SPEED = 42
+local MAX_AIR_SPEED = 76
+local AIR_ACCELERATION = 32
+local AIR_DRAG = 0.985
+
+local jumpHeld = false
+local characterConnections = {}
+
+local function disconnectCharacterConnections()
+	for _, connection in characterConnections do
+		connection:Disconnect()
+	end
+	table.clear(characterConnections)
+end
+
+local function setupCharacter(character)
+	disconnectCharacterConnections()
+	local humanoid = character:WaitForChild("Humanoid")
+	local root = character:WaitForChild("HumanoidRootPart")
+
+	humanoid.UseJumpPower = true
+	humanoid.JumpPower = 50
+	humanoid.WalkSpeed = BASE_WALK_SPEED
+
+	local heartbeatConnection = RunService.Heartbeat:Connect(function(deltaTime)
+		if not character.Parent or humanoid.Health <= 0 then
+			return
+		end
+
+		-- Segurar espaço ativa auto-hop; humanoid.Jump também respeita o botão touch padrão.
+		if jumpHeld or humanoid.Jump then
+			if humanoid.FloorMaterial ~= Enum.Material.Air then
+				humanoid.Jump = true
+			end
+		end
+
+		local velocity = root.AssemblyLinearVelocity
+		local horizontal = Vector3.new(velocity.X, 0, velocity.Z)
+		local speed = horizontal.Magnitude
+
+		if humanoid.FloorMaterial == Enum.Material.Air then
+			local inputDirection = humanoid.MoveDirection
+			inputDirection = Vector3.new(inputDirection.X, 0, inputDirection.Z)
+
+			if inputDirection.Magnitude > 0.05 then
+				inputDirection = inputDirection.Unit
+				local accelerated = horizontal + inputDirection * AIR_ACCELERATION * deltaTime
+				if accelerated.Magnitude > MAX_AIR_SPEED then
+					accelerated = accelerated.Unit * MAX_AIR_SPEED
+				end
+				horizontal = accelerated
+			else
+				horizontal *= AIR_DRAG
+			end
+
+			root.AssemblyLinearVelocity = Vector3.new(horizontal.X, velocity.Y, horizontal.Z)
+			speed = horizontal.Magnitude
+		end
+
+		-- Ajuste gradual de velocidade máxima no chão conforme o momentum adquirido.
+		humanoid.WalkSpeed = math.clamp(BASE_WALK_SPEED + math.max(0, speed - BASE_WALK_SPEED) * 0.28, BASE_WALK_SPEED, MAX_WALK_SPEED)
+	end)
+	table.insert(characterConnections, heartbeatConnection)
+end
+
+UserInputService.InputBegan:Connect(function(input, processed)
+	if input.KeyCode == Enum.KeyCode.Space then
+		jumpHeld = true
+	end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+	if input.KeyCode == Enum.KeyCode.Space then
+		jumpHeld = false
+	end
+end)
+
+player.CharacterAdded:Connect(setupCharacter)
+if player.Character then
+	task.spawn(setupCharacter, player.Character)
+end
+]]></ProtectedString></Properties></Item><Item class="LocalScript" referent="RBXF17916BF7AA545CA97E64F7302B91FB1"><Properties><string name="Name">BhopHUD</string><bool name="Disabled">false</bool><ProtectedString name="Source"><![CDATA[-- HUD: velocidade, tempo da tentativa, checkpoint, recorde e botão de reset.
+-- Coloque como LocalScript em StarterPlayer > StarterPlayerScripts.
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+local resetEvent = ReplicatedStorage:WaitForChild("BhopReset")
+local playerGui = player:WaitForChild("PlayerGui")
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "BhopHUD"
+gui.ResetOnSpawn = false
+gui.IgnoreGuiInset = true
+gui.Parent = playerGui
+
+local panel = Instance.new("Frame")
+panel.Name = "StatsPanel"
+panel.AnchorPoint = Vector2.new(0.5, 0)
+panel.Position = UDim2.new(0.5, 0, 0, 18)
+panel.Size = UDim2.new(0, 380, 0, 108)
+panel.BackgroundColor3 = Color3.fromRGB(17, 22, 34)
+panel.BackgroundTransparency = 0.12
+panel.BorderSizePixel = 0
+panel.Parent = gui
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 12)
+corner.Parent = panel
+
+local stroke = Instance.new("UIStroke")
+stroke.Color = Color3.fromRGB(65, 190, 255)
+stroke.Transparency = 0.35
+stroke.Thickness = 1.5
+stroke.Parent = panel
+
+local function makeLabel(name, position, size, textSize, color)
+	local label = Instance.new("TextLabel")
+	label.Name = name
+	label.Position = position
+	label.Size = size
+	label.BackgroundTransparency = 1
+	label.Font = Enum.Font.GothamSemibold
+	label.TextColor3 = color or Color3.fromRGB(240, 245, 255)
+	label.TextSize = textSize
+	label.TextXAlignment = Enum.TextXAlignment.Center
+	label.Text = "--"
+	label.Parent = panel
+	return label
+end
+
+local speedLabel = makeLabel("Speed", UDim2.new(0, 8, 0, 10), UDim2.new(0, 115, 0, 42), 25, Color3.fromRGB(83, 215, 255))
+local timerLabel = makeLabel("Timer", UDim2.new(0, 132, 0, 10), UDim2.new(0, 115, 0, 42), 25)
+local checkpointLabel = makeLabel("Checkpoint", UDim2.new(0, 260, 0, 10), UDim2.new(0, 110, 0, 42), 20, Color3.fromRGB(110, 255, 170))
+local hintLabel = makeLabel("Hint", UDim2.new(0, 10, 0, 57), UDim2.new(0, 250, 0, 32), 13, Color3.fromRGB(177, 190, 210))
+hintLabel.Text = "Segure ESPAÇO + alterne A/D no ar"
+
+local resetButton = Instance.new("TextButton")
+resetButton.Name = "ResetButton"
+resetButton.Position = UDim2.new(1, -112, 0, 59)
+resetButton.Size = UDim2.new(0, 100, 0, 30)
+resetButton.BackgroundColor3 = Color3.fromRGB(38, 54, 77)
+resetButton.BorderSizePixel = 0
+resetButton.Font = Enum.Font.GothamBold
+resetButton.Text = "RESET (R)"
+resetButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+resetButton.TextSize = 13
+resetButton.Parent = panel
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0, 8)
+buttonCorner.Parent = resetButton
+
+local bestLabel = Instance.new("TextLabel")
+bestLabel.Name = "BestTime"
+bestLabel.AnchorPoint = Vector2.new(0.5, 0)
+bestLabel.Position = UDim2.new(0.5, 0, 0, 135)
+bestLabel.Size = UDim2.new(0, 280, 0, 26)
+bestLabel.BackgroundTransparency = 1
+bestLabel.Font = Enum.Font.GothamMedium
+bestLabel.TextColor3 = Color3.fromRGB(255, 214, 105)
+bestLabel.TextSize = 15
+bestLabel.Parent = gui
+
+local function requestReset()
+	resetEvent:FireServer()
+end
+resetButton.Activated:Connect(requestReset)
+
+UserInputService.InputBegan:Connect(function(input, processed)
+	if not processed and input.KeyCode == Enum.KeyCode.R then
+		requestReset()
+	end
+end)
+
+local function formatTime(seconds)
+	return string.format("%02d:%05.2f", math.floor(seconds / 60), seconds % 60)
+end
+
+RunService.RenderStepped:Connect(function()
+	local character = player.Character
+	local root = character and character:FindFirstChild("HumanoidRootPart")
+	local speed = 0
+	if root then
+		local velocity = root.AssemblyLinearVelocity
+		speed = Vector3.new(velocity.X, 0, velocity.Z).Magnitude
+	end
+	speedLabel.Text = string.format("%.0f", speed)
+
+	local startTime = player:GetAttribute("RunStartTime")
+	local active = player:GetAttribute("RunActive")
+	local finished = player:GetAttribute("RunFinished")
+	if active and typeof(startTime) == "number" then
+		timerLabel.Text = formatTime(workspace:GetServerTimeNow() - startTime)
+	elseif finished then
+		timerLabel.Text = formatTime(player:GetAttribute("LastRunTime") or 0)
+	else
+		timerLabel.Text = "00:00.00"
+	end
+
+	checkpointLabel.Text = "CP " .. tostring(player:GetAttribute("Checkpoint") or 0)
+	local best = player:GetAttribute("BestTime") or 0
+	bestLabel.Text = best > 0 and ("Recorde: " .. formatTime(best)) or "Toque na plataforma azul para iniciar"
+end)
+]]></ProtectedString></Properties></Item><Item class="LocalScript" referent="RBX5071A93DBEEF451190829CDE91447EB7"><Properties><string name="Name">MovementFX</string><bool name="Disabled">false</bool><ProtectedString name="Source"><![CDATA[-- Feedback visual leve de velocidade: FOV responsivo e balanço suave da câmera.
+-- Coloque como LocalScript em StarterPlayer > StarterPlayerScripts.
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local BASE_FOV = 70
+local MAX_EXTRA_FOV = 12
+local OFFSET_STRENGTH = 0.12
+
+local currentHumanoid
+local connection
+
+local function bindCharacter(character)
+	if connection then
+		connection:Disconnect()
+	end
+	currentHumanoid = character:WaitForChild("Humanoid")
+	currentHumanoid.CameraOffset = Vector3.zero
+
+	connection = RunService.RenderStepped:Connect(function(deltaTime)
+		local camera = workspace.CurrentCamera
+		local root = character:FindFirstChild("HumanoidRootPart")
+		if not camera or not root or not currentHumanoid or currentHumanoid.Health <= 0 then
+			return
+		end
+
+		local velocity = root.AssemblyLinearVelocity
+		local horizontalSpeed = Vector3.new(velocity.X, 0, velocity.Z).Magnitude
+		local speedAlpha = math.clamp((horizontalSpeed - 16) / 60, 0, 1)
+		local targetFov = BASE_FOV + speedAlpha * MAX_EXTRA_FOV
+		camera.FieldOfView += (targetFov - camera.FieldOfView) * math.clamp(deltaTime * 5, 0, 1)
+
+		local move = currentHumanoid.MoveDirection
+		local targetOffset = Vector3.new(-move.X * OFFSET_STRENGTH, 0, 0)
+		currentHumanoid.CameraOffset = currentHumanoid.CameraOffset:Lerp(targetOffset, math.clamp(deltaTime * 7, 0, 1))
+	end)
+end
+
+player.CharacterAdded:Connect(bindCharacter)
+if player.Character then
+	task.spawn(bindCharacter, player.Character)
+end
+]]></ProtectedString></Properties></Item><Item class="LocalScript" referent="RBXD929D88E107C4FF9B165961D99B07504"><Properties><string name="Name">BhopAnimations</string><bool name="Disabled">false</bool><ProtectedString name="Source"><![CDATA[-- Opcional: animações próprias de salto e aterrissagem.
+-- Antes de usar, publique animações criadas por você e preencha os IDs abaixo.
+-- Coloque como LocalScript em StarterPlayer > StarterPlayerScripts.
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+-- IDs numéricos publicados no Roblox. Deixe "" para usar as animações padrão do avatar.
+local JUMP_ANIMATION_ID = ""
+local LAND_ANIMATION_ID = ""
+
+local function makeTrack(animator, animationId, priority)
+	if animationId == "" then
+		return nil
+	end
+
+	local animation = Instance.new("Animation")
+	animation.AnimationId = "rbxassetid://" .. animationId
+	local track = animator:LoadAnimation(animation)
+	track.Priority = priority
+	return track
+end
+
+local function setup(character)
+	local humanoid = character:WaitForChild("Humanoid")
+	local animator = humanoid:WaitForChild("Animator")
+	local jumpTrack = makeTrack(animator, JUMP_ANIMATION_ID, Enum.AnimationPriority.Action)
+	local landTrack = makeTrack(animator, LAND_ANIMATION_ID, Enum.AnimationPriority.Action)
+
+	humanoid.StateChanged:Connect(function(_, newState)
+		if newState == Enum.HumanoidStateType.Jumping and jumpTrack then
+			if landTrack and landTrack.IsPlaying then
+				landTrack:Stop(0.08)
+			end
+			jumpTrack:Play(0.08)
+		elseif newState == Enum.HumanoidStateType.Landed and landTrack then
+			if jumpTrack and jumpTrack.IsPlaying then
+				jumpTrack:Stop(0.08)
+			end
+			landTrack:Play(0.06)
+		end
+	end)
+end
+
+player.CharacterAdded:Connect(setup)
+if player.Character then
+	task.spawn(setup, player.Character)
+end
+]]></ProtectedString></Properties></Item></Item><Item class="StarterCharacterScripts" referent="RBX7F1DD93DE27E47F9979D0BF1F7B2E531"><Properties><string name="Name">StarterCharacterScripts</string></Properties></Item></Item>
+<Item class="Teams" referent="RBX60F6717420FC485EA64AF0692604093C"><Properties><string name="Name">Teams</string></Properties></Item>
+<Item class="SoundService" referent="RBXF818C0E077904B9C82802DE9A2E8B2E9"><Properties><string name="Name">SoundService</string></Properties></Item>
+<Item class="TextChatService" referent="RBX8D3F0A9348B84716990263B315236E15"><Properties><string name="Name">TextChatService</string></Properties></Item>
+</roblox>
