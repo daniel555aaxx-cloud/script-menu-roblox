@@ -41,9 +41,10 @@ Se preferir inserir os scripts em uma experiência existente, abra **Janela > Ex
 
 ### Controles
 
-- **WASD:** mover; mouse: orientar a câmera.
-- **Espaço segurado:** pulo automático ao tocar o chão.
-- **A/D no ar + virar a câmera:** controlar air-strafe e momentum.
+- **WASD:** ganhar velocidade inicial no chão; mouse: orientar a câmera.
+- **Espaço segurado:** encadear pulos automaticamente ao aterrissar.
+- Para aumentar a velocidade no ar: ganhe impulso inicial com **W**, salte e então solte **W**; alterne **A + mouse à esquerda** e **D + mouse à direita** com movimentos suaves. O air-strafe acrescenta aceleração lateral; o salto no contato conserva o momentum.
+- O HUD mostra a velocidade horizontal real em studs/s. Segurar apenas W no ar não produz o ganho do air-strafe; se a velocidade ficar estável, confira se está alternando a direção do strafe junto com a câmera.
 - **R** ou botão **RESET:** voltar ao último checkpoint.
 - No celular/tablet, os controles padrão do Roblox continuam ativos; use o botão de pulo padrão e o botão RESET da interface.
 

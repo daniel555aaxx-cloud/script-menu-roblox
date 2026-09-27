@@ -65,11 +65,13 @@ local function makeLabel(name, position, size, textSize, color)
 	return label
 end
 
-local speedLabel = makeLabel("Speed", UDim2.new(0, 8, 0, 10), UDim2.new(0, 115, 0, 42), 25, Color3.fromRGB(83, 215, 255))
+local speedLabel = makeLabel("Speed", UDim2.new(0, 8, 0, 10), UDim2.new(0, 115, 0, 42), 21, Color3.fromRGB(83, 215, 255))
 local timerLabel = makeLabel("Timer", UDim2.new(0, 132, 0, 10), UDim2.new(0, 115, 0, 42), 25)
 local checkpointLabel = makeLabel("Checkpoint", UDim2.new(0, 260, 0, 10), UDim2.new(0, 110, 0, 42), 20, Color3.fromRGB(110, 255, 170))
 local hintLabel = makeLabel("Hint", UDim2.new(0, 10, 0, 57), UDim2.new(0, 250, 0, 32), 13, Color3.fromRGB(177, 190, 210))
-hintLabel.Text = "Segure ESPAÇO + alterne A/D no ar"
+hintLabel.TextSize = 11
+hintLabel.TextWrapped = true
+hintLabel.Text = "Segure ESPAÇO. No ar: solte W; alterne A + mouse à esquerda / D + mouse à direita."
 
 local resetButton = Instance.new("TextButton")
 resetButton.Name = "ResetButton"
@@ -120,7 +122,7 @@ RunService.RenderStepped:Connect(function()
 		local velocity = root.AssemblyLinearVelocity
 		speed = Vector3.new(velocity.X, 0, velocity.Z).Magnitude
 	end
-	speedLabel.Text = string.format("%.0f", speed)
+	speedLabel.Text = string.format("VEL %.1f", speed)
 
 	local startTime = player:GetAttribute("RunStartTime")
 	local active = player:GetAttribute("RunActive")

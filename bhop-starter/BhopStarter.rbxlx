@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd" version="4">
 <External>null</External><External>nil</External>
-<Item class="Workspace" referent="RBX8D3469E814084E63A1A71BDC3BF86F83"><Properties><string name="Name">Workspace</string></Properties></Item>
-<Item class="Players" referent="RBX4993426A8C154C19A6C613B8856B62BA"><Properties><string name="Name">Players</string></Properties></Item>
-<Item class="Lighting" referent="RBXCAA878B93C544E5EA34DA73317005EE5"><Properties><string name="Name">Lighting</string></Properties></Item>
-<Item class="ReplicatedFirst" referent="RBX45B623E55F2A446FAA1F945C7570AAB1"><Properties><string name="Name">ReplicatedFirst</string></Properties></Item>
-<Item class="ReplicatedStorage" referent="RBX8CE42B6A43854F99A915B3A0725473FD"><Properties><string name="Name">ReplicatedStorage</string></Properties></Item>
-<Item class="ServerScriptService" referent="RBX6127FDC410E74BEAA1055EE87A205EA3"><Properties><string name="Name">ServerScriptService</string></Properties><Item class="Script" referent="RBX9B4B3842CEA0477998427D284697093A"><Properties><bool name="Disabled">false</bool><string name="Name">BhopGame</string><ProtectedString name="Source"><![CDATA[-- Bhop Starter: gera uma pista original, checkpoints e cronômetro no servidor.
+<Item class="Workspace" referent="RBX0E5AEF15646C4E71BB5E072840D6C0B0"><Properties><string name="Name">Workspace</string></Properties></Item>
+<Item class="Players" referent="RBX1B988DBAEED04839BBEACECC4E97CC09"><Properties><string name="Name">Players</string></Properties></Item>
+<Item class="Lighting" referent="RBX4D7ED86847394F578301E4931992B638"><Properties><string name="Name">Lighting</string></Properties></Item>
+<Item class="ReplicatedFirst" referent="RBX90DF2025FAF1466E8F2EC9BF1A8B104F"><Properties><string name="Name">ReplicatedFirst</string></Properties></Item>
+<Item class="ReplicatedStorage" referent="RBX62D96EE3F0F74A4583FE6F38DD77F304"><Properties><string name="Name">ReplicatedStorage</string></Properties></Item>
+<Item class="ServerScriptService" referent="RBX4DDB049429BA45D2B3E6A4E8C971BEB7"><Properties><string name="Name">ServerScriptService</string></Properties><Item class="Script" referent="RBXA2B493A755784C7F89CB5CAE54DB041D"><Properties><bool name="Disabled">false</bool><string name="Name">BhopGame</string><ProtectedString name="Source"><![CDATA[-- Bhop Starter: gera uma pista original, checkpoints e cronômetro no servidor.
 -- Coloque em ServerScriptService como Script.
 
 local Players = game:GetService("Players")
@@ -253,10 +253,10 @@ end)
 
 print(("Bhop Starter: pista criada com %d plataformas."):format(COURSE_PARTS))
 ]]></ProtectedString></Properties></Item></Item>
-<Item class="ServerStorage" referent="RBX686752C55AD64470BDAD84DBC0693AFC"><Properties><string name="Name">ServerStorage</string></Properties></Item>
-<Item class="StarterGui" referent="RBXAFBDE6CC555A46D097BF7D0AEFD24A8D"><Properties><string name="Name">StarterGui</string></Properties></Item>
-<Item class="StarterPack" referent="RBXE457B581589044298813F639B50A9616"><Properties><string name="Name">StarterPack</string></Properties></Item>
-<Item class="StarterPlayer" referent="RBX1660261FC27C4D5D97D4E3C9A4322D0C"><Properties><float name="CameraMaxZoomDistance">0.5</float><float name="CameraMinZoomDistance">0.5</float><token name="CameraMode">1</token><string name="Name">StarterPlayer</string></Properties><Item class="StarterPlayerScripts" referent="RBXB43B27665122468CB98959E285104298"><Properties><string name="Name">StarterPlayerScripts</string></Properties><Item class="LocalScript" referent="RBX19830FA5B5794AA8AAD53F3E0162C3D3"><Properties><bool name="Disabled">false</bool><string name="Name">BhopController</string><ProtectedString name="Source"><![CDATA[-- Bhop movement controller for this original Roblox experience.
+<Item class="ServerStorage" referent="RBXD1DBF903F08D4DBE9F059600A6429A5C"><Properties><string name="Name">ServerStorage</string></Properties></Item>
+<Item class="StarterGui" referent="RBX4F90C4E453674A668A9FDE730F9FA399"><Properties><string name="Name">StarterGui</string></Properties></Item>
+<Item class="StarterPack" referent="RBX23045EA5B2734DC8AAB1C0531A8A1129"><Properties><string name="Name">StarterPack</string></Properties></Item>
+<Item class="StarterPlayer" referent="RBXC14BBE26EE8C4C8EAB82EAD0D40DE878"><Properties><float name="CameraMaxZoomDistance">0.5</float><float name="CameraMinZoomDistance">0.5</float><token name="CameraMode">1</token><string name="Name">StarterPlayer</string></Properties><Item class="StarterPlayerScripts" referent="RBX5F1F89189357415B8FE404F24F64A351"><Properties><string name="Name">StarterPlayerScripts</string></Properties><Item class="LocalScript" referent="RBXD1CF9B177A5147E38362CBF360EB424C"><Properties><bool name="Disabled">false</bool><string name="Name">BhopController</string><ProtectedString name="Source"><![CDATA[-- Bhop movement controller for this original Roblox experience.
 -- First-person + Source-style ground friction/acceleration, air acceleration and air-strafe.
 -- Put this LocalScript in StarterPlayer > StarterPlayerScripts.
 
@@ -272,11 +272,11 @@ local GROUND_MAX_SPEED = 24
 local GROUND_ACCEL = 14
 local GROUND_FRICTION = 5.2
 local STOP_SPEED = 7
-local AIR_ACCEL = 12
-local AIR_WISH_SPEED_CAP = 30
-local AIR_DRAG = 0.015
+local AIR_ACCEL = 20
+local AIR_WISH_SPEED_CAP = 36
+local AIR_DRAG = 0.01
 local JUMP_SPEED = 52
-local MAX_SPEED = 115
+local MAX_SPEED = 220
 local JUMP_BUFFER_SECONDS = 0.12
 local SURF_MIN_NORMAL_Y = 0.08
 local SURF_MAX_NORMAL_Y = 0.88
@@ -470,7 +470,7 @@ local function setupCharacter(character)
 			velocity = Vector3.new(horizontal.X, velocity.Y, horizontal.Z)
 		else
 			-- Source-style air acceleration: cap wish speed, not total momentum.
-			local airWishSpeed = math.min(wishSpeed, AIR_WISH_SPEED_CAP)
+			local airWishSpeed = math.min(GROUND_MAX_SPEED * 1.5, AIR_WISH_SPEED_CAP)
 			local airVelocity = Vector3.new(velocity.X, 0, velocity.Z)
 			airVelocity = accelerate(airVelocity, wishDirection, airWishSpeed, AIR_ACCEL, deltaTime)
 			airVelocity *= math.max(0, 1 - AIR_DRAG * deltaTime)
@@ -513,7 +513,7 @@ player.CharacterAdded:Connect(setupCharacter)
 if player.Character then
 	task.spawn(setupCharacter, player.Character)
 end
-]]></ProtectedString></Properties></Item><Item class="LocalScript" referent="RBXBCDAF459230543998582EE6BFE2945E3"><Properties><bool name="Disabled">false</bool><string name="Name">BhopHUD</string><ProtectedString name="Source"><![CDATA[-- HUD: velocidade, tempo da tentativa, checkpoint, recorde e botão de reset.
+]]></ProtectedString></Properties></Item><Item class="LocalScript" referent="RBX085B8747903E4FEAB1F1046AEB0E1C83"><Properties><bool name="Disabled">false</bool><string name="Name">BhopHUD</string><ProtectedString name="Source"><![CDATA[-- HUD: velocidade, tempo da tentativa, checkpoint, recorde e botão de reset.
 -- Coloque como LocalScript em StarterPlayer > StarterPlayerScripts.
 
 local Players = game:GetService("Players")
@@ -580,11 +580,13 @@ local function makeLabel(name, position, size, textSize, color)
 	return label
 end
 
-local speedLabel = makeLabel("Speed", UDim2.new(0, 8, 0, 10), UDim2.new(0, 115, 0, 42), 25, Color3.fromRGB(83, 215, 255))
+local speedLabel = makeLabel("Speed", UDim2.new(0, 8, 0, 10), UDim2.new(0, 115, 0, 42), 21, Color3.fromRGB(83, 215, 255))
 local timerLabel = makeLabel("Timer", UDim2.new(0, 132, 0, 10), UDim2.new(0, 115, 0, 42), 25)
 local checkpointLabel = makeLabel("Checkpoint", UDim2.new(0, 260, 0, 10), UDim2.new(0, 110, 0, 42), 20, Color3.fromRGB(110, 255, 170))
 local hintLabel = makeLabel("Hint", UDim2.new(0, 10, 0, 57), UDim2.new(0, 250, 0, 32), 13, Color3.fromRGB(177, 190, 210))
-hintLabel.Text = "Segure ESPAÇO + alterne A/D no ar"
+hintLabel.TextSize = 11
+hintLabel.TextWrapped = true
+hintLabel.Text = "Segure ESPAÇO. No ar: solte W; alterne A + mouse à esquerda / D + mouse à direita."
 
 local resetButton = Instance.new("TextButton")
 resetButton.Name = "ResetButton"
@@ -635,7 +637,7 @@ RunService.RenderStepped:Connect(function()
 		local velocity = root.AssemblyLinearVelocity
 		speed = Vector3.new(velocity.X, 0, velocity.Z).Magnitude
 	end
-	speedLabel.Text = string.format("%.0f", speed)
+	speedLabel.Text = string.format("VEL %.1f", speed)
 
 	local startTime = player:GetAttribute("RunStartTime")
 	local active = player:GetAttribute("RunActive")
@@ -652,7 +654,7 @@ RunService.RenderStepped:Connect(function()
 	local best = player:GetAttribute("BestTime") or 0
 	bestLabel.Text = best > 0 and ("Recorde: " .. formatTime(best)) or "Toque na plataforma azul para iniciar"
 end)
-]]></ProtectedString></Properties></Item><Item class="LocalScript" referent="RBX35A56D703E1949BFA177B2F205E06B25"><Properties><bool name="Disabled">false</bool><string name="Name">MovementFX</string><ProtectedString name="Source"><![CDATA[-- Feedback visual leve de velocidade: FOV responsivo e balanço suave da câmera.
+]]></ProtectedString></Properties></Item><Item class="LocalScript" referent="RBX8C2C60A4C1334E6CAF4C637CDA89A0F1"><Properties><bool name="Disabled">false</bool><string name="Name">MovementFX</string><ProtectedString name="Source"><![CDATA[-- Feedback visual leve de velocidade: FOV responsivo e balanço suave da câmera.
 -- Coloque como LocalScript em StarterPlayer > StarterPlayerScripts.
 
 local Players = game:GetService("Players")
@@ -696,7 +698,7 @@ player.CharacterAdded:Connect(bindCharacter)
 if player.Character then
 	task.spawn(bindCharacter, player.Character)
 end
-]]></ProtectedString></Properties></Item><Item class="LocalScript" referent="RBXDAE647C319B04F7EAA78812B3469D64F"><Properties><bool name="Disabled">false</bool><string name="Name">BhopAnimations</string><ProtectedString name="Source"><![CDATA[-- Opcional: animações próprias de salto e aterrissagem.
+]]></ProtectedString></Properties></Item><Item class="LocalScript" referent="RBXD88A45ED8EE14C8F94CFE0E0B891BFD6"><Properties><bool name="Disabled">false</bool><string name="Name">BhopAnimations</string><ProtectedString name="Source"><![CDATA[-- Opcional: animações próprias de salto e aterrissagem.
 -- Antes de usar, publique animações criadas por você e preencha os IDs abaixo.
 -- Coloque como LocalScript em StarterPlayer > StarterPlayerScripts.
 
@@ -744,8 +746,8 @@ player.CharacterAdded:Connect(setup)
 if player.Character then
 	task.spawn(setup, player.Character)
 end
-]]></ProtectedString></Properties></Item></Item><Item class="StarterCharacterScripts" referent="RBX41912E10A3234CC6809C82E655DCFF64"><Properties><string name="Name">StarterCharacterScripts</string></Properties></Item></Item>
-<Item class="Teams" referent="RBX85FC0E95B79942A191757B41B37B3919"><Properties><string name="Name">Teams</string></Properties></Item>
-<Item class="SoundService" referent="RBX337B8770E5DE4306AA7375D068CFDC86"><Properties><string name="Name">SoundService</string></Properties></Item>
-<Item class="TextChatService" referent="RBXED991D44FAD34661AB4FD90B4D711D9F"><Properties><string name="Name">TextChatService</string></Properties></Item>
+]]></ProtectedString></Properties></Item></Item><Item class="StarterCharacterScripts" referent="RBX17AA7747D1864D509FB60FE53022B261"><Properties><string name="Name">StarterCharacterScripts</string></Properties></Item></Item>
+<Item class="Teams" referent="RBX163A046D346C45AEAFA14AA08B2600ED"><Properties><string name="Name">Teams</string></Properties></Item>
+<Item class="SoundService" referent="RBX745D7EC1BFF342548471707AB6D09AD2"><Properties><string name="Name">SoundService</string></Properties></Item>
+<Item class="TextChatService" referent="RBXFE06C86563C64AADBF82D64820A41CBC"><Properties><string name="Name">TextChatService</string></Properties></Item>
 </roblox>

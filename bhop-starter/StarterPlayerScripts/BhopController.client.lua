@@ -14,11 +14,11 @@ local GROUND_MAX_SPEED = 24
 local GROUND_ACCEL = 14
 local GROUND_FRICTION = 5.2
 local STOP_SPEED = 7
-local AIR_ACCEL = 12
-local AIR_WISH_SPEED_CAP = 30
-local AIR_DRAG = 0.015
+local AIR_ACCEL = 20
+local AIR_WISH_SPEED_CAP = 36
+local AIR_DRAG = 0.01
 local JUMP_SPEED = 52
-local MAX_SPEED = 115
+local MAX_SPEED = 220
 local JUMP_BUFFER_SECONDS = 0.12
 local SURF_MIN_NORMAL_Y = 0.08
 local SURF_MAX_NORMAL_Y = 0.88
@@ -212,7 +212,7 @@ local function setupCharacter(character)
 			velocity = Vector3.new(horizontal.X, velocity.Y, horizontal.Z)
 		else
 			-- Source-style air acceleration: cap wish speed, not total momentum.
-			local airWishSpeed = math.min(wishSpeed, AIR_WISH_SPEED_CAP)
+			local airWishSpeed = math.min(GROUND_MAX_SPEED * 1.5, AIR_WISH_SPEED_CAP)
 			local airVelocity = Vector3.new(velocity.X, 0, velocity.Z)
 			airVelocity = accelerate(airVelocity, wishDirection, airWishSpeed, AIR_ACCEL, deltaTime)
 			airVelocity *= math.max(0, 1 - AIR_DRAG * deltaTime)
