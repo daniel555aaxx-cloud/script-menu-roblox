@@ -188,6 +188,8 @@ local function addTeamSpawn(name, team, position)
 	spawn.TeamColor = team.TeamColor
 	spawn.Duration = 0
 	spawn.Transparency = 1
+	spawn.CanCollide = false
+	spawn.CanQuery = false
 	spawn.Parent = stadium
 end
 addTeamSpawn("RubroSpawn", homeTeam, Vector3.new(0, 0.5, -42))
@@ -237,6 +239,51 @@ local function setPossessor(player)
 	end
 end
 
+local function getDribbleDirection(root)
+	local velocity = root.AssemblyLinearVelocity
+	local movement = Vector3.new(velocity.X, 0, velocity.Z)
+	local facing = root.CFrame.LookVector
+	local flatFacing = Vector3.new(facing.X, 0, facing.Z)
+	if flatFacing.Magnitude > 0.05 then
+		flatFacing = flatFacing.Unit
+		if movement.Magnitude > 2.5 and movement.Unit:Dot(flatFacing) > 0.25 then
+			local blended = movement.Unit * 0.7 + flatFacing * 0.3
+			return blended.Unit, movement.Magnitude
+		end
+		return flatFacing, movement.Magnitude
+	end
+	return Vector3.new(0, 0, -1), movement.Magnitude
+end
+
+local function getGroundY(character, root, humanoid)
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	params.FilterDescendantsInstances = { character, ball }
+	local result = workspace:Raycast(root.Position + Vector3.new(0, 1, 0), Vector3.new(0, -8, 0), params)
+	if result then
+		return result.Position.Y
+	end
+	return root.Position.Y - humanoid.HipHeight - root.Size.Y * 0.5
+end
+
+local function positionBallAtFeet(player, root)
+	local character = player.Character
+	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	if not humanoid then return end
+
+	local direction, speed = getDribbleDirection(root)
+	-- Lead the ball slightly in the actual travel direction, rather than trailing behind
+	-- the avatar's root orientation while it turns or accelerates.
+	local lead = 2.1 + math.clamp(speed * 0.035, 0, 0.85)
+	local groundY = getGroundY(character, root, humanoid)
+	if root.Position.Y - groundY > 3.5 then
+		groundY = root.Position.Y - humanoid.HipHeight - root.Size.Y * 0.5
+	end
+	local target = root.Position + direction * lead
+	target = Vector3.new(target.X, groundY + ball.Size.Y * 0.5 + 0.06, target.Z)
+	ball.CFrame = CFrame.lookAt(target, target + direction)
+end
+
 local function detachBall()
 	possessor = nil
 	ball:SetAttribute("PossessorUserId", 0)
@@ -283,7 +330,12 @@ local function releaseShot(player, aim, charge)
 	if not root or not direction then return end
 	charge = typeof(charge) == "number" and math.clamp(charge, 0, 1) or 0.25
 
-	local origin = (root.CFrame * CFrame.new(0, -1.2, -3.1)).Position
+	local character = player.Character
+	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	if not humanoid then return end
+	local groundY = getGroundY(character, root, humanoid)
+	local origin = root.Position + direction * 2.8
+	origin = Vector3.new(origin.X, groundY + ball.Size.Y * 0.5 + 0.1, origin.Z)
 	detachBall()
 	ball.CFrame = CFrame.new(origin)
 	ball.AssemblyLinearVelocity = direction * (82 + charge * 82) + Vector3.new(0, 12 + charge * 26 + lift * 14, 0)
@@ -411,9 +463,17 @@ actionEvent.OnServerEvent:Connect(function(player, action, aim, charge)
 		else
 			direction = root.CFrame.LookVector
 		end
+		local flatDirection = Vector3.new(direction.X, 0, direction.Z)
+		if flatDirection.Magnitude < 0.1 then
+			flatDirection = Vector3.new(root.CFrame.LookVector.X, 0, root.CFrame.LookVector.Z)
+		end
+		flatDirection = flatDirection.Unit
+		local groundY = getGroundY(player.Character, root, player.Character:FindFirstChildOfClass("Humanoid"))
+		local origin = root.Position + flatDirection * 2.7
+		origin = Vector3.new(origin.X, groundY + ball.Size.Y * 0.5 + 0.1, origin.Z)
 		detachBall()
-		ball.CFrame = CFrame.new((root.CFrame * CFrame.new(0, -1.2, -3)).Position)
-		ball.AssemblyLinearVelocity = Vector3.new(direction.X, 0, direction.Z).Unit * 72 + Vector3.new(0, 8, 0)
+		ball.CFrame = CFrame.new(origin)
+		ball.AssemblyLinearVelocity = flatDirection * 72 + Vector3.new(0, 8, 0)
 		ball.AssemblyAngularVelocity = Vector3.new(7, 10, -5)
 		pickupBlockedUntil = now + 0.35
 	elseif action == "Tackle" then
@@ -451,7 +511,7 @@ RunService.Heartbeat:Connect(function(deltaTime)
 	if possessor then
 		local root = getRoot(possessor)
 		if root then
-			ball.CFrame = root.CFrame * CFrame.new(0, -1.8, -2.6)
+			positionBallAtFeet(possessor, root)
 		else
 			setPossessor(nil)
 		end

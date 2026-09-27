@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd" version="4">
 <External>null</External><External>nil</External>
-<Item class="Workspace" referent="RBX02943F56229948BD9B1C607BC4CEC789"><Properties><string name="Name">Workspace</string></Properties></Item>
-<Item class="Players" referent="RBX632C6B6FA5E84AD9BE0DFEDFFCB06654"><Properties><string name="Name">Players</string></Properties></Item>
-<Item class="Lighting" referent="RBX5FDC4FC073224898BE84E35D87050E55"><Properties><string name="Name">Lighting</string></Properties></Item>
-<Item class="ReplicatedStorage" referent="RBX7EABEF5BD29E450DAB879DB32FE9C4F1"><Properties><string name="Name">ReplicatedStorage</string></Properties></Item>
-<Item class="ServerScriptService" referent="RBX87C30152E90644C88B555C67BFBB0F8B"><Properties><string name="Name">ServerScriptService</string></Properties><Item class="Script" referent="RBXADA1DE6FBDC34903BB1DDDE00FDAF85B"><Properties><bool name="Disabled">false</bool><string name="Name">Match</string><ProtectedString name="Source"><![CDATA[-- ARENA FOOTBALL: original small-sided football prototype for Roblox.
+<Item class="Workspace" referent="RBXDDC642AB69B04953A9EA6F1E263895A6"><Properties><string name="Name">Workspace</string></Properties></Item>
+<Item class="Players" referent="RBXA0E129D133B54865A8D0F697BB34FF7E"><Properties><string name="Name">Players</string></Properties></Item>
+<Item class="Lighting" referent="RBX322250EF7E9E4640913740FE33F0BF92"><Properties><string name="Name">Lighting</string></Properties></Item>
+<Item class="ReplicatedStorage" referent="RBX45354A5C2AB24DCDAD5E6BEE41020D2F"><Properties><string name="Name">ReplicatedStorage</string></Properties></Item>
+<Item class="ServerScriptService" referent="RBX5742305BDDD44684988FA9B8EB607528"><Properties><string name="Name">ServerScriptService</string></Properties><Item class="Script" referent="RBX95C1493037914CFDBCF06180BC79617B"><Properties><bool name="Disabled">false</bool><string name="Name">Match</string><ProtectedString name="Source"><![CDATA[-- ARENA FOOTBALL: original small-sided football prototype for Roblox.
 -- Server-owned match, ball, score, goals, stamina and action validation.
 
 local Players = game:GetService("Players")
@@ -195,6 +195,8 @@ local function addTeamSpawn(name, team, position)
 	spawn.TeamColor = team.TeamColor
 	spawn.Duration = 0
 	spawn.Transparency = 1
+	spawn.CanCollide = false
+	spawn.CanQuery = false
 	spawn.Parent = stadium
 end
 addTeamSpawn("RubroSpawn", homeTeam, Vector3.new(0, 0.5, -42))
@@ -244,6 +246,51 @@ local function setPossessor(player)
 	end
 end
 
+local function getDribbleDirection(root)
+	local velocity = root.AssemblyLinearVelocity
+	local movement = Vector3.new(velocity.X, 0, velocity.Z)
+	local facing = root.CFrame.LookVector
+	local flatFacing = Vector3.new(facing.X, 0, facing.Z)
+	if flatFacing.Magnitude > 0.05 then
+		flatFacing = flatFacing.Unit
+		if movement.Magnitude > 2.5 and movement.Unit:Dot(flatFacing) > 0.25 then
+			local blended = movement.Unit * 0.7 + flatFacing * 0.3
+			return blended.Unit, movement.Magnitude
+		end
+		return flatFacing, movement.Magnitude
+	end
+	return Vector3.new(0, 0, -1), movement.Magnitude
+end
+
+local function getGroundY(character, root, humanoid)
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	params.FilterDescendantsInstances = { character, ball }
+	local result = workspace:Raycast(root.Position + Vector3.new(0, 1, 0), Vector3.new(0, -8, 0), params)
+	if result then
+		return result.Position.Y
+	end
+	return root.Position.Y - humanoid.HipHeight - root.Size.Y * 0.5
+end
+
+local function positionBallAtFeet(player, root)
+	local character = player.Character
+	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	if not humanoid then return end
+
+	local direction, speed = getDribbleDirection(root)
+	-- Lead the ball slightly in the actual travel direction, rather than trailing behind
+	-- the avatar's root orientation while it turns or accelerates.
+	local lead = 2.1 + math.clamp(speed * 0.035, 0, 0.85)
+	local groundY = getGroundY(character, root, humanoid)
+	if root.Position.Y - groundY > 3.5 then
+		groundY = root.Position.Y - humanoid.HipHeight - root.Size.Y * 0.5
+	end
+	local target = root.Position + direction * lead
+	target = Vector3.new(target.X, groundY + ball.Size.Y * 0.5 + 0.06, target.Z)
+	ball.CFrame = CFrame.lookAt(target, target + direction)
+end
+
 local function detachBall()
 	possessor = nil
 	ball:SetAttribute("PossessorUserId", 0)
@@ -290,7 +337,12 @@ local function releaseShot(player, aim, charge)
 	if not root or not direction then return end
 	charge = typeof(charge) == "number" and math.clamp(charge, 0, 1) or 0.25
 
-	local origin = (root.CFrame * CFrame.new(0, -1.2, -3.1)).Position
+	local character = player.Character
+	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	if not humanoid then return end
+	local groundY = getGroundY(character, root, humanoid)
+	local origin = root.Position + direction * 2.8
+	origin = Vector3.new(origin.X, groundY + ball.Size.Y * 0.5 + 0.1, origin.Z)
 	detachBall()
 	ball.CFrame = CFrame.new(origin)
 	ball.AssemblyLinearVelocity = direction * (82 + charge * 82) + Vector3.new(0, 12 + charge * 26 + lift * 14, 0)
@@ -418,9 +470,17 @@ actionEvent.OnServerEvent:Connect(function(player, action, aim, charge)
 		else
 			direction = root.CFrame.LookVector
 		end
+		local flatDirection = Vector3.new(direction.X, 0, direction.Z)
+		if flatDirection.Magnitude < 0.1 then
+			flatDirection = Vector3.new(root.CFrame.LookVector.X, 0, root.CFrame.LookVector.Z)
+		end
+		flatDirection = flatDirection.Unit
+		local groundY = getGroundY(player.Character, root, player.Character:FindFirstChildOfClass("Humanoid"))
+		local origin = root.Position + flatDirection * 2.7
+		origin = Vector3.new(origin.X, groundY + ball.Size.Y * 0.5 + 0.1, origin.Z)
 		detachBall()
-		ball.CFrame = CFrame.new((root.CFrame * CFrame.new(0, -1.2, -3)).Position)
-		ball.AssemblyLinearVelocity = Vector3.new(direction.X, 0, direction.Z).Unit * 72 + Vector3.new(0, 8, 0)
+		ball.CFrame = CFrame.new(origin)
+		ball.AssemblyLinearVelocity = flatDirection * 72 + Vector3.new(0, 8, 0)
 		ball.AssemblyAngularVelocity = Vector3.new(7, 10, -5)
 		pickupBlockedUntil = now + 0.35
 	elseif action == "Tackle" then
@@ -458,7 +518,7 @@ RunService.Heartbeat:Connect(function(deltaTime)
 	if possessor then
 		local root = getRoot(possessor)
 		if root then
-			ball.CFrame = root.CFrame * CFrame.new(0, -1.8, -2.6)
+			positionBallAtFeet(possessor, root)
 		else
 			setPossessor(nil)
 		end
@@ -514,9 +574,9 @@ end)
 
 print("ARENA FOOTBALL carregado: partida, campo, bola e comandos prontos.")
 ]]></ProtectedString></Properties></Item></Item>
-<Item class="ServerStorage" referent="RBX38418B98AEFA450999CD461989423CA9"><Properties><string name="Name">ServerStorage</string></Properties></Item>
-<Item class="StarterGui" referent="RBX376A64C51F30453982D28AC1FF3060F7"><Properties><string name="Name">StarterGui</string></Properties></Item>
-<Item class="StarterPlayer" referent="RBX529BB2B43C4A40A7847EDDAF6A43710F"><Properties><float name="CameraMaxZoomDistance">18</float><float name="CameraMinZoomDistance">9</float><token name="CameraMode">0</token><string name="Name">StarterPlayer</string></Properties><Item class="StarterPlayerScripts" referent="RBX3A94D4CEBE3748F1BAB337A94516693A"><Properties><string name="Name">StarterPlayerScripts</string></Properties><Item class="LocalScript" referent="RBX83A8C35DDFFA43A68D5854149E6624E5"><Properties><bool name="Disabled">false</bool><string name="Name">FootballClient</string><ProtectedString name="Source"><![CDATA[-- Client input/camera for ARENA FOOTBALL. Server validates all ball actions.
+<Item class="ServerStorage" referent="RBX471500B145B84BCB85C7D2BC876A2EBE"><Properties><string name="Name">ServerStorage</string></Properties></Item>
+<Item class="StarterGui" referent="RBX59CD390B535241019E868B98AB29F537"><Properties><string name="Name">StarterGui</string></Properties></Item>
+<Item class="StarterPlayer" referent="RBX02BC96E821B94D1B97C0EEA1D34F23D7"><Properties><float name="CameraMaxZoomDistance">18</float><float name="CameraMinZoomDistance">9</float><token name="CameraMode">0</token><string name="Name">StarterPlayer</string></Properties><Item class="StarterPlayerScripts" referent="RBX2849594999EE48AEA11D0FE8C9CF6921"><Properties><string name="Name">StarterPlayerScripts</string></Properties><Item class="LocalScript" referent="RBX62D3A3B343C7482BA6235C96099294D8"><Properties><bool name="Disabled">false</bool><string name="Name">FootballClient</string><ProtectedString name="Source"><![CDATA[-- Client input/camera for ARENA FOOTBALL. Server validates all ball actions.
 -- Controls: WASD, Shift sprint, hold mouse 1/E to charge a shot, Q pass, F tackle.
 
 local Players = game:GetService("Players")
@@ -679,7 +739,7 @@ player.CharacterAdded:Connect(function()
 	charging = false
 	setSprint(false)
 end)
-]]></ProtectedString></Properties></Item><Item class="LocalScript" referent="RBXBF2A4758E26F441EBEFB44FA0DCF3BCE"><Properties><bool name="Disabled">false</bool><string name="Name">FootballHUD</string><ProtectedString name="Source"><![CDATA[-- Match scoreboard, goal callout, possession state and stamina/shot bars.
+]]></ProtectedString></Properties></Item><Item class="LocalScript" referent="RBX3AB2A41931BB46A1A233312F6033A31F"><Properties><bool name="Disabled">false</bool><string name="Name">FootballHUD</string><ProtectedString name="Source"><![CDATA[-- Match scoreboard, goal callout, possession state and stamina/shot bars.
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -904,7 +964,7 @@ RunService.RenderStepped:Connect(function()
 	end
 end)
 ]]></ProtectedString></Properties></Item></Item></Item>
-<Item class="Teams" referent="RBX73458A57E7DF4305B8D87DA3D2A749ED"><Properties><string name="Name">Teams</string></Properties></Item>
-<Item class="SoundService" referent="RBX7B5E793ED0504DD0B2EC44AD53602D72"><Properties><string name="Name">SoundService</string></Properties></Item>
-<Item class="TextChatService" referent="RBX1DD31ACA3E894DDB96B497A3DB90C39B"><Properties><string name="Name">TextChatService</string></Properties></Item>
+<Item class="Teams" referent="RBX4DA747ED34444CAA9EC16FAE19993E35"><Properties><string name="Name">Teams</string></Properties></Item>
+<Item class="SoundService" referent="RBXEDF72E78AD4241789582C62ABEDAC8CD"><Properties><string name="Name">SoundService</string></Properties></Item>
+<Item class="TextChatService" referent="RBX1E347CC907FA453FA6D3E0BD09DC9FCE"><Properties><string name="Name">TextChatService</string></Properties></Item>
 </roblox>

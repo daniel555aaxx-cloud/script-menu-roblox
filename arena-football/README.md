@@ -15,7 +15,7 @@ O arquivo [`ArenaFootball.rbxlx`](ArenaFootball.rbxlx) contém os scripts organi
 
 - Campo original com linhas, áreas, gols, redes, arquibancadas, iluminação e limites invisíveis.
 - Duas equipes balanceadas automaticamente: **Rubro FC** e **Azul FC**.
-- Bola física controlada pelo servidor, domínio/drible por proximidade, chute carregável, passe com assistência ao companheiro e desarme próximo.
+- Bola física controlada pelo servidor, domínio por proximidade e drible à frente dos pés (ajustado pela direção/velocidade do deslocamento e pela altura do campo), chute carregável, passe assistido e desarme.
 - Corrida com barra de fôlego; o fôlego é gasto correndo e recuperado ao caminhar.
 - Placar, relógio de 3 minutos, aviso de gol e fim de jogo.
 - Controles de toque criados automaticamente em celular/tablet.
