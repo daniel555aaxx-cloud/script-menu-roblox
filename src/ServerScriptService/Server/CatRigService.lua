@@ -24,6 +24,12 @@ local function weld(part0, part1, c0, c1)
 end
 
 local function addEars(character, head)
+    -- remove orelhas antigas se essa função já rodou antes nesse personagem
+    -- (Setup pode rodar mais de uma vez: em CharacterAdded e de novo em
+    -- CharacterAppearanceLoaded, pra garantir que a aparência do gato sempre vença)
+    local existing = character:FindFirstChild("CatEars")
+    if existing then existing:Destroy() end
+
     local earFolder = Instance.new("Folder")
     earFolder.Name = "CatEars"
     earFolder.Parent = character
@@ -43,6 +49,14 @@ local function addEars(character, head)
 end
 
 local function addTail(character, lowerTorso)
+    local existing = character:FindFirstChild("CatTail")
+    if existing then existing:Destroy() end
+
+    -- o primeiro Motor6D do rabo fica pendurado no LowerTorso (fora da pasta CatTail),
+    -- então precisa ser limpo manualmente pra não duplicar se Setup rodar de novo
+    local oldFirstJoint = lowerTorso:FindFirstChild("TailJoint1")
+    if oldFirstJoint then oldFirstJoint:Destroy() end
+
     local tailFolder = Instance.new("Folder")
     tailFolder.Name = "CatTail"
     tailFolder.Parent = character

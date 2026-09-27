@@ -5,13 +5,23 @@
 ]]
 
 local Players = game:GetService("Players")
-
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local MapBuilder = require(script.Parent.MapBuilder)
 local CatRigService = require(script.Parent.CatRigService)
 local CheckpointService = require(script.Parent.CheckpointService)
 local RaceService = require(script.Parent.RaceService)
+
+-- Gera o mapa inteiro (hub + 3 zonas + final) ANTES de qualquer outra coisa
+-- que dependa dele (checkpoints, respawn, etc.)
+local mapInfo = MapBuilder.Build()
+
+-- Liga o cronômetro: começa no checkpoint do hub, termina no pad final
+local hubCheckpoint = mapInfo.folder:FindFirstChild("Checkpoint_0_Hub")
+if hubCheckpoint then
+    RaceService:AttachToCheckpoint(hubCheckpoint)
+end
+RaceService:AttachToFinish(mapInfo.finishPad)
 
 -- Botão "Reset" (R): joga o jogador de volta pro último checkpoint (útil se ficar preso)
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
@@ -39,28 +49,37 @@ RequestFullReset.OnServerEvent:Connect(function(player)
     CheckpointService:Respawn(player)
 end)
 
--- Gera o mapa inteiro (hub + 3 zonas + final)
-local mapInfo = MapBuilder.Build()
+-- ============= Personagem =============
+--
+-- IMPORTANTE: `CharacterAdded` só garante que o Model do personagem existe,
+-- mas a APARÊNCIA (avatar, roupas, e principalmente a escala do corpo) ainda
+-- pode estar carregando de forma assíncrona nesse momento e sobrescrever
+-- nossas mudanças (Roblox carrega isso depois, via `CharacterAppearanceLoaded`).
+-- Por isso aplicamos `CatRigService.Setup` tanto em CharacterAdded quanto de
+-- novo em CharacterAppearanceLoaded — a segunda chamada sempre "vence" por
+-- último e garante que o jogador SEMPRE nasça como gato.
 
--- Liga o cronômetro: começa no checkpoint do hub, termina no pad final
-local hubCheckpoint = mapInfo.folder:FindFirstChild("Checkpoint_0_Hub")
-if hubCheckpoint then
-    RaceService:AttachToCheckpoint(hubCheckpoint)
-end
-RaceService:AttachToFinish(mapInfo.finishPad)
+local function applyCatRig(player, character)
+    local ok, err = pcall(function()
+        CatRigService.Setup(player, character)
+    end)
+    if not ok then
+        warn("[Main] Falha ao transformar " .. player.Name .. " em gato: " .. tostring(err))
+    end
 
-local function onCharacterAdded(player, character)
-    character:SetAttribute("SpawnedAt", os.clock())
-
-    local humanoid = character:WaitForChild("Humanoid")
-    CatRigService.Setup(player, character)
-
-    -- se ainda não tem checkpoint, usa o spawn do hub
     local data = CheckpointService:GetData(player)
     if not data.position then
         CheckpointService:SetSpawn(player, mapInfo.hubSpawnPosition)
     end
+end
 
+local function onCharacterAdded(player, character)
+    character:SetAttribute("SpawnedAt", os.clock())
+
+    -- Aplica na hora (cobre o caso comum onde a aparência já carregou rápido)
+    applyCatRig(player, character)
+
+    local humanoid = character:WaitForChild("Humanoid")
     humanoid.Died:Connect(function()
         -- o gato "nunca morre de verdade" (sem dano), mas por segurança,
         -- se algo forçar a morte, respawna no checkpoint depois de um instante
@@ -72,12 +91,24 @@ local function onCharacterAdded(player, character)
     end)
 end
 
+local function onCharacterAppearanceLoaded(player, character)
+    -- Reaplica DEPOIS que a aparência "de fábrica" do avatar terminou de
+    -- carregar, garantindo que o visual de gato sempre seja o que fica.
+    applyCatRig(player, character)
+end
+
 local function onPlayerAdded(player)
     player.CharacterAdded:Connect(function(character)
         onCharacterAdded(player, character)
     end)
+    player.CharacterAppearanceLoaded:Connect(function(character)
+        onCharacterAppearanceLoaded(player, character)
+    end)
+
+    -- Caso o personagem (e/ou aparência) já tenha carregado antes da gente conectar
     if player.Character then
         onCharacterAdded(player, player.Character)
+        onCharacterAppearanceLoaded(player, player.Character)
     end
 end
 

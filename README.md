@@ -55,6 +55,17 @@ personagem não usa o pulo/gravidade padrão do Roblox, só a física custom:
 > muito fácil/difícil, mexa nos números do `CatConfig` ou reposicione as
 > plataformas em `MapBuilder.lua` (tudo comentado e em tabelas simples).
 
+> 🐈 **Importante — garanta que todo mundo nasça como gato (R15)**: o visual
+> de gato (encolher o corpo, orelhas, rabo) só funciona em personagens **R15**.
+> O servidor já tenta forçar isso automaticamente (`CatRigService.Setup` roda
+> de novo em `CharacterAppearanceLoaded`, depois que a aparência "de fábrica"
+> do avatar termina de carregar, pra nunca deixar o visual padrão sobrescrever
+> o do gato). Mas se o **jogo/lugar** estiver configurado como "R6" ou
+> "Player Choice" nas configurações do Roblox, alguns jogadores ainda podem
+> cair como R6 (aí só as orelhinhas aparecem, sem encolher/rabo). Pra garantir
+> 100%: no Roblox Studio, vá em **Home > Game Settings > Avatar** (ou no site,
+> em Configurar Experiência > Avatar) e defina **Avatar Type = R15**.
+
 ---
 
 ## 🕹️ Controles
