@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd" version="4">
 <External>null</External><External>nil</External>
-<Item class="Workspace" referent="RBX6B202985BE2348F59A5DD6EEFD16B87A"><Properties><string name="Name">Workspace</string></Properties></Item>
-<Item class="Players" referent="RBX4E50176355264D6D8A31FCBC9938A900"><Properties><string name="Name">Players</string></Properties></Item>
-<Item class="Lighting" referent="RBXD54AD3D3F3D7467B808CB11286B264A5"><Properties><string name="Name">Lighting</string></Properties></Item>
-<Item class="ReplicatedStorage" referent="RBX751B263E5E364DACA31ED096086B20D6"><Properties><string name="Name">ReplicatedStorage</string></Properties></Item>
-<Item class="ServerScriptService" referent="RBXBD0C4432DF4447F4B02E2823902E8433"><Properties><string name="Name">ServerScriptService</string></Properties><Item class="Script" referent="RBX8F6C1A07B5CD46C8989E378833F98984"><Properties><bool name="Disabled">false</bool><string name="Name">Match</string><ProtectedString name="Source"><![CDATA[-- ARENA FOOTBALL: original small-sided football prototype for Roblox.
+<Item class="Workspace" referent="RBXF2C8588B0BD14482889AC8E7812492BA"><Properties><string name="Name">Workspace</string></Properties></Item>
+<Item class="Players" referent="RBX2635822AA909465E9F273A7F60DE39F6"><Properties><string name="Name">Players</string></Properties></Item>
+<Item class="Lighting" referent="RBX08283D7634E74DF4A8D2AADEE9786FF7"><Properties><string name="Name">Lighting</string></Properties></Item>
+<Item class="ReplicatedStorage" referent="RBXCA40D00EFFF344E292C5DC91C5A47730"><Properties><string name="Name">ReplicatedStorage</string></Properties></Item>
+<Item class="ServerScriptService" referent="RBX4A5A67F6A97949999F394033D06A3B83"><Properties><string name="Name">ServerScriptService</string></Properties><Item class="Script" referent="RBX349D456BA9F24E6AAE36E30ED6361D3C"><Properties><bool name="Disabled">false</bool><string name="Name">Match</string><ProtectedString name="Source"><![CDATA[-- ARENA FOOTBALL: original small-sided football prototype for Roblox.
 -- Server-owned match, ball, score, goals, stamina and action validation.
 
 local Players = game:GetService("Players")
@@ -65,30 +65,47 @@ stadium.Parent = workspace
 
 Lighting.ClockTime = 17.2
 Lighting.Brightness = 2.2
+Lighting.GlobalShadows = true
+Lighting.EnvironmentDiffuseScale = 0.42
+Lighting.EnvironmentSpecularScale = 0.55
 Lighting.Ambient = Color3.fromRGB(115, 126, 145)
 Lighting.OutdoorAmbient = Color3.fromRGB(140, 150, 165)
+local atmosphere = Lighting:FindFirstChild("ArenaAtmosphere") or Instance.new("Atmosphere")
+atmosphere.Name = "ArenaAtmosphere"
+atmosphere.Density = 0.22
+atmosphere.Offset = 0.08
+atmosphere.Color = Color3.fromRGB(199, 217, 235)
+atmosphere.Decay = Color3.fromRGB(102, 119, 147)
+atmosphere.Glare = 0.12
+atmosphere.Haze = 0.65
+atmosphere.Parent = Lighting
 
-makePart(stadium, "Pitch", Vector3.new(108, 2, 168), Vector3.new(0, -1, 0), Color3.fromRGB(36, 128, 65), Enum.Material.Grass, true, true)
-makePart(stadium, "CenterLine", Vector3.new(0.18, 0.08, 164), Vector3.new(0, 0.06, 0), Color3.fromRGB(242, 246, 238), Enum.Material.SmoothPlastic, true, false)
-makeLine(stadium, "TouchlineNorth", Vector3.new(100, 0.08, 0.18), Vector3.new(0, 0.06, -78))
-makeLine(stadium, "TouchlineSouth", Vector3.new(100, 0.08, 0.18), Vector3.new(0, 0.06, 78))
-makeLine(stadium, "GoalLineWest", Vector3.new(0.18, 0.08, 156), Vector3.new(-49, 0.06, 0))
-makeLine(stadium, "GoalLineEast", Vector3.new(0.18, 0.08, 156), Vector3.new(49, 0.06, 0))
+makePart(stadium, "Pitch", Vector3.new(240, 2, 380), Vector3.new(0, -1, 0), Color3.fromRGB(34, 119, 58), Enum.Material.Grass, true, true)
+-- Mowing bands give the playing surface depth without importing outside assets.
+for index = 1, 16 do
+	local stripeColor = index % 2 == 0 and Color3.fromRGB(39, 130, 63) or Color3.fromRGB(34, 119, 58)
+	local stripe = makePart(stadium, ("MowingStripe_%02d"):format(index), Vector3.new(240, 0.025, 23.75), Vector3.new(0, 0.012, -190 + (index - 0.5) * 23.75), stripeColor, Enum.Material.Grass, true, false)
+	stripe.CastShadow = false
+end
+makeLine(stadium, "CenterLine", Vector3.new(0.22, 0.08, 372), Vector3.new(0, 0.07, 0))
+makeLine(stadium, "TouchlineNorth", Vector3.new(230, 0.08, 0.22), Vector3.new(0, 0.07, -184))
+makeLine(stadium, "TouchlineSouth", Vector3.new(230, 0.08, 0.22), Vector3.new(0, 0.07, 184))
+makeLine(stadium, "GoalLineWest", Vector3.new(0.22, 0.08, 368), Vector3.new(-116, 0.07, 0))
+makeLine(stadium, "GoalLineEast", Vector3.new(0.22, 0.08, 368), Vector3.new(116, 0.07, 0))
 local centerSpot = makePart(stadium, "CenterSpot", Vector3.new(0.08, 0.8, 0.8), Vector3.new(0, 0.08, 0), Color3.fromRGB(242, 246, 238), Enum.Material.SmoothPlastic, true, false)
 centerSpot.Shape = Enum.PartType.Cylinder
 centerSpot.CFrame = CFrame.new(0, 0.08, 0) * CFrame.Angles(0, 0, math.pi / 2)
 
 -- Thin segments form a clean painted center circle.
-for i = 1, 40 do
-	local angle = ((i - 0.5) / 40) * math.pi * 2
-	local x = math.cos(angle) * 12
-	local z = math.sin(angle) * 12
-	local segment = makeLine(stadium, ("CenterCircle_%02d"):format(i), Vector3.new(0.18, 0.08, 1.9), Vector3.new(x, 0.07, z))
+for i = 1, 64 do
+	local angle = ((i - 0.5) / 64) * math.pi * 2
+	local x = math.cos(angle) * 32
+	local z = math.sin(angle) * 32
+	local segment = makeLine(stadium, ("CenterCircle_%02d"):format(i), Vector3.new(0.22, 0.08, 3.2), Vector3.new(x, 0.07, z))
 	segment.CFrame = CFrame.lookAt(Vector3.new(x, 0.07, z), Vector3.new(x - math.sin(angle), 0.07, z + math.cos(angle)))
 end
 
-local function drawBox(name, zCenter, depth)
-	local halfWidth = 20
+local function drawBox(name, zCenter, depth, halfWidth)
 	local innerZ = zCenter > 0 and zCenter - depth / 2 or zCenter + depth / 2
 	local outerZ = zCenter > 0 and zCenter + depth / 2 or zCenter - depth / 2
 	makeLine(stadium, name .. "_Left", Vector3.new(0.18, 0.08, depth), Vector3.new(-halfWidth, 0.07, zCenter))
@@ -97,70 +114,97 @@ local function drawBox(name, zCenter, depth)
 	makeLine(stadium, name .. "_Back", Vector3.new(halfWidth * 2, 0.08, 0.18), Vector3.new(0, 0.07, outerZ))
 end
 
-drawBox("NorthPenaltyArea", 66, 24)
-drawBox("SouthPenaltyArea", -66, 24)
-drawBox("NorthGoalArea", 74, 10)
-drawBox("SouthGoalArea", -74, 10)
+drawBox("NorthPenaltyArea", 160, 60, 70)
+drawBox("SouthPenaltyArea", -160, 60, 70)
+drawBox("NorthGoalArea", 174, 32, 33)
+drawBox("SouthGoalArea", -174, 32, 33)
+makePart(stadium, "NorthPenaltySpot", Vector3.new(1.2, 0.08, 1.2), Vector3.new(0, 0.08, 151), Color3.fromRGB(242, 246, 238), Enum.Material.SmoothPlastic, true, false).Shape = Enum.PartType.Ball
+makePart(stadium, "SouthPenaltySpot", Vector3.new(1.2, 0.08, 1.2), Vector3.new(0, 0.08, -151), Color3.fromRGB(242, 246, 238), Enum.Material.SmoothPlastic, true, false).Shape = Enum.PartType.Ball
+
+-- Corner flagpoles make the enlarged field easier to read at a distance.
+for _, xSide in ipairs({-1, 1}) do
+	for _, zSide in ipairs({-1, 1}) do
+		local x, z = xSide * 116, zSide * 184
+		makePart(stadium, ("CornerFlagPole_%d_%d"):format(xSide, zSide), Vector3.new(0.22, 6, 0.22), Vector3.new(x, 3, z), Color3.fromRGB(236, 238, 235), Enum.Material.Metal, true, false)
+		local flag = makePart(stadium, ("CornerFlag_%d_%d"):format(xSide, zSide), Vector3.new(1.5, 0.9, 0.12), Vector3.new(x + xSide * 0.72, 5.45, z), zSide > 0 and Color3.fromRGB(206, 64, 58) or Color3.fromRGB(65, 142, 224), Enum.Material.Fabric, true, false)
+		flag.CastShadow = false
+	end
+end
 
 local postColor = Color3.fromRGB(242, 245, 240)
 local function makeGoal(prefix, z)
-	local backZ = z > 0 and z + 7 or z - 7
+	local goalHalfWidth = 13
+	local goalHeight = 8.5
+	local goalDepth = 14
+	local backZ = z > 0 and z + goalDepth or z - goalDepth
 	for _, side in ipairs({-1, 1}) do
-		makePart(stadium, prefix .. "Post" .. side, Vector3.new(0.8, 8, 0.8), Vector3.new(side * 10, 4, z), postColor, Enum.Material.Metal, true, true)
-		makePart(stadium, prefix .. "NetSide" .. side, Vector3.new(0.18, 7.8, 7), Vector3.new(side * 10, 4, (z + backZ) / 2), Color3.fromRGB(205, 214, 220), Enum.Material.Fabric, true, false).Transparency = 0.55
+		makePart(stadium, prefix .. "Post" .. side, Vector3.new(0.9, goalHeight, 0.9), Vector3.new(side * goalHalfWidth, goalHeight / 2, z), postColor, Enum.Material.Metal, true, true)
+		makePart(stadium, prefix .. "NetSide" .. side, Vector3.new(0.16, goalHeight - 0.4, goalDepth), Vector3.new(side * goalHalfWidth, (goalHeight - 0.4) / 2, (z + backZ) / 2), Color3.fromRGB(210, 220, 225), Enum.Material.Fabric, true, false).Transparency = 0.62
 	end
-	makePart(stadium, prefix .. "Crossbar", Vector3.new(20.8, 0.8, 0.8), Vector3.new(0, 8, z), postColor, Enum.Material.Metal, true, true)
-	makePart(stadium, prefix .. "NetBack", Vector3.new(20, 7.8, 0.18), Vector3.new(0, 4, backZ), Color3.fromRGB(210, 220, 225), Enum.Material.Fabric, true, false).Transparency = 0.55
-	for i = -4, 4 do
-		makeLine(stadium, prefix .. "NetCordX" .. i, Vector3.new(0.08, 7.5, 0.08), Vector3.new(i * 2, 4, backZ - (z > 0 and 0.2 or -0.2)))
+	makePart(stadium, prefix .. "Crossbar", Vector3.new(goalHalfWidth * 2 + 0.9, 0.9, 0.9), Vector3.new(0, goalHeight, z), postColor, Enum.Material.Metal, true, true)
+	makePart(stadium, prefix .. "NetBack", Vector3.new(goalHalfWidth * 2, goalHeight - 0.4, 0.16), Vector3.new(0, (goalHeight - 0.4) / 2, backZ), Color3.fromRGB(210, 220, 225), Enum.Material.Fabric, true, false).Transparency = 0.62
+	for i = -5, 5 do
+		makeLine(stadium, prefix .. "NetCordX" .. i, Vector3.new(0.07, goalHeight - 0.5, 0.07), Vector3.new(i * 2.5, (goalHeight - 0.5) / 2, backZ - (z > 0 and 0.2 or -0.2)))
 	end
-	for i = 1, 3 do
-		makeLine(stadium, prefix .. "NetCordY" .. i, Vector3.new(20, 0.08, 0.08), Vector3.new(0, i * 1.8, backZ - (z > 0 and 0.2 or -0.2)))
+	for i = 1, 4 do
+		makeLine(stadium, prefix .. "NetCordY" .. i, Vector3.new(goalHalfWidth * 2, 0.07, 0.07), Vector3.new(0, i * 1.65, backZ - (z > 0 and 0.2 or -0.2)))
 	end
 
-	local goalTrigger = makePart(stadium, prefix .. "GoalTrigger", Vector3.new(19, 7.4, 5), Vector3.new(0, 4, z + (z > 0 and 2.7 or -2.7)), Color3.new(1, 1, 1), Enum.Material.SmoothPlastic, true, false)
+	local goalTrigger = makePart(stadium, prefix .. "GoalTrigger", Vector3.new(goalHalfWidth * 2 - 1, goalHeight - 0.6, 7), Vector3.new(0, (goalHeight - 0.6) / 2, z + (z > 0 and 3.5 or -3.5)), Color3.new(1, 1, 1), Enum.Material.SmoothPlastic, true, false)
 	goalTrigger.Transparency = 1
 	goalTrigger.CanTouch = true
 	return goalTrigger
 end
 
 -- Rubro attacks the north (+Z) goal; Azul attacks the south (-Z) goal.
-local northGoal = makeGoal("NorthGoal", 80)
-local southGoal = makeGoal("SouthGoal", -80)
+local northGoal = makeGoal("NorthGoal", 190)
+local southGoal = makeGoal("SouthGoal", -190)
 
--- Simple grandstands, floodlight poles and invisible boundaries.
+-- Grandstands, several floodlight towers and invisible perimeter walls.
 for _, side in ipairs({-1, 1}) do
 	for row = 1, 3 do
-		local x = side * (58 + row * 4)
-		local stand = makePart(stadium, ("SideStand_%d_%d"):format(side, row), Vector3.new(7, 5 + row * 2, 142), Vector3.new(x, 2 + row * 1.4, 0), (row % 2 == 0) and Color3.fromRGB(36, 51, 76) or Color3.fromRGB(47, 63, 89), Enum.Material.Metal, true, true)
+		local x = side * (135 + row * 10)
+		local stand = makePart(stadium, ("SideStand_%d_%d"):format(side, row), Vector3.new(16, 9 + row * 3, 340), Vector3.new(x, 3 + row * 2, 0), (row % 2 == 0) and Color3.fromRGB(36, 51, 76) or Color3.fromRGB(47, 63, 89), Enum.Material.Metal, true, true)
 		stand.CastShadow = true
 	end
-	local pole = makePart(stadium, "FloodlightPole_" .. side, Vector3.new(1.2, 34, 1.2), Vector3.new(side * 76, 17, 0), Color3.fromRGB(47, 54, 67), Enum.Material.Metal, true, true)
-	local lamp = makePart(stadium, "Floodlight_" .. side, Vector3.new(12, 1, 3), Vector3.new(side * 76, 35, 0), Color3.fromRGB(255, 244, 203), Enum.Material.Neon, true, false)
-	local pointLight = Instance.new("PointLight")
-	pointLight.Brightness = 2.5
-	pointLight.Range = 80
-	pointLight.Color = Color3.fromRGB(255, 241, 208)
-	pointLight.Parent = lamp
-	pole.CastShadow = true
-end
-for _, z in ipairs({-94, 94}) do
-	for row = 1, 2 do
-		makePart(stadium, "EndStand_" .. z .. "_" .. row, Vector3.new(112, 7, 6), Vector3.new(0, row * 3, z + row * (z > 0 and 5 or -5)), Color3.fromRGB(40, 55, 81), Enum.Material.Metal, true, true)
+	for _, lightZ in ipairs({-130, 130}) do
+		local pole = makePart(stadium, ("FloodlightPole_%d_%d"):format(side, lightZ), Vector3.new(1.8, 48, 1.8), Vector3.new(side * 188, 24, lightZ), Color3.fromRGB(47, 54, 67), Enum.Material.Metal, true, true)
+		local lamp = makePart(stadium, ("Floodlight_%d_%d"):format(side, lightZ), Vector3.new(18, 1.2, 5), Vector3.new(side * 188, 49, lightZ), Color3.fromRGB(255, 244, 203), Enum.Material.Neon, true, false)
+		local pointLight = Instance.new("PointLight")
+		pointLight.Brightness = 3
+		pointLight.Range = 220
+		pointLight.Shadows = true
+		pointLight.Color = Color3.fromRGB(255, 241, 208)
+		pointLight.Parent = lamp
+		pole.CastShadow = true
 	end
 end
-makePart(stadium, "BoundaryWest", Vector3.new(1, 12, 190), Vector3.new(-56, 5, 0), Color3.new(1, 1, 1), Enum.Material.SmoothPlastic, true, true).Transparency = 1
-makePart(stadium, "BoundaryEast", Vector3.new(1, 12, 190), Vector3.new(56, 5, 0), Color3.new(1, 1, 1), Enum.Material.SmoothPlastic, true, true).Transparency = 1
-makePart(stadium, "BoundaryNorth", Vector3.new(112, 12, 1), Vector3.new(0, 5, 101), Color3.new(1, 1, 1), Enum.Material.SmoothPlastic, true, true).Transparency = 1
-makePart(stadium, "BoundarySouth", Vector3.new(112, 12, 1), Vector3.new(0, 5, -101), Color3.new(1, 1, 1), Enum.Material.SmoothPlastic, true, true).Transparency = 1
+for _, z in ipairs({-228, 228}) do
+	for row = 1, 2 do
+		local outward = (z > 0 and 1 or -1) * (row - 1) * 13
+		makePart(stadium, "EndStand_" .. z .. "_" .. row, Vector3.new(270, 10, 10), Vector3.new(0, row * 5, z + outward), Color3.fromRGB(40, 55, 81), Enum.Material.Metal, true, true)
+	end
+end
+makePart(stadium, "BoundaryWest", Vector3.new(1, 14, 420), Vector3.new(-126, 6, 0), Color3.new(1, 1, 1), Enum.Material.SmoothPlastic, true, true).Transparency = 1
+makePart(stadium, "BoundaryEast", Vector3.new(1, 14, 420), Vector3.new(126, 6, 0), Color3.new(1, 1, 1), Enum.Material.SmoothPlastic, true, true).Transparency = 1
+makePart(stadium, "BoundaryNorth", Vector3.new(260, 14, 1), Vector3.new(0, 6, 220), Color3.new(1, 1, 1), Enum.Material.SmoothPlastic, true, true).Transparency = 1
+makePart(stadium, "BoundarySouth", Vector3.new(260, 14, 1), Vector3.new(0, 6, -220), Color3.new(1, 1, 1), Enum.Material.SmoothPlastic, true, true).Transparency = 1
 
 local ball = Instance.new("Part")
 ball.Name = "MatchBall"
 ball.Shape = Enum.PartType.Ball
-ball.Size = Vector3.new(2.2, 2.2, 2.2)
-ball.Position = Vector3.new(0, 1.25, 0)
+ball.Size = Vector3.new(1.4, 1.4, 1.4)
+ball.Position = Vector3.new(0, 0.75, 0)
 ball.Color = Color3.fromRGB(248, 248, 236)
 ball.Material = Enum.Material.SmoothPlastic
+-- Roblox's classic Soccer Ball gear mesh/texture (the Part remains a round collision shell).
+local ballMesh = Instance.new("SpecialMesh")
+ballMesh.Name = "ClassicRobloxSoccerBallVisual"
+ballMesh.MeshType = Enum.MeshType.FileMesh
+ballMesh.MeshId = "rbxassetid://28502053"
+ballMesh.TextureId = "rbxassetid://28502119"
+ballMesh.Scale = Vector3.new(1.4, 1.4, 1.4)
+ballMesh.Parent = ball
 ball.CustomPhysicalProperties = PhysicalProperties.new(0.72, 0.46, 0.42, 1, 1)
 ball.Anchored = false
 ball.CanCollide = true
@@ -199,8 +243,8 @@ local function addTeamSpawn(name, team, position)
 	spawn.CanQuery = false
 	spawn.Parent = stadium
 end
-addTeamSpawn("RubroSpawn", homeTeam, Vector3.new(0, 0.5, -42))
-addTeamSpawn("AzulSpawn", awayTeam, Vector3.new(0, 0.5, 42))
+addTeamSpawn("RubroSpawn", homeTeam, Vector3.new(0, 0.5, -95))
+addTeamSpawn("AzulSpawn", awayTeam, Vector3.new(0, 0.5, 95))
 
 workspace:SetAttribute("HomeName", HOME_NAME)
 workspace:SetAttribute("AwayName", AWAY_NAME)
@@ -347,7 +391,7 @@ local function findPassTarget(player)
 			if targetRoot then
 				local offset = targetRoot.Position - ball.Position
 				local distance = offset.Magnitude
-				if distance <= 62 and distance > 1 then
+				if distance <= 125 and distance > 1 then
 					local alignment = forward:Dot(offset.Unit)
 					local score = alignment * 36 - distance * 0.22
 					if alignment > -0.05 and score > bestScore then
@@ -401,7 +445,7 @@ local function scoreGoal(scoringTeam)
 	setPossessor(nil)
 	ball.Anchored = true
 	ball.CanCollide = false
-	ball.CFrame = CFrame.new(0, 1.25, 0)
+	ball.CFrame = CFrame.new(0, 0.75, 0)
 	ball.AssemblyLinearVelocity = Vector3.zero
 	ball.AssemblyAngularVelocity = Vector3.zero
 	pickupBlockedUntil = os.clock() + 1.4
@@ -449,7 +493,7 @@ local function setupPlayer(player)
 		task.wait(0.1)
 		local x = ((sequence - 1) % 5 - 2) * 5
 		local isHome = player.Team == homeTeam
-		local z = isHome and -42 or 42
+		local z = isHome and -95 or 95
 		local yaw = isHome and math.pi or 0
 		if character.Parent then
 			character:PivotTo(CFrame.new(x, 3, z) * CFrame.Angles(0, yaw, 0))
@@ -576,11 +620,11 @@ RunService.Heartbeat:Connect(function(deltaTime)
 		end
 	end
 
-	if ball.Position.Y < -10 or math.abs(ball.Position.X) > 70 or math.abs(ball.Position.Z) > 115 then
+	if ball.Position.Y < -10 or math.abs(ball.Position.X) > 145 or math.abs(ball.Position.Z) > 245 then
 		setPossessor(nil)
 		ball.Anchored = true
 		ball.CanCollide = false
-		ball.CFrame = CFrame.new(0, 1.25, 0)
+		ball.CFrame = CFrame.new(0, 0.75, 0)
 		ball.AssemblyLinearVelocity = Vector3.zero
 		task.delay(0.5, function()
 			if ball and ball.Parent then
@@ -611,9 +655,9 @@ end)
 
 print("ARENA FOOTBALL carregado: partida, campo, bola e comandos prontos.")
 ]]></ProtectedString></Properties></Item></Item>
-<Item class="ServerStorage" referent="RBX844ED4C31A08478D9E6C730C6438B15B"><Properties><string name="Name">ServerStorage</string></Properties></Item>
-<Item class="StarterGui" referent="RBXA70F0A2C29F242E786644FC2FC58D3C0"><Properties><string name="Name">StarterGui</string></Properties></Item>
-<Item class="StarterPlayer" referent="RBXA3EA904EC27244DFAE257E97C2AFD95B"><Properties><float name="CameraMaxZoomDistance">18</float><float name="CameraMinZoomDistance">9</float><token name="CameraMode">0</token><string name="Name">StarterPlayer</string></Properties><Item class="StarterPlayerScripts" referent="RBX03893F55118D41A5BA5806C4A886C251"><Properties><string name="Name">StarterPlayerScripts</string></Properties><Item class="LocalScript" referent="RBX03D5EB604DC9410183EB5FE9A3511813"><Properties><bool name="Disabled">false</bool><string name="Name">FootballClient</string><ProtectedString name="Source"><![CDATA[-- Client input/camera for ARENA FOOTBALL. Server validates all ball actions.
+<Item class="ServerStorage" referent="RBX8854C6FBBC6348239DBAEAF72B2AC613"><Properties><string name="Name">ServerStorage</string></Properties></Item>
+<Item class="StarterGui" referent="RBX2EDDDBC3CB9D486AA7FDEBDD65C21A23"><Properties><string name="Name">StarterGui</string></Properties></Item>
+<Item class="StarterPlayer" referent="RBXA5ACD7C025FF488EB4C9061D71140721"><Properties><float name="CameraMaxZoomDistance">18</float><float name="CameraMinZoomDistance">9</float><token name="CameraMode">0</token><string name="Name">StarterPlayer</string></Properties><Item class="StarterPlayerScripts" referent="RBXE0BC410A6974434D913F48D6A45F9197"><Properties><string name="Name">StarterPlayerScripts</string></Properties><Item class="LocalScript" referent="RBX1B843A5763E64B5FB18F456F27FD4DA6"><Properties><bool name="Disabled">false</bool><string name="Name">FootballClient</string><ProtectedString name="Source"><![CDATA[-- Client input/camera for ARENA FOOTBALL. Server validates all ball actions.
 -- Controls: WASD, Shift sprint, hold mouse 1/E to charge a shot, Q pass, F tackle.
 
 local Players = game:GetService("Players")
@@ -776,7 +820,7 @@ player.CharacterAdded:Connect(function()
 	charging = false
 	setSprint(false)
 end)
-]]></ProtectedString></Properties></Item><Item class="LocalScript" referent="RBXD697A7DF908F4C3CB380025CCF922E7D"><Properties><bool name="Disabled">false</bool><string name="Name">FootballHUD</string><ProtectedString name="Source"><![CDATA[-- Match scoreboard, goal callout, possession state and stamina/shot bars.
+]]></ProtectedString></Properties></Item><Item class="LocalScript" referent="RBX86701295B3124BB29BC486739CA2000E"><Properties><bool name="Disabled">false</bool><string name="Name">FootballHUD</string><ProtectedString name="Source"><![CDATA[-- Match scoreboard, goal callout, possession state and stamina/shot bars.
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -1001,7 +1045,7 @@ RunService.RenderStepped:Connect(function()
 	end
 end)
 ]]></ProtectedString></Properties></Item></Item></Item>
-<Item class="Teams" referent="RBXF0E9D18CAF11475C84DDF928E9E2C65F"><Properties><string name="Name">Teams</string></Properties></Item>
-<Item class="SoundService" referent="RBX48DE4FCEFF844C37A2A995461E9037A9"><Properties><string name="Name">SoundService</string></Properties></Item>
-<Item class="TextChatService" referent="RBX3E324CC18F9F49ED90920FB51B2FAF6A"><Properties><string name="Name">TextChatService</string></Properties></Item>
+<Item class="Teams" referent="RBX0D93C04E267E480593445DCD49E0269F"><Properties><string name="Name">Teams</string></Properties></Item>
+<Item class="SoundService" referent="RBXC282F18940CE433687D6CD33D02FBB2D"><Properties><string name="Name">SoundService</string></Properties></Item>
+<Item class="TextChatService" referent="RBX0515B821526142EABD6BD60962962DA9"><Properties><string name="Name">TextChatService</string></Properties></Item>
 </roblox>

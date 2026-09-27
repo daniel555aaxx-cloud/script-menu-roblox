@@ -13,9 +13,9 @@ O arquivo [`ArenaFootball.rbxlx`](ArenaFootball.rbxlx) contém os scripts organi
 
 ## Recursos incluídos
 
-- Campo original com linhas, áreas, gols, redes, arquibancadas, iluminação e limites invisíveis.
+- Campo em escala grande (240 × 380 studs; aproximadamente 69 × 109 m usando 3,5 studs/m), com faixas de gramado, marcações, áreas, gols, redes, arquibancadas e refletores.
 - Duas equipes balanceadas automaticamente: **Rubro FC** e **Azul FC**.
-- Posse e ações validadas pelo servidor; bola física presa à montagem do personagem durante o drible para acompanhar o jogador sem atraso. Inclui chute carregável, passe assistido e desarme.
+- Bola com visual da malha/textura do Soccer Ball clássico publicado pela Roblox (IDs 28502053/28502119), colisão esférica separada e solda ao avatar durante o drible; chute carregável, passe assistido e desarme validados pelo servidor.
 - Corrida com barra de fôlego; o fôlego é gasto correndo e recuperado ao caminhar.
 - Placar, relógio de 3 minutos, aviso de gol e fim de jogo.
 - Controles de toque criados automaticamente em celular/tablet.
