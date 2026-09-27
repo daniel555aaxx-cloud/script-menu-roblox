@@ -24,9 +24,35 @@ local function hasBall()
 	return (workspace:GetAttribute("BallCarrierUserId") or 0) == player.UserId
 end
 
-local function getAimDirection()
+local function getAimPoint()
 	local camera = workspace.CurrentCamera
-	return camera and camera.CFrame.LookVector or Vector3.new(0, 0, -1)
+	if not camera then return Vector3.new(0, 0, 0) end
+
+	local viewport = camera.ViewportSize
+	local ray = camera:ViewportPointToRay(viewport.X * 0.5, viewport.Y * 0.5)
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	local excluded = {}
+	if player.Character then table.insert(excluded, player.Character) end
+	local ball = workspace:FindFirstChild("ArenaFootball") and workspace.ArenaFootball:FindFirstChild("MatchBall")
+	if ball then table.insert(excluded, ball) end
+	params.FilterDescendantsInstances = excluded
+
+	local result = workspace:Raycast(ray.Origin, ray.Direction * 700, params)
+	if result then return result.Position end
+
+	-- When the reticle points above the horizon, project a usable target ahead.
+	local direction = ray.Direction
+	if direction.Y < -0.04 then
+		local distance = -ray.Origin.Y / direction.Y
+		if distance > 2 and distance < 700 then
+			return ray.Origin + direction * distance
+		end
+	end
+	local flat = Vector3.new(direction.X, 0, direction.Z)
+	if flat.Magnitude < 0.01 then flat = Vector3.new(0, 0, -1) end
+	local fallbackTarget = ray.Origin + flat.Unit * 400
+	return Vector3.new(fallbackTarget.X, 0, fallbackTarget.Z)
 end
 
 local function beginShot()
@@ -41,7 +67,7 @@ local function releaseShot()
 	charging = false
 	local charge = math.clamp((os.clock() - chargeStartedAt) / 1.15, 0.15, 1)
 	player:SetAttribute("ShotCharge", 0)
-	actionEvent:FireServer("Shoot", getAimDirection(), charge)
+	actionEvent:FireServer("Shoot", getAimPoint(), charge)
 end
 
 local function passBall()

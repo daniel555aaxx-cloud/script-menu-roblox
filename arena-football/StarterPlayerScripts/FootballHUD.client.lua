@@ -20,6 +20,32 @@ local function addCorner(instance, radius)
 	return corner
 end
 
+local aimReticle = Instance.new("Frame")
+aimReticle.Name = "AimReticle"
+aimReticle.AnchorPoint = Vector2.new(0.5, 0.5)
+aimReticle.Position = UDim2.fromScale(0.5, 0.5)
+aimReticle.Size = UDim2.fromOffset(14, 14)
+aimReticle.BackgroundTransparency = 1
+aimReticle.Visible = false
+aimReticle.Parent = gui
+local reticleStroke = Instance.new("UIStroke")
+reticleStroke.Color = Color3.fromRGB(255, 245, 205)
+reticleStroke.Thickness = 1.5
+reticleStroke.Parent = aimReticle
+local reticleCorner = Instance.new("UICorner")
+reticleCorner.CornerRadius = UDim.new(1, 0)
+reticleCorner.Parent = aimReticle
+local reticleDot = Instance.new("Frame")
+reticleDot.AnchorPoint = Vector2.new(0.5, 0.5)
+reticleDot.Position = UDim2.fromScale(0.5, 0.5)
+reticleDot.Size = UDim2.fromOffset(3, 3)
+reticleDot.BackgroundColor3 = Color3.fromRGB(255, 245, 205)
+reticleDot.BorderSizePixel = 0
+reticleDot.Parent = aimReticle
+local reticleDotCorner = Instance.new("UICorner")
+reticleDotCorner.CornerRadius = UDim.new(1, 0)
+reticleDotCorner.Parent = reticleDot
+
 local scorePanel = Instance.new("Frame")
 scorePanel.Name = "Scoreboard"
 scorePanel.AnchorPoint = Vector2.new(0.5, 0)
@@ -191,6 +217,7 @@ RunService.RenderStepped:Connect(function()
 	end
 
 	local carrierId = workspace:GetAttribute("BallCarrierUserId") or 0
+	aimReticle.Visible = carrierId == player.UserId
 	if carrierId == player.UserId then
 		possessionText.Text = "VOCÊ ESTÁ COM A BOLA  •  Clique/E chuta  •  Q passa"
 	elseif carrierId == 0 then

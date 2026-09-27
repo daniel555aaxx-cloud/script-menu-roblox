@@ -15,7 +15,8 @@ O arquivo [`ArenaFootball.rbxlx`](ArenaFootball.rbxlx) contém os scripts organi
 
 - Campo em escala grande (240 × 380 studs; aproximadamente 69 × 109 m usando 3,5 studs/m), com faixas de gramado, marcações, áreas, gols, redes, arquibancadas e refletores.
 - Duas equipes balanceadas automaticamente: **Rubro FC** e **Azul FC**.
-- Bola com malha/textura do Soccer Ball clássico publicado pela Roblox (IDs 28502053/28502119), colisão esférica separada, rotação proporcional à corrida e solda ao avatar durante o drible. O apoio foi aproximado 2 cm do jogador.
+- Bola com malha/textura do Soccer Ball clássico publicado pela Roblox (IDs 28502053/28502119), colisão esférica separada, rotação proporcional à corrida e solda ao avatar durante o drible. A física usa atrito e quique reduzidos para a bola rolar de forma mais natural; o apoio foi aproximado 2 cm do jogador.
+- Chutes com mira no retículo central: o servidor calcula a trajetória balística para a bola alcançar o ponto indicado, ajustando a velocidade quando necessário. Chutes e passes também dão rotação física à bola.
 - Animações procedurais de condução, chute, passe e carrinho, reproduzidas para todos os jogadores sem exigir IDs de animação externos.
 - Corrida com barra de fôlego; o fôlego é gasto correndo e recuperado ao caminhar.
 - Placar, relógio de 3 minutos, aviso de gol e fim de jogo.
@@ -28,7 +29,7 @@ O arquivo [`ArenaFootball.rbxlx`](ArenaFootball.rbxlx) contém os scripts organi
 
 - **WASD:** mover.
 - **Shift esquerdo:** correr enquanto estiver segurado.
-- **Segurar botão esquerdo do mouse ou E:** carregar o chute; solte para chutar. Olhe na direção desejada.
+- **Segurar botão esquerdo do mouse ou E:** carregar o chute; solte para chutar no ponto indicado pelo retículo central. Mire movendo a câmera.
 - **Q:** passe para o companheiro melhor posicionado; sem opção, passe para frente.
 - **F:** tentar desarmar um adversário próximo que esteja com a bola.
 

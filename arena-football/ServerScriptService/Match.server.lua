@@ -201,7 +201,7 @@ ballMesh.MeshId = "rbxassetid://28502053"
 ballMesh.TextureId = "rbxassetid://28502119"
 ballMesh.Scale = Vector3.new(1.4, 1.4, 1.4)
 ballMesh.Parent = ball
-ball.CustomPhysicalProperties = PhysicalProperties.new(0.72, 0.46, 0.42, 1, 1)
+ball.CustomPhysicalProperties = PhysicalProperties.new(0.85, 0.32, 0.18, 1, 1)
 ball.Anchored = false
 ball.CanCollide = true
 ball.CanTouch = true
@@ -410,30 +410,71 @@ local function findPassTarget(player)
 	return bestPlayer
 end
 
-local function validAim(aim)
-	if typeof(aim) ~= "Vector3" or aim.Magnitude < 0.1 then return nil end
-	local horizontal = Vector3.new(aim.X, 0, aim.Z)
-	if horizontal.Magnitude < 0.1 then return nil end
-	return horizontal.Unit, math.clamp(aim.Y, -0.2, 0.7)
+local function getBallisticShotVelocity(origin, aimPoint, charge, fallbackDirection, baseSpeed, maxSpeed)
+	if typeof(aimPoint) ~= "Vector3"
+		or aimPoint.X ~= aimPoint.X or aimPoint.Y ~= aimPoint.Y or aimPoint.Z ~= aimPoint.Z then
+		return nil
+	end
+	charge = math.clamp(charge, 0, 1)
+
+	local target = Vector3.new(aimPoint.X, math.clamp(aimPoint.Y, -5, 45), aimPoint.Z)
+	local delta = target - origin
+	if delta.Magnitude > 450 then
+		delta = delta.Unit * 450
+		target = origin + delta
+	end
+	local horizontal = Vector3.new(delta.X, 0, delta.Z)
+	local distance = horizontal.Magnitude
+	if distance < 1.5 then
+		local flatFallback = Vector3.new(fallbackDirection.X, 0, fallbackDirection.Z)
+		if flatFallback.Magnitude < 0.05 then flatFallback = Vector3.new(0, 0, -1) end
+		horizontal = flatFallback.Unit * 3
+		distance = 3
+		target = origin + horizontal
+	end
+
+	local direction = horizontal.Unit
+	local deltaY = target.Y + ball.Size.Y * 0.5 + 0.08 - origin.Y
+	local gravity = math.max(workspace.Gravity, 1)
+	local launchSpeed = (baseSpeed or 105) + charge * 110
+	local maxLaunchSpeed = maxSpeed or 320
+	local launchSpeedSquared = launchSpeed * launchSpeed
+	local discriminant = launchSpeedSquared * launchSpeedSquared
+		- gravity * (gravity * distance * distance + 2 * deltaY * launchSpeedSquared)
+
+	-- Add enough speed for the selected ground target to be reachable. Charge still
+	-- changes the pace of the shot; distance assistance avoids arbitrary misses.
+	while discriminant < 0 and launchSpeed < maxLaunchSpeed do
+		launchSpeed = math.min(maxLaunchSpeed, launchSpeed + 5)
+		launchSpeedSquared = launchSpeed * launchSpeed
+		discriminant = launchSpeedSquared * launchSpeedSquared
+			- gravity * (gravity * distance * distance + 2 * deltaY * launchSpeedSquared)
+	end
+	if discriminant < 0 then return nil end
+
+	local tangent = (launchSpeedSquared - math.sqrt(discriminant)) / (gravity * distance)
+	local angle = math.atan(tangent)
+	local horizontalSpeed = launchSpeed * math.cos(angle)
+	local verticalSpeed = launchSpeed * math.sin(angle)
+	return direction * horizontalSpeed + Vector3.new(0, verticalSpeed, 0), direction, launchSpeed
 end
 
-local function releaseShot(player, aim, charge)
+local function releaseShot(player, aimPoint, charge)
 	local root = getRoot(player)
-	local direction, lift = validAim(aim)
-	if not root or not direction then return false end
+	if not root then return false end
 	charge = typeof(charge) == "number" and math.clamp(charge, 0, 1) or 0.25
 
-	local character = player.Character
-	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-	if not humanoid then return false end
-	local groundY = getGroundY(character, root, humanoid)
-	local origin = root.Position + direction * 2.8
-	origin = Vector3.new(origin.X, groundY + ball.Size.Y * 0.5 + 0.1, origin.Z)
+	local origin = ball.Position
+	local launchVelocity, direction, launchSpeed = getBallisticShotVelocity(origin, aimPoint, charge, root.CFrame.LookVector)
+	if not launchVelocity then return false end
+
 	detachBall()
 	ball.CFrame = CFrame.new(origin)
-	ball.AssemblyLinearVelocity = direction * (82 + charge * 82) + Vector3.new(0, 12 + charge * 26 + lift * 14, 0)
-	ball.AssemblyAngularVelocity = Vector3.new(12, 18, -9)
-	pickupBlockedUntil = os.clock() + 0.55
+	ball.AssemblyLinearVelocity = launchVelocity
+	local spinAxis = Vector3.yAxis:Cross(direction)
+	if spinAxis.Magnitude < 0.01 then spinAxis = Vector3.xAxis end
+	ball.AssemblyAngularVelocity = spinAxis.Unit * (launchSpeed / (ball.Size.X * 0.5) * 0.72)
+	pickupBlockedUntil = os.clock() + 0.65
 	return true
 end
 
@@ -553,25 +594,38 @@ actionEvent.OnServerEvent:Connect(function(player, action, aim, charge)
 		local root = getRoot(player)
 		if not root then return end
 		actionCooldowns[player] = now
-		local target = findPassTarget(player)
-		local direction
-		if target and getRoot(target) then
-			direction = (getRoot(target).Position - ball.Position).Unit
+		local targetPlayer = findPassTarget(player)
+		local targetRoot = targetPlayer and getRoot(targetPlayer)
+		local carrierHumanoid = player.Character:FindFirstChildOfClass("Humanoid")
+		local groundY = getGroundY(player.Character, root, carrierHumanoid)
+		local origin = ball.Position
+		local targetPoint
+		local fallback = root.CFrame.LookVector
+		if targetRoot then
+			local targetCharacter = targetPlayer.Character
+			local targetHumanoid = targetCharacter and targetCharacter:FindFirstChildOfClass("Humanoid")
+			local targetGroundY = targetHumanoid and getGroundY(targetCharacter, targetRoot, targetHumanoid) or groundY
+			targetPoint = Vector3.new(targetRoot.Position.X, targetGroundY, targetRoot.Position.Z)
+			fallback = targetPoint - origin
 		else
-			direction = root.CFrame.LookVector
+			local flatForward = Vector3.new(fallback.X, 0, fallback.Z)
+			if flatForward.Magnitude < 0.05 then flatForward = Vector3.new(0, 0, -1) end
+			targetPoint = Vector3.new(origin.X + flatForward.Unit.X * 48, groundY, origin.Z + flatForward.Unit.Z * 48)
 		end
-		local flatDirection = Vector3.new(direction.X, 0, direction.Z)
-		if flatDirection.Magnitude < 0.1 then
-			flatDirection = Vector3.new(root.CFrame.LookVector.X, 0, root.CFrame.LookVector.Z)
+		local passVelocity, passDirection, passSpeed = getBallisticShotVelocity(origin, targetPoint, 0, fallback, 118, 210)
+		if not passVelocity then
+			local flatForward = Vector3.new(fallback.X, 0, fallback.Z)
+			if flatForward.Magnitude < 0.05 then flatForward = Vector3.new(0, 0, -1) end
+			passDirection = flatForward.Unit
+			passSpeed = 70
+			passVelocity = passDirection * passSpeed + Vector3.new(0, 4, 0)
 		end
-		flatDirection = flatDirection.Unit
-		local groundY = getGroundY(player.Character, root, player.Character:FindFirstChildOfClass("Humanoid"))
-		local origin = root.Position + flatDirection * 2.7
-		origin = Vector3.new(origin.X, groundY + ball.Size.Y * 0.5 + 0.1, origin.Z)
 		detachBall()
 		ball.CFrame = CFrame.new(origin)
-		ball.AssemblyLinearVelocity = flatDirection * 72 + Vector3.new(0, 8, 0)
-		ball.AssemblyAngularVelocity = Vector3.new(7, 10, -5)
+		ball.AssemblyLinearVelocity = passVelocity
+		local passSpinAxis = Vector3.yAxis:Cross(passDirection)
+		if passSpinAxis.Magnitude < 0.01 then passSpinAxis = Vector3.xAxis end
+		ball.AssemblyAngularVelocity = passSpinAxis.Unit * (passSpeed / (ball.Size.X * 0.5) * 0.5)
 		pickupBlockedUntil = now + 0.35
 		feedbackEvent:FireAllClients(player, "Pass", 0)
 	elseif action == "Tackle" then
