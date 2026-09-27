@@ -25,6 +25,9 @@ actionEvent.Parent = remotes
 local sprintEvent = remotes:FindFirstChild("Sprint") or Instance.new("RemoteEvent")
 sprintEvent.Name = "Sprint"
 sprintEvent.Parent = remotes
+local feedbackEvent = remotes:FindFirstChild("Feedback") or Instance.new("RemoteEvent")
+feedbackEvent.Name = "Feedback"
+feedbackEvent.Parent = remotes
 
 local function makePart(parent, name, size, position, color, material, anchored, canCollide)
 	local part = Instance.new("Part")
@@ -268,6 +271,9 @@ local function getRoot(player)
 end
 
 local dribbleWeld = nil
+local dribbleBaseC0 = nil
+local dribbleSpin = 0
+local dribbleSpinUpdate = 0
 local positionBallAtFeet
 
 local function setPossessor(player)
@@ -275,6 +281,8 @@ local function setPossessor(player)
 		dribbleWeld:Destroy()
 		dribbleWeld = nil
 	end
+	dribbleBaseC0 = nil
+	dribbleSpin = 0
 
 	possessor = player
 	ball:SetAttribute("PossessorUserId", player and player.UserId or 0)
@@ -305,6 +313,9 @@ local function setPossessor(player)
 		weld.C1 = CFrame.new()
 		weld.Parent = root
 		dribbleWeld = weld
+		dribbleBaseC0 = weld.C0
+		dribbleSpin = 0
+		dribbleSpinUpdate = 0
 		pcall(function() ball:SetNetworkOwner(player) end)
 	else
 		ball.Anchored = false
@@ -349,7 +360,7 @@ positionBallAtFeet = function(player, root)
 	local direction, speed = getDribbleDirection(root)
 	-- Lead the ball slightly in the actual travel direction, rather than trailing behind
 	-- the avatar's root orientation while it turns or accelerates.
-	local lead = 2.1 + math.clamp(speed * 0.035, 0, 0.85)
+	local lead = 2.03 + math.clamp(speed * 0.035, 0, 0.85) -- about 2 cm closer at 3.5 studs per meter
 	local groundY = getGroundY(character, root, humanoid)
 	if root.Position.Y - groundY > 3.5 then
 		groundY = root.Position.Y - humanoid.HipHeight - root.Size.Y * 0.5
@@ -364,6 +375,8 @@ local function detachBall()
 		dribbleWeld:Destroy()
 		dribbleWeld = nil
 	end
+	dribbleBaseC0 = nil
+	dribbleSpin = 0
 	possessor = nil
 	ball:SetAttribute("PossessorUserId", 0)
 	workspace:SetAttribute("BallCarrierUserId", 0)
@@ -407,12 +420,12 @@ end
 local function releaseShot(player, aim, charge)
 	local root = getRoot(player)
 	local direction, lift = validAim(aim)
-	if not root or not direction then return end
+	if not root or not direction then return false end
 	charge = typeof(charge) == "number" and math.clamp(charge, 0, 1) or 0.25
 
 	local character = player.Character
 	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-	if not humanoid then return end
+	if not humanoid then return false end
 	local groundY = getGroundY(character, root, humanoid)
 	local origin = root.Position + direction * 2.8
 	origin = Vector3.new(origin.X, groundY + ball.Size.Y * 0.5 + 0.1, origin.Z)
@@ -421,6 +434,7 @@ local function releaseShot(player, aim, charge)
 	ball.AssemblyLinearVelocity = direction * (82 + charge * 82) + Vector3.new(0, 12 + charge * 26 + lift * 14, 0)
 	ball.AssemblyAngularVelocity = Vector3.new(12, 18, -9)
 	pickupBlockedUntil = os.clock() + 0.55
+	return true
 end
 
 local function scoreGoal(scoringTeam)
@@ -530,7 +544,10 @@ actionEvent.OnServerEvent:Connect(function(player, action, aim, charge)
 	if action == "Shoot" then
 		if possessor ~= player then return end
 		actionCooldowns[player] = now
-		releaseShot(player, aim, charge)
+		if releaseShot(player, aim, charge) then
+			local strength = typeof(charge) == "number" and math.clamp(charge, 0, 1) or 0.25
+			feedbackEvent:FireAllClients(player, "Kick", strength)
+		end
 	elseif action == "Pass" then
 		if possessor ~= player then return end
 		local root = getRoot(player)
@@ -556,15 +573,20 @@ actionEvent.OnServerEvent:Connect(function(player, action, aim, charge)
 		ball.AssemblyLinearVelocity = flatDirection * 72 + Vector3.new(0, 8, 0)
 		ball.AssemblyAngularVelocity = Vector3.new(7, 10, -5)
 		pickupBlockedUntil = now + 0.35
+		feedbackEvent:FireAllClients(player, "Pass", 0)
 	elseif action == "Tackle" then
 		if possessor == player or not possessor or player.Team == possessor.Team then return end
 		local root = getRoot(player)
 		local targetRoot = getRoot(possessor)
 		if root and targetRoot and (root.Position - ball.Position).Magnitude <= 8 then
 			actionCooldowns[player] = now
-			local direction = root.CFrame.LookVector
+			local direction = Vector3.new(root.CFrame.LookVector.X, 0, root.CFrame.LookVector.Z)
+			if direction.Magnitude > 0.05 then
+				root:ApplyImpulse(direction.Unit * root.AssemblyMass * 12)
+			end
 			setPossessor(player)
 			pickupBlockedUntil = now + 0.15
+			feedbackEvent:FireAllClients(player, "SlideTackle", 0)
 		end
 	end
 end)
@@ -595,6 +617,24 @@ RunService.Heartbeat:Connect(function(deltaTime)
 			setPossessor(nil)
 		elseif not dribbleWeld or dribbleWeld.Part0 ~= root then
 			setPossessor(possessor)
+		elseif dribbleWeld and dribbleBaseC0 then
+			-- Spin the ball visually in proportion to travel distance while the weld
+			-- keeps its position locked to the carrier without positional lag.
+			local velocity = root.AssemblyLinearVelocity
+			local horizontalVelocity = Vector3.new(velocity.X, 0, velocity.Z)
+			local speed = horizontalVelocity.Magnitude
+			if speed > 0.5 then
+				local localVelocity = root.CFrame:VectorToObjectSpace(horizontalVelocity)
+				local spinAxis = Vector3.new(-localVelocity.Z, 0, localVelocity.X)
+				if spinAxis.Magnitude > 0.001 then
+					dribbleSpin = (dribbleSpin + speed * deltaTime / (ball.Size.X * 0.5)) % (math.pi * 2)
+					dribbleSpinUpdate += deltaTime
+					if dribbleSpinUpdate >= 1 / 20 then
+						dribbleWeld.C0 = dribbleBaseC0 * CFrame.fromAxisAngle(spinAxis.Unit, dribbleSpin)
+						dribbleSpinUpdate = 0
+					end
+				end
+			end
 		end
 	elseif os.clock() >= pickupBlockedUntil and ball.Parent then
 		local speed = ball.AssemblyLinearVelocity.Magnitude

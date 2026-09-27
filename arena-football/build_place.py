@@ -48,6 +48,7 @@ client_scripts = []
 for name, filename in (
     ("FootballClient", "FootballClient.client.lua"),
     ("FootballHUD", "FootballHUD.client.lua"),
+    ("FootballAnimations", "FootballAnimations.client.lua"),
 ):
     client_scripts.append(
         script(
