@@ -1,0 +1,2509 @@
+<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd" version="4">
+	<External>null</External>
+	<External>nil</External>
+	<Item class="Workspace" referent="RBXEBF8BC421E264499978C98961A56622D">
+		<Properties>
+			<BinaryString name="AttributesSerialize"></BinaryString>
+			<Ref name="CurrentCamera">RBX6A7B3D2561594E7C9725BA8D0E7FD2DA</Ref>
+			<float name="FallenPartsDestroyHeight">-500</float>
+			<string name="Name">Workspace</string>
+			<int64 name="SourceAssetId">-1</int64>
+			<bool name="StreamingEnabled">false</bool>
+			<BinaryString name="Tags"></BinaryString>
+			<UniqueId name="UniqueId">421d6b94b53344af871a27a4d3e200d8</UniqueId>
+		</Properties>
+		<Item class="Camera" referent="RBX6A7B3D2561594E7C9725BA8D0E7FD2DA">
+			<Properties>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<CoordinateFrame name="CFrame"><X>-52</X><Y>26</Y><Z>40</Z><R00>0.311551</R00><R01>0.146258</R01><R02>-0.938906</R02><R10>0</R10><R11>0.988083</R11><R12>0.153919</R12><R20>0.95023</R20><R21>-0.047954</R21><R22>0.307838</R22></CoordinateFrame>
+				<float name="FieldOfView">70</float>
+				<CoordinateFrame name="Focus"><X>70</X><Y>6</Y><Z>0</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+				<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+				<string name="Name">Camera</string>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+				<UniqueId name="UniqueId">aa63ef9468fe4668a8f80160be8101ce</UniqueId>
+			</Properties>
+		</Item>
+		<Item class="Model" referent="RBX51033E502BE845E7BFF22011B9727267">
+			<Properties>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+				<string name="Name">ParkourMap</string>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+				<UniqueId name="UniqueId">d76b2b240fad484ea4e57c10db9826e0</UniqueId>
+			</Properties>
+			<Item class="Folder" referent="RBX913B77C582124EF7A14B989182167895">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+					<string name="Name">Lobby</string>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+					<UniqueId name="UniqueId">ddaeedddd06846eeb4bc2820019b50b8</UniqueId>
+				</Properties>
+				<Item class="Part" referent="RBX7D0E269A9BA9489A86238D7436181126">
+					<Properties>
+						<bool name="Anchored">true</bool>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<CoordinateFrame name="CFrame"><X>-16</X><Y>-0.5</Y><Z>0</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+						<bool name="CanCollide">true</bool>
+						<Color3uint8 name="Color3uint8">4289584127</Color3uint8>
+						<token name="Material">272</token>
+						<string name="Name">LobbyBase</string>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">d85054c3bf3047e696aff65e357a758e</UniqueId>
+						<Vector3 name="size"><X>34</X><Y>1</Y><Z>34</Z></Vector3>
+					</Properties>
+				</Item>
+				<Item class="Part" referent="RBX7FFBABEB81C743B980BAEA6424F98F90">
+					<Properties>
+						<bool name="Anchored">true</bool>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<CoordinateFrame name="CFrame"><X>-16</X><Y>0.22</Y><Z>-16.5</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+						<bool name="CanCollide">true</bool>
+						<Color3uint8 name="Color3uint8">4294967295</Color3uint8>
+						<token name="Material">288</token>
+						<string name="Name">TrimN</string>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">b8b59f98385443669f01c94e0f4d4412</UniqueId>
+						<Vector3 name="size"><X>34</X><Y>0.44</Y><Z>1</Z></Vector3>
+					</Properties>
+				</Item>
+				<Item class="Part" referent="RBX7F16A21220E44CE395D92A311B594311">
+					<Properties>
+						<bool name="Anchored">true</bool>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<CoordinateFrame name="CFrame"><X>-16</X><Y>0.22</Y><Z>16.5</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+						<bool name="CanCollide">true</bool>
+						<Color3uint8 name="Color3uint8">4283233023</Color3uint8>
+						<token name="Material">288</token>
+						<string name="Name">TrimS</string>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">56d647af59c949c7bc06cc8cd9b36a18</UniqueId>
+						<Vector3 name="size"><X>34</X><Y>0.44</Y><Z>1</Z></Vector3>
+					</Properties>
+				</Item>
+				<Item class="Part" referent="RBXBEDAB588F9EC4D9F99132742E6C85053">
+					<Properties>
+						<bool name="Anchored">true</bool>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<CoordinateFrame name="CFrame"><X>-32.5</X><Y>0.22</Y><Z>0</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+						<bool name="CanCollide">true</bool>
+						<Color3uint8 name="Color3uint8">4294967295</Color3uint8>
+						<token name="Material">288</token>
+						<string name="Name">TrimW</string>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">33b8b934f80e4c79a3742842bb0e0856</UniqueId>
+						<Vector3 name="size"><X>1</X><Y>0.44</Y><Z>34</Z></Vector3>
+					</Properties>
+				</Item>
+				<Item class="Part" referent="RBX0A531E61B79449758E470B3AAA916EE3">
+					<Properties>
+						<bool name="Anchored">true</bool>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<CoordinateFrame name="CFrame"><X>0.5</X><Y>0.22</Y><Z>0</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+						<bool name="CanCollide">true</bool>
+						<Color3uint8 name="Color3uint8">4294956608</Color3uint8>
+						<token name="Material">288</token>
+						<string name="Name">StartLine</string>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">abb0c6d749084c9da1af02d4e76c558d</UniqueId>
+						<Vector3 name="size"><X>1</X><Y>0.44</Y><Z>34</Z></Vector3>
+					</Properties>
+				</Item>
+				<Item class="SpawnLocation" referent="RBX031B8FACDD224A76BF26AAF0C9631162">
+					<Properties>
+						<bool name="Anchored">true</bool>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<CoordinateFrame name="CFrame"><X>-26</X><Y>0.3</Y><Z>0</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+						<bool name="CanCollide">true</bool>
+						<Color3uint8 name="Color3uint8">4294963878</Color3uint8>
+						<int name="Duration">0</int>
+						<bool name="Enabled">true</bool>
+						<token name="Material">272</token>
+						<string name="Name">SpawnLocation</string>
+						<bool name="Neutral">true</bool>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">dac466cb5e3c4f9887cf858a3788851c</UniqueId>
+						<Vector3 name="size"><X>8</X><Y>0.6</Y><Z>8</Z></Vector3>
+					</Properties>
+				</Item>
+			</Item>
+			<Item class="Folder" referent="RBX556E077D0194412B8C86610172AF0F92">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+					<string name="Name">Course</string>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+					<UniqueId name="UniqueId">1c06434d7f864a8694b2ecd4fde65afd</UniqueId>
+				</Properties>
+				<Item class="Part" referent="RBX74A0BA52C8294D429B7921CC00AC191A">
+					<Properties>
+						<bool name="Anchored">true</bool>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<CoordinateFrame name="CFrame"><X>552.2</X><Y>23.5</Y><Z>14.283918</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+						<bool name="CanCollide">true</bool>
+						<Color3uint8 name="Color3uint8">4294956608</Color3uint8>
+						<token name="Material">288</token>
+						<string name="Name">Finish</string>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">cff8564965e9465b989131de7eea8ebd</UniqueId>
+						<Vector3 name="size"><X>14</X><Y>1</Y><Z>14</Z></Vector3>
+					</Properties>
+				</Item>
+				<Item class="Folder" referent="RBX448C94A886FF48C39A610C3E2DAB8439">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Platforms</string>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">d7b53c65d08246e19d5ba89ebdb1cb7a</UniqueId>
+					</Properties>
+					<Item class="Part" referent="RBXD11D93CA95ED4A2999CF07EFA11647EA">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>9.5</X><Y>-0.5</Y><Z>0.749578</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4288272127</Color3uint8>
+							<token name="Material">272</token>
+							<string name="Name">Plat_1</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">77675dfb9c884fc3a2976965906593fa</UniqueId>
+							<Vector3 name="size"><X>8</X><Y>1</Y><Z>8</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBX2BF3F3FD29AF4CE3A58836D33B1108B8">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>22</X><Y>-0.5</Y><Z>2.351401</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4289263057</Color3uint8>
+							<token name="Material">272</token>
+							<string name="Name">Plat_2</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">f3e64ed085854e93b21152e06b335db1</UniqueId>
+							<Vector3 name="size"><X>8</X><Y>1</Y><Z>8</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBX2E174EC78F314AAFB184B097C5A7E9C7">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>34.75</X><Y>-0.5</Y><Z>3.106345</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4294962590</Color3uint8>
+							<token name="Material">272</token>
+							<string name="Name">Plat_3</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">46ef3dcd114b460ba942f5cb7b3c23cc</UniqueId>
+							<Vector3 name="size"><X>7.5</X><Y>1</Y><Z>7.5</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBXB6DB7432B4E2497D82A480739615F623">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>46.75</X><Y>-0.5</Y><Z>4.131265</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4288272127</Color3uint8>
+							<token name="Material">272</token>
+							<string name="Name">Plat_4</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">aecbe5d404d14c328b63e55929bd377c</UniqueId>
+							<Vector3 name="size"><X>7.5</X><Y>1</Y><Z>7.5</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBXF17D1BEF5D61475B897855DD360A6F6C">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>59</X><Y>-0.5</Y><Z>2.259051</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4289263057</Color3uint8>
+							<token name="Material">272</token>
+							<string name="Name">Plat_5</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">ba75160ecbf5468598729555a8d818ec</UniqueId>
+							<Vector3 name="size"><X>7</X><Y>1</Y><Z>7</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBXF32498BFAC114ABBA8CA3F7D641E4D76">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>83.75</X><Y>1</Y><Z>4.942634</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4289263057</Color3uint8>
+							<token name="Material">272</token>
+							<string name="Name">Plat_6</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">eb411f31feda4eafbd91aa7c3c6ad8ce</UniqueId>
+							<Vector3 name="size"><X>7.5</X><Y>1</Y><Z>7.5</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBX557CCCAF75BC4D769F845472334B9D14">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>96</X><Y>3</Y><Z>6.659939</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4294962590</Color3uint8>
+							<token name="Material">272</token>
+							<string name="Name">Plat_7</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">5818bf0e4f8d4ba3b92ae0d780135060</UniqueId>
+							<Vector3 name="size"><X>7</X><Y>1</Y><Z>7</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBXE90140E7161249D6962B2AA9D7B3E749">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>108</X><Y>4.5</Y><Z>9.439962</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4288272127</Color3uint8>
+							<token name="Material">272</token>
+							<string name="Name">Plat_8</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">9d961e7ace654e15904117345b5afdcb</UniqueId>
+							<Vector3 name="size"><X>7</X><Y>1</Y><Z>7</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBX4D598BE01B374ED38890157AEE0BFCCF">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>119.75</X><Y>7</Y><Z>11.924558</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4289263057</Color3uint8>
+							<token name="Material">272</token>
+							<string name="Name">Plat_9</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">a1ee8ae3988148dd9ee2a390e9056ef9</UniqueId>
+							<Vector3 name="size"><X>6.5</X><Y>1</Y><Z>6.5</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBX3353DE451C3B4DCDBF8AB89BB1458BC5">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>131.75</X><Y>9</Y><Z>10.099256</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4294962590</Color3uint8>
+							<token name="Material">272</token>
+							<string name="Name">Plat_10</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">03c85cef0b604e7fbb0b8c973c93fda3</UniqueId>
+							<Vector3 name="size"><X>6.5</X><Y>1</Y><Z>6.5</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBXE54963E5935745678B0CE450AA52AB5C">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>164.5</X><Y>9</Y><Z>10.099256</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4294952857</Color3uint8>
+							<token name="Material">272</token>
+							<string name="Name">Plat_12</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">66438098f65745c2a2a47426c6e23b1a</UniqueId>
+							<Vector3 name="size"><X>7</X><Y>1</Y><Z>7</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBXC455E7F1B5BA42E9829A71A83B49163A">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>189.75</X><Y>9</Y><Z>11.763893</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4294952857</Color3uint8>
+							<token name="Material">272</token>
+							<string name="Name">Plat_13</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">1036037487734b22a4f2ef0f1968e530</UniqueId>
+							<Vector3 name="size"><X>6.5</X><Y>1</Y><Z>6.5</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBXBCFB5456A34A41F1A57C0F6A3EAB702B">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>202</X><Y>10.5</Y><Z>11.856353</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4291606783</Color3uint8>
+							<token name="Material">272</token>
+							<string name="Name">Plat_14</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">7d017426a12c415899b8984a81049fa8</UniqueId>
+							<Vector3 name="size"><X>6</X><Y>1</Y><Z>6</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBX583B474F63BB4A92B5F5E7C9B8F4DB25">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>213.5</X><Y>9.5</Y><Z>8.089184</Z><R00>0.991468</R00><R01>0</R01><R02>-0.130352</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0.130352</R20><R21>0</R21><R22>0.991468</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4294949076</Color3uint8>
+							<token name="Material">272</token>
+							<string name="Name">Plat_15</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">71df91e7156a458998011ee1574122e1</UniqueId>
+							<Vector3 name="size"><X>6</X><Y>1</Y><Z>6</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBXB856F49B662A42CDBC763AA16C908077">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>225.25</X><Y>11.5</Y><Z>9.447543</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4294952857</Color3uint8>
+							<token name="Material">272</token>
+							<string name="Name">Plat_16</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">b447bcfebe82419bbbdc35aa4953f814</UniqueId>
+							<Vector3 name="size"><X>5.5</X><Y>1</Y><Z>5.5</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBXCB48EDAFB1B147B383DB7158B3B71A35">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>236.75</X><Y>10</Y><Z>8.665888</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4291606783</Color3uint8>
+							<token name="Material">272</token>
+							<string name="Name">Plat_17</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">bb78a1f80fc54115b64fa0364ff3b772</UniqueId>
+							<Vector3 name="size"><X>5.5</X><Y>1</Y><Z>5.5</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBX452BA2B945D84CD88EEB105D71BF46F3">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>260.75</X><Y>10</Y><Z>8.817978</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4291293951</Color3uint8>
+							<token name="Material">272</token>
+							<string name="Name">Plat_18</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">0ffc2d55475b4d65b64d873a7e023402</UniqueId>
+							<Vector3 name="size"><X>6.5</X><Y>1</Y><Z>6.5</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBXEDA11705D695460AAB2A04C0F5F7974E">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>308.25</X><Y>10</Y><Z>8.817978</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4291293951</Color3uint8>
+							<token name="Material">272</token>
+							<string name="Name">Plat_19</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">44737f68fc414a0c9a4b387ad258005c</UniqueId>
+							<Vector3 name="size"><X>6.5</X><Y>1</Y><Z>6.5</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBXB7F0709B28FC407CAA171A365233549A">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>336.5</X><Y>10</Y><Z>8.817978</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4293324279</Color3uint8>
+							<token name="Material">272</token>
+							<string name="Name">Plat_20</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">4330445abc1646de948b750f2fb33695</UniqueId>
+							<Vector3 name="size"><X>15</X><Y>1</Y><Z>12</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBXAA5BF326A0704AF19C16B6EEFD451A0A">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>351.5</X><Y>10</Y><Z>10.817978</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4294942356</Color3uint8>
+							<token name="Material">272</token>
+							<string name="Name">Plat_21</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">c13ed157b8e54cdf87a453ef0fb6f7bb</UniqueId>
+							<Vector3 name="size"><X>6</X><Y>1</Y><Z>6</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBXE6242963DF8E4F9F83EA291533401E6B">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>375.75</X><Y>10</Y><Z>10.817978</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4291606783</Color3uint8>
+							<token name="Material">272</token>
+							<string name="Name">Plat_22</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">fd9f7978ad084874a38f1eb8414d9058</UniqueId>
+							<Vector3 name="size"><X>6.5</X><Y>1</Y><Z>6.5</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBX9EF0F22BABF9481AA3D3581E25DD1708">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>393.25</X><Y>17</Y><Z>10.817978</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4291606783</Color3uint8>
+							<token name="Material">272</token>
+							<string name="Name">Plat_24</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">c19fa2ce482244b1919fbe643fdb1896</UniqueId>
+							<Vector3 name="size"><X>6.5</X><Y>1</Y><Z>6.5</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBX807D13FEA8ED4630B5FB978C74E03B09">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>417.25</X><Y>18</Y><Z>13.836954</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4294942356</Color3uint8>
+							<token name="Material">272</token>
+							<string name="Name">Plat_25</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">6a731cb814fb4aa2a259ae7236d4abc2</UniqueId>
+							<Vector3 name="size"><X>4.5</X><Y>1</Y><Z>4.5</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBX1EAB5EB590D1491F9D98B05D191CA075">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>427.5</X><Y>19.5</Y><Z>9.414297</Z><R00>0.988995</R00><R01>0</R01><R02>0.147949</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>-0.147949</R20><R21>0</R21><R22>0.988995</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4291293951</Color3uint8>
+							<token name="Material">272</token>
+							<string name="Name">Plat_26</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">6af18a95519e448bb93ff8556ac1d1f5</UniqueId>
+							<Vector3 name="size"><X>4</X><Y>1</Y><Z>4</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBX73D04BF745E448AF885A3DD598003DE6">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>437.5</X><Y>18.5</Y><Z>7.1178</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4291606783</Color3uint8>
+							<token name="Material">272</token>
+							<string name="Name">Plat_27</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">a8ab6dbd9d3649ad951e8820d6fee733</UniqueId>
+							<Vector3 name="size"><X>4</X><Y>1</Y><Z>4</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBXA56F1B4A9BD742E69AA00DD7346499C2">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>447.5</X><Y>20.5</Y><Z>6.92777</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4294942356</Color3uint8>
+							<token name="Material">272</token>
+							<string name="Name">Plat_28</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">e128db6148ad44e98dc49ffcb1ea79bf</UniqueId>
+							<Vector3 name="size"><X>3.6</X><Y>1</Y><Z>3.6</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBX3154F2F5932744DD82F470701745FDBB">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>457.4</X><Y>21.5</Y><Z>5.283918</Z><R00>0.997273</R00><R01>0</R01><R02>-0.073805</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0.073805</R20><R21>0</R21><R22>0.997273</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4291293951</Color3uint8>
+							<token name="Material">272</token>
+							<string name="Name">Plat_29</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">8e77263ab68a49d18ca1bf3d849df092</UniqueId>
+							<Vector3 name="size"><X>3.6</X><Y>1</Y><Z>3.6</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBX502F4805D02C4C2D9B37E576CA147724">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>480.7</X><Y>21.5</Y><Z>5.283918</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4294949076</Color3uint8>
+							<token name="Material">272</token>
+							<string name="Name">Plat_30</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">2eb2a0f47b014160805a4ab33feb7cd1</UniqueId>
+							<Vector3 name="size"><X>6</X><Y>1</Y><Z>6</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBX51D3CECA85D448D8B0186BE74E4FFCA8">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>492.45</X><Y>21.5</Y><Z>14.283918</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4294949076</Color3uint8>
+							<token name="Material">272</token>
+							<string name="Name">Plat_32</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">769ddb8720294505babf0ee4070a0b94</UniqueId>
+							<Vector3 name="size"><X>5.5</X><Y>1</Y><Z>5.5</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBXA92872AD6CE14DB292990249427C4798">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>513.7</X><Y>23.5</Y><Z>14.283918</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4294942356</Color3uint8>
+							<token name="Material">272</token>
+							<string name="Name">Plat_33</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">c781d747c9fa4e548c2a78f534b3ef5e</UniqueId>
+							<Vector3 name="size"><X>5</X><Y>1</Y><Z>5</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBX90DE7000CDB94D318D1B2CFE48A445C0">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>537.7</X><Y>23.5</Y><Z>14.283918</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4294956608</Color3uint8>
+							<token name="Material">288</token>
+							<string name="Name">Plat_34</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">a7bedd0b4487486ebca236ee5a39d593</UniqueId>
+							<Vector3 name="size"><X>7</X><Y>1</Y><Z>7</Z></Vector3>
+						</Properties>
+					</Item>
+				</Item>
+				<Item class="Folder" referent="RBX5AEC4E8127764B929E75A0B907B09353">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Coins</string>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">dd352bbe9de5413ca930fabc4c1fd037</UniqueId>
+					</Properties>
+					<Item class="Part" referent="RBXBDBBF052BBB74E8E925EA4F46C50A1C4">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>28.5</X><Y>2.4</Y><Z>2.728873</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">false</bool>
+							<Color3uint8 name="Color3uint8">4294956608</Color3uint8>
+							<token name="Material">288</token>
+							<string name="Name">Coin_1</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<float name="Transparency">0.05</float>
+							<UniqueId name="UniqueId">b67adb51c43645c19e421056af903b8c</UniqueId>
+							<Vector3 name="size"><X>1.8</X><Y>1.8</Y><Z>0.5</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBXE4CA7335C31D42DC8AC97340D8018826">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>114</X><Y>9.9</Y><Z>10.68226</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">false</bool>
+							<Color3uint8 name="Color3uint8">4294956608</Color3uint8>
+							<token name="Material">288</token>
+							<string name="Name">Coin_2</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<float name="Transparency">0.05</float>
+							<UniqueId name="UniqueId">f9bb90c427f24e3692c1c65f33c2a208</UniqueId>
+							<Vector3 name="size"><X>1.8</X><Y>1.8</Y><Z>0.5</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBX1BAF1B8D3DCC47E49F47B22BB778812E">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>196</X><Y>13.4</Y><Z>11.810123</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">false</bool>
+							<Color3uint8 name="Color3uint8">4294956608</Color3uint8>
+							<token name="Material">288</token>
+							<string name="Name">Coin_3</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<float name="Transparency">0.05</float>
+							<UniqueId name="UniqueId">e4baf187f5f54e9d91df389f9922f9fb</UniqueId>
+							<Vector3 name="size"><X>1.8</X><Y>1.8</Y><Z>0.5</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBXE2A9FF4C695F4C27B412677D5ECC836B">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>231</X><Y>12.9</Y><Z>9.056715</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">false</bool>
+							<Color3uint8 name="Color3uint8">4294956608</Color3uint8>
+							<token name="Material">288</token>
+							<string name="Name">Coin_4</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<float name="Transparency">0.05</float>
+							<UniqueId name="UniqueId">b563e143b2ec4dfcbb46c233658cd3b3</UniqueId>
+							<Vector3 name="size"><X>1.8</X><Y>1.8</Y><Z>0.5</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBX45E52F9F75E742EFA886E293FE888CF9">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>278.5</X><Y>12.9</Y><Z>11.817978</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">false</bool>
+							<Color3uint8 name="Color3uint8">4294956608</Color3uint8>
+							<token name="Material">288</token>
+							<string name="Name">Coin_5</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<float name="Transparency">0.05</float>
+							<UniqueId name="UniqueId">c484d922d3664fef9f2849375edaa56a</UniqueId>
+							<Vector3 name="size"><X>1.8</X><Y>1.8</Y><Z>0.5</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBXE16C31B7893242558C06E5ABBB7BD325">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>432.5</X><Y>21.4</Y><Z>15.266049</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">false</bool>
+							<Color3uint8 name="Color3uint8">4294956608</Color3uint8>
+							<token name="Material">288</token>
+							<string name="Name">Coin_6</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<float name="Transparency">0.05</float>
+							<UniqueId name="UniqueId">036f2761c10d4c8ab2c161c66d8b9a89</UniqueId>
+							<Vector3 name="size"><X>1.8</X><Y>1.8</Y><Z>0.5</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBX4D04040420784BB1B3BEE7B9DC39D597">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>489.45</X><Y>24.4</Y><Z>7.533918</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">false</bool>
+							<Color3uint8 name="Color3uint8">4294956608</Color3uint8>
+							<token name="Material">288</token>
+							<string name="Name">Coin_7</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<float name="Transparency">0.05</float>
+							<UniqueId name="UniqueId">ea494108dd9847879c3c1a8ea1d51245</UniqueId>
+							<Vector3 name="size"><X>1.8</X><Y>1.8</Y><Z>0.5</Z></Vector3>
+						</Properties>
+					</Item>
+				</Item>
+				<Item class="Folder" referent="RBX9ED1B5FF80524D17A9BFAC8EDFEDFD1D">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Checkpoints</string>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">cf854a9d94ff4d49bde7cff4050d782c</UniqueId>
+					</Properties>
+					<Item class="Part" referent="RBX20BB7F9E5AC242499B1EB3723EEC9439">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>71</X><Y>-0.5</Y><Z>2.259051</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4282449804</Color3uint8>
+							<token name="Material">288</token>
+							<string name="Name">Checkpoint_1</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">fa70b355e656438fb417aa05f775cc8a</UniqueId>
+							<Vector3 name="size"><X>9</X><Y>1</Y><Z>9</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBX4B3F251DB09140F8A419AA86FD4AC342">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>143.5</X><Y>9</Y><Z>10.099256</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4282449804</Color3uint8>
+							<token name="Material">288</token>
+							<string name="Name">Checkpoint_2</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">e07fa3ca3da0444a964c469412aeaf4d</UniqueId>
+							<Vector3 name="size"><X>9</X><Y>1</Y><Z>9</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBX7568E8EA9051416F9FCEBD9D3D28BFB1">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>176.5</X><Y>9</Y><Z>10.099256</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4282449804</Color3uint8>
+							<token name="Material">288</token>
+							<string name="Name">Checkpoint_3</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">37ce3b2599484a82ae9fe03cdbea6e49</UniqueId>
+							<Vector3 name="size"><X>9</X><Y>1</Y><Z>9</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBXB23A91E164A14623ADB6AE1E76FE47F3">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>248</X><Y>10</Y><Z>8.665888</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4282449804</Color3uint8>
+							<token name="Material">288</token>
+							<string name="Name">Checkpoint_4</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">51859b0060084ae4a04f3ebfb2a4f1d5</UniqueId>
+							<Vector3 name="size"><X>9</X><Y>1</Y><Z>9</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBXCD416115BE424A7FADCEC25474E95346">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>320</X><Y>10</Y><Z>8.817978</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4282449804</Color3uint8>
+							<token name="Material">288</token>
+							<string name="Name">Checkpoint_5</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">298ab8af0ddc4201934b474a6cb52484</UniqueId>
+							<Vector3 name="size"><X>9</X><Y>1</Y><Z>9</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBX649778CFC9C14ACE8871762E9673DA85">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>363</X><Y>10</Y><Z>10.817978</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4282449804</Color3uint8>
+							<token name="Material">288</token>
+							<string name="Name">Checkpoint_6</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">1373a9b1148542f08c3e792751dad8d5</UniqueId>
+							<Vector3 name="size"><X>9</X><Y>1</Y><Z>9</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBXA260E46E99E64B25BC57356A9FE5437E">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>405</X><Y>17</Y><Z>10.817978</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4282449804</Color3uint8>
+							<token name="Material">288</token>
+							<string name="Name">Checkpoint_7</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">8da3fae2a4d04585b83de4293c387b91</UniqueId>
+							<Vector3 name="size"><X>9</X><Y>1</Y><Z>9</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBX12E0933091AF4656BCC90AC25D474595">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>467.7</X><Y>21.5</Y><Z>5.283918</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4282449804</Color3uint8>
+							<token name="Material">288</token>
+							<string name="Name">Checkpoint_8</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">e2d1dbfa94a24d87963c4fb37abdfd2c</UniqueId>
+							<Vector3 name="size"><X>9</X><Y>1</Y><Z>9</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBX4DED2F84C831466ABA11D642AD398B05">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>524.7</X><Y>23.5</Y><Z>14.283918</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4282449804</Color3uint8>
+							<token name="Material">288</token>
+							<string name="Name">Checkpoint_9</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">c3428dfa6a9848f8a5c591de79bc05a8</UniqueId>
+							<Vector3 name="size"><X>9</X><Y>1</Y><Z>9</Z></Vector3>
+						</Properties>
+					</Item>
+				</Item>
+				<Item class="Folder" referent="RBXC32F90D8CE8F414A968F3CD45534C6AE">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Movers</string>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">7711f0912dcd4efdb59929380a62ca9b</UniqueId>
+					</Properties>
+					<Item class="Part" referent="RBX9F472D99337B4941BEDE704051E76836">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>154.5</X><Y>9</Y><Z>10.099256</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4294960704</Color3uint8>
+							<token name="Material">288</token>
+							<string name="Name">Mover_11</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">1155ad791e5f4b5a9ae5923e5071ab0d</UniqueId>
+							<Vector3 name="size"><X>8</X><Y>1</Y><Z>8</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBXE4617130A68D4D39AEFCD5B5F93CF8FE">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>384.5</X><Y>13.5</Y><Z>10.817978</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4294960704</Color3uint8>
+							<token name="Material">288</token>
+							<string name="Name">Elevator_1</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">1b651a604460472eb910aed1eac4797b</UniqueId>
+							<Vector3 name="size"><X>6</X><Y>1</Y><Z>6</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBXB0BE2FEEF6364B16BB01B1E8EA5D9F67">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>486.7</X><Y>21.5</Y><Z>9.783918</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4294960704</Color3uint8>
+							<token name="Material">288</token>
+							<string name="Name">SideMover_1</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">26fbc94296e64c74b54a6676928626b1</UniqueId>
+							<Vector3 name="size"><X>5</X><Y>1</Y><Z>9</Z></Vector3>
+						</Properties>
+					</Item>
+				</Item>
+				<Item class="Folder" referent="RBX3B1C3B148FA74C66B06DA942D0D27657">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">FallingPlatforms</string>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">1a34be90d8c5481192cd48b84436ec26</UniqueId>
+					</Properties>
+					<Item class="Part" referent="RBX90A9D987A81F40D58C73093428883E3A">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>272.5</X><Y>10</Y><Z>8.817978</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4290939474</Color3uint8>
+							<token name="Material">512</token>
+							<string name="Name">Fall_1</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">70c02e7fbb7246489470914ae7547f2f</UniqueId>
+							<Vector3 name="size"><X>7</X><Y>1</Y><Z>7</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBX28CDE152F5E9480F83B512E2A600B83B">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>284.5</X><Y>10</Y><Z>8.817978</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4290939474</Color3uint8>
+							<token name="Material">512</token>
+							<string name="Name">Fall_2</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">ffd66e6ab4814bdab85154d9aa5762a5</UniqueId>
+							<Vector3 name="size"><X>7</X><Y>1</Y><Z>7</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBX3F5EE3AB06714441896C6209A3D4BF6F">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>296.5</X><Y>10</Y><Z>8.817978</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4290939474</Color3uint8>
+							<token name="Material">512</token>
+							<string name="Name">Fall_3</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">81069f95dd2e4c35a663b501f2ba7754</UniqueId>
+							<Vector3 name="size"><X>7</X><Y>1</Y><Z>7</Z></Vector3>
+						</Properties>
+					</Item>
+					<Item class="Part" referent="RBXFC4818D93C114ADF8F5ADCC9E05A0413">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>503.2</X><Y>21.5</Y><Z>14.283918</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4290939474</Color3uint8>
+							<token name="Material">512</token>
+							<string name="Name">Fall_4</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">cd976ab38ac047a789a49eaa7a5607f0</UniqueId>
+							<Vector3 name="size"><X>6</X><Y>1</Y><Z>6</Z></Vector3>
+						</Properties>
+					</Item>
+				</Item>
+				<Item class="Folder" referent="RBX85EFAFB0D88F480F8DA5D78B40725529">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+						<string name="Name">Spinners</string>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<UniqueId name="UniqueId">34f6a9fc9db04e23896630d023f3a7ac</UniqueId>
+					</Properties>
+					<Item class="Part" referent="RBX0FC3128571F24AC486E71407AB431BBD">
+						<Properties>
+							<bool name="Anchored">true</bool>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame"><X>336.5</X><Y>11.65</Y><Z>8.817978</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+							<bool name="CanCollide">true</bool>
+							<Color3uint8 name="Color3uint8">4294920000</Color3uint8>
+							<token name="Material">288</token>
+							<string name="Name">Spinner_1</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<UniqueId name="UniqueId">95fab9945383448a852873d5d1390626</UniqueId>
+							<Vector3 name="size"><X>16</X><Y>1.6</Y><Z>1.6</Z></Vector3>
+						</Properties>
+					</Item>
+				</Item>
+			</Item>
+			<Item class="Folder" referent="RBXD6B99D7848C647F88913F7478389AE3A">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+					<string name="Name">Hazards</string>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+					<UniqueId name="UniqueId">214bba333f794a2aa6109d5b66300f04</UniqueId>
+				</Properties>
+				<Item class="Part" referent="RBX4B604FC39E804886B0BF96E03D055D76">
+					<Properties>
+						<bool name="Anchored">true</bool>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<CoordinateFrame name="CFrame"><X>280.1</X><Y>-14</Y><Z>0</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>
+						<bool name="CanCollide">true</bool>
+						<Color3uint8 name="Color3uint8">4294919962</Color3uint8>
+						<token name="Material">288</token>
+						<string name="Name">Lava_Floor</string>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+						<float name="Transparency">0.12</float>
+						<UniqueId name="UniqueId">e64f1386d4424710a5f3bc9c1c62acdf</UniqueId>
+						<Vector3 name="size"><X>638.2</X><Y>2</Y><Z>140</Z></Vector3>
+					</Properties>
+				</Item>
+			</Item>
+			<Item class="Folder" referent="RBXC816625BDF154F1994173709AC665FBD">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+					<string name="Name">Decor</string>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+					<UniqueId name="UniqueId">4a450cb873a94b8385b12e4f478e74fd</UniqueId>
+				</Properties>
+			</Item>
+		</Item>
+	</Item>
+	<Item class="Lighting" referent="RBX2C93B4D4EFC54A78B43E43E674A434D4">
+		<Properties>
+			<Color3 name="Ambient"><R>0.38</R><G>0.38</G><B>0.42</B></Color3>
+			<BinaryString name="AttributesSerialize"></BinaryString>
+			<float name="Brightness">3</float>
+			<float name="ClockTime">15.4</float>
+			<Color3 name="FogColor"><R>0.72</R><G>0.8</G><B>0.9</B></Color3>
+			<float name="FogEnd">1600</float>
+			<float name="FogStart">0</float>
+			<bool name="GlobalShadows">true</bool>
+			<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+			<string name="Name">Lighting</string>
+			<Color3 name="OutdoorAmbient"><R>0.5</R><G>0.5</G><B>0.55</B></Color3>
+			<float name="ShadowSoftness">0.25</float>
+			<int64 name="SourceAssetId">-1</int64>
+			<BinaryString name="Tags"></BinaryString>
+			<string name="TimeOfDay">15:24:00</string>
+			<UniqueId name="UniqueId">a916b33f454446679ab8f1a2b1df78f5</UniqueId>
+		</Properties>
+		<Item class="Sky" referent="RBX890C4E97CF0A4C4CB448FCC54C83482B">
+			<Properties>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<bool name="CelestialBodiesShown">true</bool>
+				<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+				<string name="Name">Sky</string>
+				<Content name="SkyboxBk"><url>rbxassetid://6444884337</url></Content>
+				<Content name="SkyboxDn"><url>rbxassetid://6444884785</url></Content>
+				<Content name="SkyboxFt"><url>rbxassetid://6444884337</url></Content>
+				<Content name="SkyboxLf"><url>rbxassetid://6444884337</url></Content>
+				<Content name="SkyboxRt"><url>rbxassetid://6444884337</url></Content>
+				<Content name="SkyboxUp"><url>rbxassetid://6412503613</url></Content>
+				<int64 name="SourceAssetId">-1</int64>
+				<int name="StarCount">3000</int>
+				<BinaryString name="Tags"></BinaryString>
+				<UniqueId name="UniqueId">fcc7f0eb1f0b47378b7f4858636348d5</UniqueId>
+			</Properties>
+		</Item>
+		<Item class="ColorCorrectionEffect" referent="RBX2FF2DC71D50948E6A1B72E177A43C944">
+			<Properties>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<float name="Brightness">0.01</float>
+				<float name="Contrast">0.06</float>
+				<bool name="Enabled">true</bool>
+				<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+				<string name="Name">ColorCorrection</string>
+				<float name="Saturation">0.12</float>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+				<Color3 name="TintColor"><R>1</R><G>0.995</G><B>0.985</B></Color3>
+				<UniqueId name="UniqueId">a5920308f43e437ca357525a03ed3542</UniqueId>
+			</Properties>
+		</Item>
+		<Item class="BloomEffect" referent="RBXCE0BBFD7EFE74863B92E5CCF1E452B50">
+			<Properties>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<bool name="Enabled">true</bool>
+				<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+				<float name="Intensity">0.7</float>
+				<string name="Name">Bloom</string>
+				<float name="Size">32</float>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+				<float name="Threshold">1.1</float>
+				<UniqueId name="UniqueId">fcbce2378f79447c8af484e2722e4e34</UniqueId>
+			</Properties>
+		</Item>
+		<Item class="SunRaysEffect" referent="RBXC9DCD389CF244E2C93BF27184AF2F874">
+			<Properties>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<bool name="Enabled">true</bool>
+				<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+				<float name="Intensity">0.04</float>
+				<string name="Name">SunRays</string>
+				<int64 name="SourceAssetId">-1</int64>
+				<float name="Spread">0.12</float>
+				<BinaryString name="Tags"></BinaryString>
+				<UniqueId name="UniqueId">c822bdb3468a449789c8040625aa356e</UniqueId>
+			</Properties>
+		</Item>
+		<Item class="Atmosphere" referent="RBXAE94E9D7E5E0453B93B1CD107AB14349">
+			<Properties>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<Color3 name="Color"><R>0.78</R><G>0.79</G><B>0.82</B></Color3>
+				<Color3 name="Decay"><R>0.42</R><G>0.44</G><B>0.49</B></Color3>
+				<float name="Density">0.28</float>
+				<float name="Glare">0.1</float>
+				<float name="Haze">1.2</float>
+				<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+				<string name="Name">Atmosphere</string>
+				<float name="Offset">0.25</float>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+				<UniqueId name="UniqueId">c9cb809bbdf7476285e1d18f19418857</UniqueId>
+			</Properties>
+		</Item>
+	</Item>
+	<Item class="SoundService" referent="RBX15C24D4ADB16412EB8AE13A8A1767696">
+		<Properties>
+			<BinaryString name="AttributesSerialize"></BinaryString>
+			<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+			<string name="Name">SoundService</string>
+			<int64 name="SourceAssetId">-1</int64>
+			<BinaryString name="Tags"></BinaryString>
+			<UniqueId name="UniqueId">9d3e1897b400486aac38b4a7a14aeb28</UniqueId>
+		</Properties>
+	</Item>
+	<Item class="Players" referent="RBX70D3249D84CA4CD9A0D8B11303745727">
+		<Properties>
+			<BinaryString name="AttributesSerialize"></BinaryString>
+			<bool name="CharacterAutoLoads">true</bool>
+			<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+			<string name="Name">Players</string>
+			<float name="RespawnTime">4</float>
+			<int64 name="SourceAssetId">-1</int64>
+			<BinaryString name="Tags"></BinaryString>
+			<UniqueId name="UniqueId">ac44101650dc4bbea931a8b52a85f312</UniqueId>
+		</Properties>
+	</Item>
+	<Item class="ReplicatedStorage" referent="RBXBF1846C55FEF40F69848B1206B5B750A">
+		<Properties>
+			<BinaryString name="AttributesSerialize"></BinaryString>
+			<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+			<string name="Name">ReplicatedStorage</string>
+			<int64 name="SourceAssetId">-1</int64>
+			<BinaryString name="Tags"></BinaryString>
+			<UniqueId name="UniqueId">f9b9f147ec864e3b89818bd1deb0be53</UniqueId>
+		</Properties>
+	</Item>
+	<Item class="ServerScriptService" referent="RBXAB0EB42261B54C0D8F12773B484CFF42">
+		<Properties>
+			<BinaryString name="AttributesSerialize"></BinaryString>
+			<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+			<string name="Name">ServerScriptService</string>
+			<int64 name="SourceAssetId">-1</int64>
+			<BinaryString name="Tags"></BinaryString>
+			<UniqueId name="UniqueId">785875cd2708413f9f29a17427a8c7d8</UniqueId>
+		</Properties>
+		<Item class="Script" referent="RBXE859F0E5FCEB472FA88A9D98E372566A">
+			<Properties>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+				<string name="Name">GameCore</string>
+				<ProtectedString name="Source"><![CDATA[--[[
+	Parkour ASMR — GameCore (servidor)
+	• Checkpoints com reaparecimento automático
+	• Moedas colecionáveis
+	• Lava e giratórias matam ao toque
+	• Plataformas móveis, que caem e giratórias
+	• Placa de chegada + confete
+]]
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+
+-- RemoteEvent usado pelos clientes para tocar os sons ASMR
+local fx = Instance.new("RemoteEvent")
+fx.Name = "ParkourFX"
+fx.Parent = ReplicatedStorage
+
+local MODEL = workspace:WaitForChild("ParkourMap")
+
+-- Configuração gerada pelo build do mapa (não editar à mão)
+local MOVERS = {
+	{ name = "Mover_11", dx = 2.5, dy = 0, dz = 0, speed = 0.85, phase = -1.5708 },
+	{ name = "Elevator_1", dx = 0, dy = 3.5, dz = 0, speed = 0.75, phase = -1.5708 },
+	{ name = "SideMover_1", dx = 0, dy = 0, dz = 4.5, speed = 0.8, phase = -1.5708 },
+}
+
+local SPINNERS = {
+	{ name = "Spinner_1", speed = 0.95, phase = 0 },
+}
+
+local FALLING = {
+	"Fall_1",
+	"Fall_2",
+	"Fall_3",
+	"Fall_4",
+}
+
+local checkpoints = {}
+
+local function playerFromHit(hit)
+	local parent = hit.Parent
+	if not parent then
+		return nil
+	end
+	local player = Players:GetPlayerFromCharacter(parent)
+	if player then
+		return player
+	end
+	-- acessórios (chapéus, mochilas) têm o personagem como avô
+	local humanoid = parent:FindFirstChildOfClass("Humanoid")
+	if humanoid then
+		return Players:GetPlayerFromCharacter(parent.Parent)
+	end
+	return nil
+end
+
+------------------------------------------------------------------
+-- Checkpoints
+local function setupCheckpoints()
+	local folder = MODEL.Course:WaitForChild("Checkpoints")
+	for _, pad in ipairs(folder:GetChildren()) do
+		local idx = tonumber(string.match(pad.Name, "Checkpoint_(%d+)"))
+		if idx then
+			checkpoints[idx] = pad
+			pad.Touched:Connect(function(hit)
+				local player = playerFromHit(hit)
+				if not player then
+					return
+				end
+				local current = player:GetAttribute("Checkpoint") or 0
+				if idx > current then
+					player:SetAttribute("Checkpoint", idx)
+					fx:FireClient(player, "checkpoint", idx)
+				end
+			end)
+		end
+	end
+end
+
+------------------------------------------------------------------
+-- Perigos (lava e giratórias) matam ao toque
+local function makeLethal(part)
+	part.Touched:Connect(function(hit)
+		local player = playerFromHit(hit)
+		if not player or not player.Character then
+			return
+		end
+		local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
+		if humanoid and humanoid.Health > 0 then
+			humanoid.Health = 0
+		end
+	end)
+end
+
+local function setupHazards()
+	local folder = MODEL:WaitForChild("Hazards")
+	for _, part in ipairs(folder:GetChildren()) do
+		if part:IsA("BasePart") then
+			makeLethal(part)
+		end
+	end
+end
+
+------------------------------------------------------------------
+-- Moedas
+local function setupCoins()
+	local folder = MODEL.Course:WaitForChild("Coins")
+	for _, coin in ipairs(folder:GetChildren()) do
+		coin.Touched:Connect(function(hit)
+			local player = playerFromHit(hit)
+			if not player or not coin.Parent then
+				return
+			end
+			local total = (player:GetAttribute("Coins") or 0) + 1
+			player:SetAttribute("Coins", total)
+			fx:FireClient(player, "coin", total)
+			coin:Destroy()
+		end)
+	end
+end
+
+------------------------------------------------------------------
+-- Plataformas que tremem e caem
+local function setupFalling()
+	local folder = MODEL.Course:WaitForChild("FallingPlatforms")
+	for _, name in ipairs(FALLING) do
+		local part = folder:FindFirstChild(name)
+		if part then
+			local busy = false
+			part.Touched:Connect(function(hit)
+				if busy then
+					return
+				end
+				if not playerFromHit(hit) then
+					return
+				end
+				busy = true
+				task.spawn(function()
+					local base = part.CFrame
+					for _ = 1, 8 do
+						part.CFrame = base * CFrame.new((math.random() - 0.5) * 0.6, 0, (math.random() - 0.5) * 0.6)
+						task.wait(0.05)
+					end
+					part.CFrame = base
+					part.Anchored = false
+					task.wait(2.2)
+					if part.Parent then
+						part.Anchored = true
+						part.CFrame = base
+					end
+					busy = false
+				end)
+			end)
+		end
+	end
+end
+
+------------------------------------------------------------------
+-- Móveis, giratórias e moedas girando
+local movers = {}
+local spinners = {}
+
+local function setupObstacles()
+	local course = MODEL.Course
+
+	for _, cfg in ipairs(MOVERS) do
+		local part = course.Movers:FindFirstChild(cfg.name)
+		if part then
+			table.insert(movers, {
+				part = part,
+				base = part.CFrame,
+				dx = cfg.dx,
+				dy = cfg.dy,
+				dz = cfg.dz,
+				speed = cfg.speed,
+				phase = cfg.phase,
+			})
+		end
+	end
+
+	for _, cfg in ipairs(SPINNERS) do
+		local part = course.Spinners:FindFirstChild(cfg.name)
+		if part then
+			makeLethal(part)
+			table.insert(spinners, {
+				part = part,
+				base = part.CFrame,
+				speed = cfg.speed,
+				phase = cfg.phase,
+			})
+		end
+	end
+
+	-- moedas giram no próprio eixo
+	for _, coin in ipairs(course.Coins:GetChildren()) do
+		table.insert(spinners, {
+			part = coin,
+			base = coin.CFrame,
+			speed = 2.4,
+			phase = math.random() * 6.28,
+		})
+	end
+end
+
+local elapsed = 0
+RunService.Stepped:Connect(function(_, delta)
+	elapsed = elapsed + delta
+	for _, m in ipairs(movers) do
+		if m.part.Parent then
+			local s = math.sin(elapsed * m.speed + m.phase)
+			m.part.CFrame = m.base * CFrame.new(m.dx * s, m.dy * s, m.dz * s)
+		end
+	end
+	for _, sp in ipairs(spinners) do
+		if sp.part.Parent then
+			sp.part.CFrame = sp.base * CFrame.Angles(0, elapsed * sp.speed + sp.phase, 0)
+		end
+	end
+end)
+
+------------------------------------------------------------------
+-- Chegada
+local function setupFinish()
+	local finish = MODEL.Course:WaitForChild("Finish")
+	finish.Touched:Connect(function(hit)
+		local player = playerFromHit(hit)
+		if not player or player:GetAttribute("Finished") then
+			return
+		end
+		player:SetAttribute("Finished", true)
+		local confetti = finish:FindFirstChild("Confetti")
+		if confetti then
+			confetti:Emit(140)
+		end
+		fx:FireClient(player, "finish", player:GetAttribute("Coins") or 0)
+	end)
+end
+
+------------------------------------------------------------------
+-- Reaparecer no último checkpoint
+local function onCharacter(player, character)
+	local idx = player:GetAttribute("Checkpoint") or 0
+	local pad = checkpoints[idx]
+	if not pad then
+		return
+	end
+	task.spawn(function()
+		local root = character:WaitForChild("HumanoidRootPart", 10)
+		if not root or not character.Parent then
+			return
+		end
+		task.wait(0.15)
+		character:PivotTo(pad.CFrame * CFrame.new(0, 4.5, 0))
+		if root.Parent then
+			root.AssemblyLinearVelocity = Vector3.zero
+		end
+	end)
+end
+
+local function onPlayer(player)
+	player:SetAttribute("Checkpoint", 0)
+	player:SetAttribute("Coins", 0)
+	player.CharacterAdded:Connect(function(character)
+		onCharacter(player, character)
+	end)
+	if player.Character then
+		onCharacter(player, player.Character)
+	end
+end
+
+Players.PlayerAdded:Connect(onPlayer)
+for _, player in ipairs(Players:GetPlayers()) do
+	onPlayer(player)
+end
+
+------------------------------------------------------------------
+setupCheckpoints()
+setupHazards()
+setupCoins()
+setupFalling()
+setupObstacles()
+setupFinish()
+]]></ProtectedString>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+				<UniqueId name="UniqueId">320228868cf14e2bb700f2d8a8f40a35</UniqueId>
+			</Properties>
+		</Item>
+		<Item class="Script" referent="RBX3A8B7495DA47419A919A65AC460ADF91">
+			<Properties>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+				<string name="Name">MapSetup</string>
+				<ProtectedString name="Source"><![CDATA[--[[
+	Parkour ASMR — MapSetup (servidor)
+	Placas, luzes dos checkpoints, brasas da lava e confete da chegada.
+]]
+
+local MODEL = workspace:WaitForChild("ParkourMap")
+local course = MODEL:WaitForChild("Course")
+
+------------------------------------------------------------------
+-- Placa flutuante (parte invisível + BillboardGui)
+local function makeSign(anchorPos, width, height, title, subtitle)
+	local holder = Instance.new("Part")
+	holder.Name = "SignAnchor"
+	holder.Anchored = true
+	holder.CanCollide = false
+	holder.CanTouch = false
+	holder.CanQuery = false
+	holder.Transparency = 1
+	holder.Size = Vector3.new(1, 1, 1)
+	holder.CFrame = CFrame.new(anchorPos)
+	holder.Parent = MODEL:WaitForChild("Decor")
+
+	local billboard = Instance.new("BillboardGui")
+	billboard.Name = "Sign"
+	billboard.Size = UDim2.fromOffset(width, height)
+	billboard.AlwaysOnTop = false
+	billboard.MaxDistance = 300
+	billboard.LightInfluence = 0
+	billboard.Parent = holder
+
+	local frame = Instance.new("Frame")
+	frame.Size = UDim2.fromScale(1, 1)
+	frame.BackgroundColor3 = Color3.fromRGB(12, 14, 22)
+	frame.BackgroundTransparency = 0.22
+	frame.Parent = billboard
+
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, 16)
+	corner.Parent = frame
+
+	local stroke = Instance.new("UIStroke")
+	stroke.Thickness = 2.5
+	stroke.Color = Color3.fromRGB(0, 240, 255)
+	stroke.Transparency = 0.15
+	stroke.Parent = frame
+
+	local titleLabel = Instance.new("TextLabel")
+	titleLabel.Size = UDim2.new(1, -24, 0, height * 0.5)
+	titleLabel.Position = UDim2.new(0, 12, 0, 10)
+	titleLabel.BackgroundTransparency = 1
+	titleLabel.Font = Enum.Font.GothamBlack
+	titleLabel.Text = title
+	titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+	titleLabel.TextScaled = true
+	titleLabel.Parent = frame
+
+	local subLabel = Instance.new("TextLabel")
+	subLabel.Size = UDim2.new(1, -24, 0, height * 0.34)
+	subLabel.Position = UDim2.new(0, 12, 0, height * 0.56)
+	subLabel.BackgroundTransparency = 1
+	subLabel.Font = Enum.Font.Gotham
+	subLabel.Text = subtitle
+	subLabel.TextColor3 = Color3.fromRGB(170, 235, 255)
+	subLabel.TextScaled = true
+	subLabel.TextWrapped = true
+	subLabel.Parent = frame
+
+	return holder
+end
+
+------------------------------------------------------------------
+-- Placa da boas-vindas (sobre o spawn)
+local lobby = MODEL:WaitForChild("Lobby")
+local spawnLocation = lobby:WaitForChild("SpawnLocation")
+makeSign(
+	spawnLocation.Position + Vector3.new(0, 16, 0),
+	760,
+	180,
+	"PARKOUR ASMR",
+	"WASD = andar   •   ESPAÇO = pular   •   K = ligar/desligar o som ASMR"
+)
+
+------------------------------------------------------------------
+-- Placa da chegada
+local finish = course:WaitForChild("Finish")
+makeSign(
+	finish.Position + Vector3.new(0, 13, 0),
+	680,
+	160,
+	"CHEGADA!",
+	"Você terminou o parkour ASMR — jogou demais!"
+)
+
+------------------------------------------------------------------
+-- Rótulo + luz nos checkpoints
+local checkFolder = course:WaitForChild("Checkpoints")
+for _, pad in ipairs(checkFolder:GetChildren()) do
+	local idx = string.match(pad.Name, "Checkpoint_(%d+)")
+	if idx then
+		local billboard = Instance.new("BillboardGui")
+		billboard.Name = "Label"
+		billboard.Size = UDim2.fromOffset(250, 54)
+		billboard.StudsOffset = Vector3.new(0, 5.5, 0)
+		billboard.MaxDistance = 220
+		billboard.LightInfluence = 0
+		billboard.Parent = pad
+
+		local label = Instance.new("TextLabel")
+		label.Size = UDim2.fromScale(1, 1)
+		label.BackgroundTransparency = 1
+		label.Font = Enum.Font.GothamBold
+		label.Text = "CHECKPOINT " .. idx
+		label.TextColor3 = Color3.fromRGB(110, 255, 170)
+		label.TextStrokeTransparency = 0.45
+		label.TextScaled = true
+		label.Parent = billboard
+
+		local light = Instance.new("PointLight")
+		light.Name = "CheckpointGlow"
+		light.Color = Color3.fromRGB(90, 255, 160)
+		light.Brightness = 1.5
+		light.Range = 16
+		light.Shadows = false
+		light.Parent = pad
+	end
+end
+
+------------------------------------------------------------------
+-- Brasas subindo da lava
+local hazards = MODEL:WaitForChild("Hazards")
+for _, part in ipairs(hazards:GetChildren()) do
+	if part:IsA("BasePart") and string.find(part.Name, "Lava") then
+		local embers = Instance.new("ParticleEmitter")
+		embers.Name = "Brasas"
+		embers.Rate = 22
+		embers.Speed = NumberRange.new(3, 6)
+		embers.Lifetime = NumberRange.new(1.8, 3)
+		embers.Acceleration = Vector3.new(0, 5, 0)
+		embers.SpreadAngle = Vector2.new(45, 45)
+		embers.Color = ColorSequence.new(
+			Color3.fromRGB(255, 150, 40),
+			Color3.fromRGB(255, 60, 20)
+		)
+		embers.Transparency = NumberSequence.new({
+			NumberSequenceKeypoint.new(0, 0.1),
+			NumberSequenceKeypoint.new(1, 1),
+		})
+		embers.Size = NumberSequence.new({
+			NumberSequenceKeypoint.new(0, 0.55),
+			NumberSequenceKeypoint.new(1, 0.1),
+		})
+		embers.LightEmission = 0.9
+		embers.RotSpeed = NumberRange.new(-120, 120)
+		embers.Parent = part
+	end
+end
+
+------------------------------------------------------------------
+-- Confete da chegada (disparado pelo GameCore ao tocar o pad)
+local confetti = Instance.new("ParticleEmitter")
+confetti.Name = "Confetti"
+confetti.Rate = 0
+confetti.Speed = NumberRange.new(16, 26)
+confetti.Lifetime = NumberRange.new(1.4, 2.4)
+confetti.Acceleration = Vector3.new(0, -38, 0)
+confetti.SpreadAngle = Vector2.new(80, 80)
+confetti.Color = ColorSequence.new({
+	NumberSequenceKeypoint.new(0, Color3.fromRGB(255, 90, 130)),
+	NumberSequenceKeypoint.new(0.25, Color3.fromRGB(255, 225, 90)),
+	NumberSequenceKeypoint.new(0.5, Color3.fromRGB(90, 255, 165)),
+	NumberSequenceKeypoint.new(0.75, Color3.fromRGB(100, 175, 255)),
+	NumberSequenceKeypoint.new(1, Color3.fromRGB(225, 130, 255)),
+})
+confetti.Size = NumberSequence.new({
+	NumberSequenceKeypoint.new(0, 0.7),
+	NumberSequenceKeypoint.new(1, 0.2),
+})
+confetti.Transparency = NumberSequence.new({
+	NumberSequenceKeypoint.new(0, 0.05),
+	NumberSequenceKeypoint.new(0.8, 0.25),
+	NumberSequenceKeypoint.new(1, 1),
+})
+confetti.LightEmission = 0.7
+confetti.RotSpeed = NumberRange.new(-220, 220)
+confetti.Parent = finish
+]]></ProtectedString>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+				<UniqueId name="UniqueId">1c47c9cfbccf49a48449a088b0203eae</UniqueId>
+			</Properties>
+		</Item>
+	</Item>
+	<Item class="StarterPlayer" referent="RBX27A7CE48B3C243E7A30D12E4E1E02949">
+		<Properties>
+			<BinaryString name="AttributesSerialize"></BinaryString>
+			<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+			<string name="Name">StarterPlayer</string>
+			<int64 name="SourceAssetId">-1</int64>
+			<BinaryString name="Tags"></BinaryString>
+			<UniqueId name="UniqueId">4de8e12060e04cde8a70616767560b60</UniqueId>
+		</Properties>
+		<Item class="StarterPlayerScripts" referent="RBXEA8D57C318C04C4D9022D4DEEA419879">
+			<Properties>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+				<string name="Name">StarterPlayerScripts</string>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+				<UniqueId name="UniqueId">7d62a38511c94b5f9496f6c17ebe3cff</UniqueId>
+			</Properties>
+			<Item class="LocalScript" referent="RBX67AF464A65B643D2A222526C50881776">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+					<string name="Name">ASMRKeyboard</string>
+					<ProtectedString name="Source"><![CDATA[--[[
+	Parkour ASMR — Teclado & Sons (LocalScript no StarterPlayerScripts)
+	• Cliques de teclado ASMR em qualquer tecla (e no mouse)
+	• Passinhos suaves enquanto você anda
+	• Sons de pulo e aterrissagem
+	• Moeda, checkpoint e chegada
+	• Tecla K liga/desliga o ASMR do teclado
+	• Opcional: cole seus próprios IDs de áudio em CUSTOM
+]]
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UserInputService = game:GetService("UserInputService")
+local SoundService = game:GetService("SoundService")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+
+---------------------------------------------------------------
+-- CONFIGURAÇÃO DE ÁUDIO (opcional)
+-- Cole aqui IDs seus (ex.: "rbxassetid://1234567890") para
+-- usar áudios ASMR personalizados em vez dos embutidos.
+local CUSTOM = {
+	key = "",        -- clique do teclado
+	step = "",       -- passinhos
+	jump = "",       -- pulo
+	land = "",       -- aterrissagem
+	coin = "",       -- moeda
+	checkpoint = "", -- checkpoint
+	finish = "",     -- chegada
+	music = "",      -- música de fundo (loop; vazio = sem música)
+}
+
+-- Sons clássicos embutidos do Roblox (funcionam sem upload)
+local CANDIDATES = {
+	key = {
+		"rbxasset://sounds/button.mp3",
+		"rbxasset://sounds/switch.mp3",
+		"rbxasset://sounds/snap.mp3",
+		"rbxasset://sounds/clickfast.mp3",
+	},
+	step = {
+		"rbxasset://sounds/plasticplastic.mp3",
+		"rbxasset://sounds/bfsl-minifigfoots1.mp3",
+		"rbxasset://sounds/button.mp3",
+	},
+	jump = {
+		"rbxasset://sounds/action_jump.mp3",
+		"rbxasset://sounds/swoosh.mp3",
+		"rbxasset://sounds/snap.mp3",
+	},
+	land = {
+		"rbxasset://sounds/action_jump_land.mp3",
+		"rbxasset://sounds/hit.mp3",
+		"rbxasset://sounds/splat.mp3",
+	},
+	coin = {
+		"rbxasset://sounds/electronicpingshort.mp3",
+		"rbxasset://sounds/bass.mp3",
+	},
+	checkpoint = {
+		"rbxasset://sounds/electronicpingshort.mp3",
+		"rbxasset://sounds/bass.mp3",
+	},
+	finish = {
+		"rbxasset://sounds/victory.mp3",
+		"rbxasset://sounds/electronicpingshort.mp3",
+	},
+}
+
+local VOLUME = {
+	key = 0.35,
+	step = 0.3,
+	jump = 0.45,
+	land = 0.4,
+	coin = 0.55,
+	checkpoint = 0.6,
+	finish = 0.7,
+}
+
+local BASE_SPEED = {
+	key = 1.25,
+	step = 1,
+	jump = 1,
+	land = 1.05,
+	coin = 1.5,
+	checkpoint = 1.2,
+	finish = 1,
+}
+
+local SLOTS = { "key", "step", "jump", "land", "coin", "checkpoint", "finish" }
+local POOL_SIZE = 3
+
+local asmrOn = true
+
+---------------------------------------------------------------
+-- Pools de sons (permite sobreposição de cliques)
+local group = Instance.new("SoundGroup")
+group.Name = "ASMRGroup"
+group.Volume = 1
+group.Parent = SoundService
+
+local pools = {}
+
+local function makePool(slot)
+	local list = {}
+	local firstId = (CUSTOM[slot] ~= "" and CUSTOM[slot]) or CANDIDATES[slot][1]
+	for i = 1, POOL_SIZE do
+		local sound = Instance.new("Sound")
+		sound.Name = "ASMR_" .. slot .. "_" .. i
+		sound.SoundId = firstId
+		sound.Volume = VOLUME[slot]
+		sound.PlaybackSpeed = BASE_SPEED[slot]
+		sound.SoundGroup = group
+		sound.Parent = SoundService
+		list[i] = sound
+	end
+	pools[slot] = { sounds = list, index = 0 }
+end
+
+for _, slot in ipairs(SLOTS) do
+	makePool(slot)
+end
+
+local function play(slot, pitch, volumeScale)
+	local pool = pools[slot]
+	if not pool then
+		return
+	end
+	pool.index = (pool.index % #pool.sounds) + 1
+	local sound = pool.sounds[pool.index]
+	sound.PlaybackSpeed = BASE_SPEED[slot] * (pitch or 1)
+	sound.Volume = math.clamp(VOLUME[slot] * (volumeScale or 1), 0, 1)
+	sound:Stop()
+	sound.TimePosition = 0
+	sound:Play()
+end
+
+---------------------------------------------------------------
+-- Se o primeiro candidato não carregar, testa os próximos
+local function resolveSlot(slot)
+	if CUSTOM[slot] ~= "" then
+		return
+	end
+	task.spawn(function()
+		local probe = Instance.new("Sound")
+		probe.SoundGroup = group
+		probe.Volume = 0
+		probe.Parent = SoundService
+		local cands = CANDIDATES[slot]
+		for i = 1, #cands do
+			local loaded = false
+			probe.SoundId = cands[i]
+			local conn = probe.Loaded:Connect(function()
+				loaded = true
+			end)
+			probe:Play()
+			local tries = 0
+			while tries < 10 and not loaded do
+				task.wait(0.03)
+				tries = tries + 1
+			end
+			probe:Stop()
+			conn:Disconnect()
+			if loaded then
+				if i ~= 1 then
+					for _, sound in ipairs(pools[slot].sounds) do
+						sound.SoundId = cands[i]
+					end
+				end
+				probe:Destroy()
+				return
+			end
+		end
+		probe:Destroy()
+	end)
+end
+
+for _, slot in ipairs(SLOTS) do
+	resolveSlot(slot)
+end
+
+---------------------------------------------------------------
+-- Música de fundo opcional
+if CUSTOM.music ~= "" then
+	local music = Instance.new("Sound")
+	music.Name = "ParkourMusic"
+	music.SoundId = CUSTOM.music
+	music.Looped = true
+	music.Volume = 0.3
+	music.SoundGroup = group
+	music.Parent = SoundService
+	music:Play()
+end
+
+---------------------------------------------------------------
+-- Indicador "ASMR ON/OFF" (canto inferior esquerdo)
+local gui = Instance.new("ScreenGui")
+gui.Name = "ASMRToggle"
+gui.ResetOnSpawn = false
+gui.IgnoreGuiInset = true
+gui.DisplayOrder = 9
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local indicator = Instance.new("TextLabel")
+indicator.Name = "State"
+indicator.AnchorPoint = Vector2.new(0, 1)
+indicator.Position = UDim2.new(0, 14, 1, -14)
+indicator.Size = UDim2.fromOffset(210, 40)
+indicator.BackgroundColor3 = Color3.fromRGB(0, 190, 110)
+indicator.BackgroundTransparency = 0.15
+indicator.Font = Enum.Font.GothamBold
+indicator.TextSize = 17
+indicator.Text = "ASMR: LIGADO  (K)"
+indicator.TextColor3 = Color3.fromRGB(255, 255, 255)
+indicator.Parent = gui
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 10)
+corner.Parent = indicator
+
+local function updateIndicator()
+	if asmrOn then
+		indicator.Text = "ASMR: LIGADO  (K)"
+		indicator.BackgroundColor3 = Color3.fromRGB(0, 190, 110)
+	else
+		indicator.Text = "ASMR: DESLIGADO  (K)"
+		indicator.BackgroundColor3 = Color3.fromRGB(70, 72, 82)
+	end
+end
+
+---------------------------------------------------------------
+-- Teclado e mouse
+local lastTick = 0
+
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+	if gameProcessed then
+		return
+	end
+	local inputType = input.UserInputType
+	if inputType == Enum.UserInputType.Keyboard then
+		if input.KeyCode == Enum.KeyCode.K then
+			asmrOn = not asmrOn
+			updateIndicator()
+			play("key", 1.1, 1)
+			return
+		end
+		if asmrOn then
+			local now = tick()
+			if now - lastTick > 0.055 then
+				lastTick = now
+				play("key", 0.9 + math.random() * 0.3, 0.8 + math.random() * 0.35)
+			end
+		end
+	elseif inputType == Enum.UserInputType.MouseButton1 then
+		if asmrOn then
+			play("key", 1.12, 0.85)
+		end
+	end
+end)
+
+---------------------------------------------------------------
+-- Passinhos, pulo e aterrissagem
+local character
+local humanoid
+local stepTimer = 0
+
+local function bindCharacter(char)
+	character = char
+	humanoid = nil
+	local hum = char:WaitForChild("Humanoid", 10)
+	if not hum then
+		return
+	end
+	humanoid = hum
+	hum.StateChanged:Connect(function(oldState, newState)
+		if not asmrOn then
+			return
+		end
+		if newState == Enum.HumanoidStateType.Jumping and oldState ~= Enum.HumanoidStateType.Jumping then
+			play("jump", 0.95 + math.random() * 0.12, 1)
+		elseif newState == Enum.HumanoidStateType.Landed then
+			play("land", 0.95 + math.random() * 0.15, 1)
+		end
+	end)
+end
+
+if player.Character then
+	bindCharacter(player.Character)
+end
+player.CharacterAdded:Connect(bindCharacter)
+
+RunService.Heartbeat:Connect(function(delta)
+	if not asmrOn or not humanoid or not character or not character.Parent then
+		return
+	end
+	if humanoid.Health <= 0 then
+		return
+	end
+	if humanoid.MoveDirection.Magnitude > 0.05 and humanoid.FloorMaterial ~= Enum.Material.Air then
+		stepTimer = stepTimer - delta
+		if stepTimer <= 0 then
+			stepTimer = 0.24 + math.random() * 0.08
+			play("step", 0.92 + math.random() * 0.2, 0.7 + math.random() * 0.4)
+		end
+	else
+		stepTimer = 0.08
+	end
+end)
+
+---------------------------------------------------------------
+-- Efeitos vindos do servidor (moeda / checkpoint / chegada)
+local fx = ReplicatedStorage:WaitForChild("ParkourFX")
+
+fx.OnClientEvent:Connect(function(kind, value)
+	if kind == "coin" then
+		play("coin", 1 + math.random() * 0.25, 1)
+	elseif kind == "checkpoint" then
+		play("checkpoint", 0.95 + (tonumber(value) or 1) * 0.05, 1)
+	elseif kind == "finish" then
+		play("finish", 1, 1)
+		task.delay(0.2, function()
+			play("coin", 1.35, 0.9)
+		end)
+		task.delay(0.42, function()
+			play("coin", 1.7, 0.9)
+		end)
+	end
+end)
+
+updateIndicator()
+]]></ProtectedString>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+					<UniqueId name="UniqueId">ce824694a8494ea68915b29d966fcef1</UniqueId>
+				</Properties>
+			</Item>
+			<Item class="LocalScript" referent="RBXD5F232D51EF94552B72166F69C7E8BCE">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+					<string name="Name">ParkourHUD</string>
+					<ProtectedString name="Source"><![CDATA[--[[
+	Parkour ASMR — HUD (LocalScript no StarterPlayerScripts)
+	• Barra de progresso dos checkpoints
+	• Contador de moedas
+	• Aviso de controles
+	• Pop-up de checkpoint
+	• Tela de comemoração + confete ao terminar
+]]
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+
+local player = Players.LocalPlayer
+
+---------------------------------------------------------------
+-- Descobre a quantidade total de checkpoints e moedas
+local totalCheckpoints = 9
+local totalCoins = 6
+do
+	local map = workspace:FindFirstChild("ParkourMap")
+	local course = map and map:FindFirstChild("Course")
+	if course then
+		local cpFolder = course:FindFirstChild("Checkpoints")
+		if cpFolder then
+			local count = 0
+			for _, item in ipairs(cpFolder:GetChildren()) do
+				if string.match(item.Name, "^Checkpoint_%d+$") then
+					count = count + 1
+				end
+			end
+			if count > 0 then
+				totalCheckpoints = count
+			end
+		end
+		local coinFolder = course:FindFirstChild("Coins")
+		if coinFolder then
+			local count = #coinFolder:GetChildren()
+			if count > 0 then
+				totalCoins = count
+			end
+		end
+	end
+end
+
+---------------------------------------------------------------
+-- GUI base
+local gui = Instance.new("ScreenGui")
+gui.Name = "ParkourHUD"
+gui.ResetOnSpawn = false
+gui.IgnoreGuiInset = true
+gui.DisplayOrder = 8
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local function addCorner(parent, radius)
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, radius)
+	corner.Parent = parent
+	return corner
+end
+
+local function addStroke(parent, color, thickness)
+	local stroke = Instance.new("UIStroke")
+	stroke.Color = color
+	stroke.Thickness = thickness
+	stroke.Transparency = 0.2
+	stroke.Parent = parent
+	return stroke
+end
+
+---------------------------------------------------------------
+-- Barra de checkpoints (topo central)
+local topBar = Instance.new("Frame")
+topBar.Name = "CheckpointBar"
+topBar.AnchorPoint = Vector2.new(0.5, 0)
+topBar.Position = UDim2.new(0.5, 0, 0, 14)
+topBar.Size = UDim2.fromOffset(330, 66)
+topBar.BackgroundColor3 = Color3.fromRGB(14, 16, 26)
+topBar.BackgroundTransparency = 0.2
+topBar.Parent = gui
+addCorner(topBar, 12)
+addStroke(topBar, Color3.fromRGB(0, 240, 255), 2)
+
+local cpText = Instance.new("TextLabel")
+cpText.Name = "Value"
+cpText.Position = UDim2.new(0, 10, 0, 7)
+cpText.Size = UDim2.new(1, -20, 0, 24)
+cpText.BackgroundTransparency = 1
+cpText.Font = Enum.Font.GothamBold
+cpText.TextSize = 19
+cpText.Text = "CHECKPOINT 0 / " .. totalCheckpoints
+cpText.TextColor3 = Color3.fromRGB(240, 245, 255)
+cpText.Parent = topBar
+
+local barBack = Instance.new("Frame")
+barBack.Name = "BarBack"
+barBack.Position = UDim2.new(0.06, 0, 0, 44)
+barBack.Size = UDim2.new(0.88, 0, 0, 10)
+barBack.BackgroundColor3 = Color3.fromRGB(38, 42, 58)
+barBack.BorderSizePixel = 0
+barBack.Parent = topBar
+addCorner(barBack, 5)
+
+local barFill = Instance.new("Frame")
+barFill.Name = "Fill"
+barFill.Size = UDim2.fromScale(0, 1)
+barFill.BackgroundColor3 = Color3.fromRGB(80, 255, 165)
+barFill.BorderSizePixel = 0
+barFill.Parent = barBack
+addCorner(barFill, 5)
+
+---------------------------------------------------------------
+-- Contador de moedas (topo direito)
+local coinBar = Instance.new("Frame")
+coinBar.Name = "CoinBar"
+coinBar.AnchorPoint = Vector2.new(1, 0)
+coinBar.Position = UDim2.new(1, -14, 0, 14)
+coinBar.Size = UDim2.fromOffset(150, 46)
+coinBar.BackgroundColor3 = Color3.fromRGB(14, 16, 26)
+coinBar.BackgroundTransparency = 0.2
+coinBar.Parent = gui
+addCorner(coinBar, 10)
+addStroke(coinBar, Color3.fromRGB(255, 215, 80), 2)
+
+local coinText = Instance.new("TextLabel")
+coinText.Name = "Value"
+coinText.Size = UDim2.fromScale(1, 1)
+coinText.BackgroundTransparency = 1
+coinText.Font = Enum.Font.GothamBold
+coinText.TextSize = 21
+coinText.Text = "Moedas: 0"
+coinText.TextColor3 = Color3.fromRGB(255, 224, 120)
+coinText.Parent = coinBar
+
+---------------------------------------------------------------
+-- Aviso de controles (some depois de um tempo)
+local hint = Instance.new("Frame")
+hint.Name = "Hint"
+hint.AnchorPoint = Vector2.new(0.5, 1)
+hint.Position = UDim2.new(0.5, 0, 1, -14)
+hint.Size = UDim2.fromOffset(600, 44)
+hint.BackgroundColor3 = Color3.fromRGB(14, 16, 26)
+hint.BackgroundTransparency = 0.35
+hint.Parent = gui
+addCorner(hint, 10)
+
+local hintText = Instance.new("TextLabel")
+hintText.Size = UDim2.fromScale(1, 1)
+hintText.BackgroundTransparency = 1
+hintText.Font = Enum.Font.Gotham
+hintText.TextSize = 17
+hintText.Text = "WASD andar   •   ESPACO pular   •   SHIFT correr   •   K ligar/desligar ASMR"
+hintText.TextColor3 = Color3.fromRGB(200, 235, 255)
+hintText.Parent = hint
+
+task.delay(9, function()
+	local tweenOut = TweenService:Create(
+		hint,
+		TweenInfo.new(1.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
+		{ BackgroundTransparency = 1 }
+	)
+	local textOut = TweenService:Create(
+		hintText,
+		TweenInfo.new(1.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
+		{ TextTransparency = 1 }
+	)
+	tweenOut:Play()
+	textOut:Play()
+end)
+
+---------------------------------------------------------------
+-- Pop-up de checkpoint
+local popup = Instance.new("TextLabel")
+popup.Name = "Popup"
+popup.AnchorPoint = Vector2.new(0.5, 0.5)
+popup.Position = UDim2.new(0.5, 0, 0.18, 0)
+popup.Size = UDim2.fromOffset(560, 70)
+popup.BackgroundTransparency = 1
+popup.Font = Enum.Font.GothamBlack
+popup.TextSize = 42
+popup.Text = "CHECKPOINT"
+popup.TextColor3 = Color3.fromRGB(110, 255, 170)
+popup.TextTransparency = 1
+popup.TextStrokeColor3 = Color3.fromRGB(10, 30, 20)
+popup.TextStrokeTransparency = 0.5
+popup.Parent = gui
+
+local popupBusy = false
+
+local function showPopup(text)
+	if popupBusy then
+		return
+	end
+	popupBusy = true
+	popup.Text = text
+	popup.TextTransparency = 1
+	popup.Position = UDim2.new(0.5, 0, 0.2, 0)
+	local fadeIn = TweenService:Create(
+		popup,
+		TweenInfo.new(0.25, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
+		{ TextTransparency = 0, Position = UDim2.new(0.5, 0, 0.17, 0) }
+	)
+	fadeIn:Play()
+	fadeIn.Completed:Wait()
+	task.delay(1.4, function()
+		local fadeOut = TweenService:Create(
+			popup,
+			TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
+			{ TextTransparency = 1 }
+		)
+		fadeOut:Play()
+		fadeOut.Completed:Wait()
+		popupBusy = false
+	end)
+end
+
+---------------------------------------------------------------
+-- Destaque local do pad tocado (só visual, no cliente)
+local function flashPad(idx)
+	local map = workspace:FindFirstChild("ParkourMap")
+	if not map then
+		return
+	end
+	local pad = map:FindFirstChild("Checkpoint_" .. idx, true)
+	if pad and pad:IsA("BasePart") then
+		local original = pad.Color
+		pad.Color = Color3.fromRGB(255, 255, 255)
+		task.delay(0.28, function()
+			if pad.Parent then
+				pad.Color = original
+			end
+		end)
+	end
+end
+
+---------------------------------------------------------------
+-- Tela de comemoração + confete
+local overlay = Instance.new("Frame")
+overlay.Name = "FinishOverlay"
+overlay.Size = UDim2.fromScale(1, 1)
+overlay.BackgroundColor3 = Color3.fromRGB(5, 6, 10)
+overlay.BackgroundTransparency = 1
+overlay.Visible = false
+overlay.ZIndex = 20
+overlay.Parent = gui
+
+local panel = Instance.new("Frame")
+panel.AnchorPoint = Vector2.new(0.5, 0.5)
+panel.Position = UDim2.fromScale(0.5, 0.5)
+panel.Size = UDim2.fromOffset(480, 300)
+panel.BackgroundColor3 = Color3.fromRGB(14, 16, 26)
+panel.BackgroundTransparency = 0.05
+panel.ZIndex = 21
+panel.Parent = overlay
+addCorner(panel, 18)
+addStroke(panel, Color3.fromRGB(255, 215, 80), 3)
+
+local finishTitle = Instance.new("TextLabel")
+finishTitle.AnchorPoint = Vector2.new(0.5, 0)
+finishTitle.Position = UDim2.new(0.5, 0, 0, 34)
+finishTitle.Size = UDim2.new(1, -40, 0, 64)
+finishTitle.BackgroundTransparency = 1
+finishTitle.Font = Enum.Font.GothamBlack
+finishTitle.TextSize = 40
+finishTitle.Text = "VOCE CONCLUIU!"
+finishTitle.TextColor3 = Color3.fromRGB(255, 224, 110)
+finishTitle.ZIndex = 22
+finishTitle.Parent = panel
+
+local finishStats = Instance.new("TextLabel")
+finishStats.AnchorPoint = Vector2.new(0.5, 0)
+finishStats.Position = UDim2.new(0.5, 0, 0, 120)
+finishStats.Size = UDim2.new(1, -40, 0, 60)
+finishStats.BackgroundTransparency = 1
+finishStats.Font = Enum.Font.GothamBold
+finishStats.TextSize = 22
+finishStats.Text = ""
+finishStats.TextColor3 = Color3.fromRGB(210, 235, 255)
+finishStats.ZIndex = 22
+finishStats.Parent = panel
+
+local finishHint = Instance.new("TextLabel")
+finishHint.AnchorPoint = Vector2.new(0.5, 0)
+finishHint.Position = UDim2.new(0.5, 0, 0, 210)
+finishHint.Size = UDim2.new(1, -40, 0, 44)
+finishHint.BackgroundTransparency = 1
+finishHint.Font = Enum.Font.Gotham
+finishHint.TextSize = 17
+finishHint.Text = "Aperte R para recomeçar e bater seu recorde!"
+finishHint.TextColor3 = Color3.fromRGB(160, 200, 230)
+finishHint.ZIndex = 22
+finishHint.Parent = panel
+
+local confettiLayer = Instance.new("Frame")
+confettiLayer.Name = "Confetti"
+confettiLayer.Size = UDim2.fromScale(1, 1)
+confettiLayer.BackgroundTransparency = 1
+confettiLayer.ZIndex = 30
+confettiLayer.Parent = overlay
+
+local function burstConfetti(amount)
+	for _ = 1, amount do
+		local piece = Instance.new("Frame")
+		piece.Size = UDim2.fromOffset(6 + math.random(9), 10 + math.random(12))
+		piece.BackgroundColor3 = Color3.fromHSV(math.random(), 0.8, 1)
+		piece.BorderSizePixel = 0
+		piece.Position = UDim2.fromScale(math.random(), -0.12)
+		piece.Rotation = math.random(360)
+		piece.ZIndex = 31
+		piece.Parent = confettiLayer
+		local fall = TweenService:Create(
+			piece,
+			TweenInfo.new(2.4 + math.random() * 1.6, Enum.EasingStyle.Sine, Enum.EasingDirection.In),
+			{
+				Position = UDim2.fromScale(math.random(), 1.15),
+				Rotation = piece.Rotation + (math.random(2) == 1 and 360 or -360),
+			}
+		)
+		task.delay(math.random() * 1.0, function()
+			fall:Play()
+		end)
+		fall.Completed:Connect(function()
+			piece:Destroy()
+		end)
+	end
+end
+
+local finishedShown = false
+
+local function showFinish()
+	if finishedShown then
+		return
+	end
+	finishedShown = true
+	local coins = player:GetAttribute("Coins") or 0
+	local cp = player:GetAttribute("Checkpoint") or 0
+	finishStats.Text = string.format(
+		"Checkpoints: %d / %d      Moedas: %d / %d",
+		cp,
+		totalCheckpoints,
+		coins,
+		totalCoins
+	)
+	overlay.Visible = true
+	panel.Size = UDim2.fromOffset(430, 264)
+	local fadeIn = TweenService:Create(
+		overlay,
+		TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+		{ BackgroundTransparency = 0.45 }
+	)
+	local panelIn = TweenService:Create(
+		panel,
+		TweenInfo.new(0.55, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
+		{ Size = UDim2.fromOffset(480, 300) }
+	)
+	fadeIn:Play()
+	panelIn:Play()
+	burstConfetti(30)
+	task.delay(1.1, function()
+		burstConfetti(24)
+	end)
+end
+
+---------------------------------------------------------------
+-- Reações aos atributos do jogador
+local function refreshProgress()
+	local idx = player:GetAttribute("Checkpoint") or 0
+	cpText.Text = "CHECKPOINT " .. idx .. " / " .. totalCheckpoints
+	local ratio = math.clamp(idx / math.max(totalCheckpoints, 1), 0, 1)
+	local tween = TweenService:Create(
+		barFill,
+		TweenInfo.new(0.45, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+		{ Size = UDim2.fromScale(ratio, 1) }
+	)
+	tween:Play()
+end
+
+local function refreshCoins()
+	local coins = player:GetAttribute("Coins") or 0
+	coinText.Text = "Moedas: " .. coins
+	coinText.TextSize = 25
+	task.delay(0.15, function()
+		coinText.TextSize = 21
+	end)
+end
+
+player:GetAttributeChangedSignal("Checkpoint"):Connect(function()
+	local idx = player:GetAttribute("Checkpoint") or 0
+	if idx > 0 then
+		refreshProgress()
+		showPopup("CHECKPOINT " .. idx .. "  ✔")
+		flashPad(idx)
+	end
+end)
+
+player:GetAttributeChangedSignal("Coins"):Connect(refreshCoins)
+
+player:GetAttributeChangedSignal("Finished"):Connect(function()
+	if player:GetAttribute("Finished") then
+		showFinish()
+	end
+end)
+
+refreshProgress()
+refreshCoins()
+]]></ProtectedString>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+					<UniqueId name="UniqueId">fa9b7c2f03aa4a03bcbcfd37ba5871b8</UniqueId>
+				</Properties>
+			</Item>
+		</Item>
+		<Item class="StarterCharacterScripts" referent="RBX52FEC2569A014092B9E2BD57B8328641">
+			<Properties>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<UniqueId name="HistoryId">00000000000000000000000000000000</UniqueId>
+				<string name="Name">StarterCharacterScripts</string>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+				<UniqueId name="UniqueId">b3eada16d7224a5fb77592f3b2a9a67a</UniqueId>
+			</Properties>
+		</Item>
+	</Item></roblox>
