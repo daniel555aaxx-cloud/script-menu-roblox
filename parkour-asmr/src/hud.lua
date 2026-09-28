@@ -1,24 +1,30 @@
 --[[
 	Parkour ASMR — HUD (LocalScript no StarterPlayerScripts)
-	• Barra de progresso dos checkpoints
-	• Contador de moedas
-	• Aviso de controles
-	• Pop-up de checkpoint
-	• Tela de comemoração + confete ao terminar
+	• Nome do mundo + barra de progresso dos níveis
+	• Moedas, cronômetro e contador de mortes
+	• Aviso de controles, pop-up de nível com sparkle
+	• Tela de comemoração com tempo + confete
 ]]
 
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
 
 local player = Players.LocalPlayer
 
 ---------------------------------------------------------------
--- Descobre a quantidade total de checkpoints e moedas
-local totalCheckpoints = 9
-local totalCoins = 6
+-- Mundos gerados pelo build (primeiro nível de cada mundo)
+local WORLDS = {
+__WORLDS_CONFIG__
+}
+
+---------------------------------------------------------------
+-- Totais reais do mapa
+local totalCheckpoints = 42
+local totalCoins = 20
 do
-	local map = workspace:FindFirstChild("ParkourMap")
-	local course = map and map:FindFirstChild("Course")
+	local map = workspace:WaitForChild("ParkourMap", 15)
+	local course = map and map:WaitForChild("Course", 8)
 	if course then
 		local cpFolder = course:FindFirstChild("Checkpoints")
 		if cpFolder then
@@ -68,32 +74,43 @@ local function addStroke(parent, color, thickness)
 end
 
 ---------------------------------------------------------------
--- Barra de checkpoints (topo central)
+-- Barra de níveis (topo central)
 local topBar = Instance.new("Frame")
-topBar.Name = "CheckpointBar"
+topBar.Name = "LevelBar"
 topBar.AnchorPoint = Vector2.new(0.5, 0)
-topBar.Position = UDim2.new(0.5, 0, 0, 14)
-topBar.Size = UDim2.fromOffset(330, 66)
+topBar.Position = UDim2.new(0.5, 0, 0, 12)
+topBar.Size = UDim2.fromOffset(370, 86)
 topBar.BackgroundColor3 = Color3.fromRGB(14, 16, 26)
 topBar.BackgroundTransparency = 0.2
 topBar.Parent = gui
 addCorner(topBar, 12)
 addStroke(topBar, Color3.fromRGB(0, 240, 255), 2)
 
+local worldText = Instance.new("TextLabel")
+worldText.Name = "World"
+worldText.Position = UDim2.new(0, 12, 0, 6)
+worldText.Size = UDim2.new(1, -24, 0, 18)
+worldText.BackgroundTransparency = 1
+worldText.Font = Enum.Font.GothamBold
+worldText.TextSize = 14
+worldText.Text = "LOBBY"
+worldText.TextColor3 = Color3.fromRGB(120, 220, 255)
+worldText.Parent = topBar
+
 local cpText = Instance.new("TextLabel")
 cpText.Name = "Value"
-cpText.Position = UDim2.new(0, 10, 0, 7)
-cpText.Size = UDim2.new(1, -20, 0, 24)
+cpText.Position = UDim2.new(0, 12, 0, 26)
+cpText.Size = UDim2.new(1, -20, 0, 26)
 cpText.BackgroundTransparency = 1
 cpText.Font = Enum.Font.GothamBold
-cpText.TextSize = 19
-cpText.Text = "CHECKPOINT 0 / " .. totalCheckpoints
+cpText.TextSize = 21
+cpText.Text = "NÍVEL 0 / " .. totalCheckpoints
 cpText.TextColor3 = Color3.fromRGB(240, 245, 255)
 cpText.Parent = topBar
 
 local barBack = Instance.new("Frame")
 barBack.Name = "BarBack"
-barBack.Position = UDim2.new(0.06, 0, 0, 44)
+barBack.Position = UDim2.new(0.06, 0, 0, 62)
 barBack.Size = UDim2.new(0.88, 0, 0, 10)
 barBack.BackgroundColor3 = Color3.fromRGB(38, 42, 58)
 barBack.BorderSizePixel = 0
@@ -109,35 +126,45 @@ barFill.Parent = barBack
 addCorner(barFill, 5)
 
 ---------------------------------------------------------------
--- Contador de moedas (topo direito)
-local coinBar = Instance.new("Frame")
-coinBar.Name = "CoinBar"
-coinBar.AnchorPoint = Vector2.new(1, 0)
-coinBar.Position = UDim2.new(1, -14, 0, 14)
-coinBar.Size = UDim2.fromOffset(150, 46)
-coinBar.BackgroundColor3 = Color3.fromRGB(14, 16, 26)
-coinBar.BackgroundTransparency = 0.2
-coinBar.Parent = gui
-addCorner(coinBar, 10)
-addStroke(coinBar, Color3.fromRGB(255, 215, 80), 2)
+-- Estatísticas (topo direito): moedas, tempo, mortes
+local statsBar = Instance.new("Frame")
+statsBar.Name = "Stats"
+statsBar.AnchorPoint = Vector2.new(1, 0)
+statsBar.Position = UDim2.new(1, -14, 0, 12)
+statsBar.Size = UDim2.fromOffset(300, 46)
+statsBar.BackgroundColor3 = Color3.fromRGB(14, 16, 26)
+statsBar.BackgroundTransparency = 0.2
+statsBar.Parent = gui
+addCorner(statsBar, 10)
+addStroke(statsBar, Color3.fromRGB(255, 215, 80), 2)
 
-local coinText = Instance.new("TextLabel")
-coinText.Name = "Value"
-coinText.Size = UDim2.fromScale(1, 1)
-coinText.BackgroundTransparency = 1
-coinText.Font = Enum.Font.GothamBold
-coinText.TextSize = 21
-coinText.Text = "Moedas: 0"
-coinText.TextColor3 = Color3.fromRGB(255, 224, 120)
-coinText.Parent = coinBar
+local statsText = Instance.new("TextLabel")
+statsText.Name = "Value"
+statsText.Size = UDim2.fromScale(1, 1)
+statsText.BackgroundTransparency = 1
+statsText.Font = Enum.Font.GothamBold
+statsText.TextSize = 17
+statsText.Text = "Moedas 0    Tempo 0:00.00    Mortes 0"
+statsText.TextColor3 = Color3.fromRGB(255, 230, 150)
+statsText.Parent = statsBar
+
+local coinShown = 0
+local deaths = 0
+
+local function renderStats(timeText)
+	statsText.Text = string.format(
+		"Moedas %d    Tempo %s    Mortes %d",
+		coinShown, timeText, deaths
+	)
+end
 
 ---------------------------------------------------------------
 -- Aviso de controles (some depois de um tempo)
 local hint = Instance.new("Frame")
 hint.Name = "Hint"
 hint.AnchorPoint = Vector2.new(0.5, 1)
-hint.Position = UDim2.new(0.5, 0, 1, -14)
-hint.Size = UDim2.fromOffset(600, 44)
+hint.Position = UDim2.new(0.5, 0, 1, -12)
+hint.Size = UDim2.fromOffset(640, 42)
 hint.BackgroundColor3 = Color3.fromRGB(14, 16, 26)
 hint.BackgroundTransparency = 0.35
 hint.Parent = gui
@@ -147,12 +174,12 @@ local hintText = Instance.new("TextLabel")
 hintText.Size = UDim2.fromScale(1, 1)
 hintText.BackgroundTransparency = 1
 hintText.Font = Enum.Font.Gotham
-hintText.TextSize = 17
-hintText.Text = "WASD andar   •   ESPACO pular   •   SHIFT correr   •   K ligar/desligar ASMR"
+hintText.TextSize = 16
+hintText.Text = "WASD andar   •   ESPACO pular   •   SHIFT correr   •   K ligar/desligar ASMR   •   R reiniciar"
 hintText.TextColor3 = Color3.fromRGB(200, 235, 255)
 hintText.Parent = hint
 
-task.delay(9, function()
+task.delay(10, function()
 	local tweenOut = TweenService:Create(
 		hint,
 		TweenInfo.new(1.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
@@ -168,16 +195,16 @@ task.delay(9, function()
 end)
 
 ---------------------------------------------------------------
--- Pop-up de checkpoint
+-- Pop-up de nível
 local popup = Instance.new("TextLabel")
 popup.Name = "Popup"
 popup.AnchorPoint = Vector2.new(0.5, 0.5)
-popup.Position = UDim2.new(0.5, 0, 0.18, 0)
+popup.Position = UDim2.new(0.5, 0, 0.2, 0)
 popup.Size = UDim2.fromOffset(560, 70)
 popup.BackgroundTransparency = 1
 popup.Font = Enum.Font.GothamBlack
 popup.TextSize = 42
-popup.Text = "CHECKPOINT"
+popup.Text = "NÍVEL"
 popup.TextColor3 = Color3.fromRGB(110, 255, 170)
 popup.TextTransparency = 1
 popup.TextStrokeColor3 = Color3.fromRGB(10, 30, 20)
@@ -193,11 +220,11 @@ local function showPopup(text)
 	popupBusy = true
 	popup.Text = text
 	popup.TextTransparency = 1
-	popup.Position = UDim2.new(0.5, 0, 0.2, 0)
+	popup.Position = UDim2.new(0.5, 0, 0.22, 0)
 	local fadeIn = TweenService:Create(
 		popup,
 		TweenInfo.new(0.25, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
-		{ TextTransparency = 0, Position = UDim2.new(0.5, 0, 0.17, 0) }
+		{ TextTransparency = 0, Position = UDim2.new(0.5, 0, 0.19, 0) }
 	)
 	fadeIn:Play()
 	fadeIn.Completed:Wait()
@@ -214,7 +241,7 @@ local function showPopup(text)
 end
 
 ---------------------------------------------------------------
--- Destaque local do pad tocado (só visual, no cliente)
+-- Destaque local do nível tocado (cor + sparkle, só no cliente)
 local function flashPad(idx)
 	local map = workspace:FindFirstChild("ParkourMap")
 	if not map then
@@ -229,7 +256,41 @@ local function flashPad(idx)
 				pad.Color = original
 			end
 		end)
+
+		local sparkle = pad:FindFirstChild("LocalSparkle")
+		if not sparkle then
+			sparkle = Instance.new("ParticleEmitter")
+			sparkle.Name = "LocalSparkle"
+			sparkle.Rate = 0
+			sparkle.Lifetime = NumberRange.new(0.5, 1.1)
+			sparkle.Speed = NumberRange.new(5, 10)
+			sparkle.SpreadAngle = Vector2.new(75, 75)
+			sparkle.Acceleration = Vector3.new(0, 6, 0)
+			sparkle.Size = NumberSequence.new({
+				NumberSequenceKeypoint.new(0, 0.45),
+				NumberSequenceKeypoint.new(1, 0.05),
+			})
+			sparkle.Color = ColorSequence.new(
+				Color3.fromRGB(140, 255, 190),
+				Color3.fromRGB(255, 255, 255)
+			)
+			sparkle.LightEmission = 0.9
+			sparkle.Parent = pad
+		end
+		sparkle:Emit(28)
 	end
+end
+
+---------------------------------------------------------------
+-- Cronômetro
+local startTime = tick()
+local finalTime = nil
+local lastClock = ""
+
+local function formatTime(t)
+	local minutes = math.floor(t / 60)
+	local seconds = t - minutes * 60
+	return string.format("%d:%05.2f", minutes, seconds)
 end
 
 ---------------------------------------------------------------
@@ -246,7 +307,7 @@ overlay.Parent = gui
 local panel = Instance.new("Frame")
 panel.AnchorPoint = Vector2.new(0.5, 0.5)
 panel.Position = UDim2.fromScale(0.5, 0.5)
-panel.Size = UDim2.fromOffset(480, 300)
+panel.Size = UDim2.fromOffset(500, 330)
 panel.BackgroundColor3 = Color3.fromRGB(14, 16, 26)
 panel.BackgroundTransparency = 0.05
 panel.ZIndex = 21
@@ -256,8 +317,8 @@ addStroke(panel, Color3.fromRGB(255, 215, 80), 3)
 
 local finishTitle = Instance.new("TextLabel")
 finishTitle.AnchorPoint = Vector2.new(0.5, 0)
-finishTitle.Position = UDim2.new(0.5, 0, 0, 34)
-finishTitle.Size = UDim2.new(1, -40, 0, 64)
+finishTitle.Position = UDim2.new(0.5, 0, 0, 32)
+finishTitle.Size = UDim2.new(1, -40, 0, 60)
 finishTitle.BackgroundTransparency = 1
 finishTitle.Font = Enum.Font.GothamBlack
 finishTitle.TextSize = 40
@@ -268,24 +329,25 @@ finishTitle.Parent = panel
 
 local finishStats = Instance.new("TextLabel")
 finishStats.AnchorPoint = Vector2.new(0.5, 0)
-finishStats.Position = UDim2.new(0.5, 0, 0, 120)
-finishStats.Size = UDim2.new(1, -40, 0, 60)
+finishStats.Position = UDim2.new(0.5, 0, 0, 112)
+finishStats.Size = UDim2.new(1, -40, 0, 96)
 finishStats.BackgroundTransparency = 1
 finishStats.Font = Enum.Font.GothamBold
-finishStats.TextSize = 22
+finishStats.TextSize = 21
 finishStats.Text = ""
 finishStats.TextColor3 = Color3.fromRGB(210, 235, 255)
+finishStats.TextWrapped = true
 finishStats.ZIndex = 22
 finishStats.Parent = panel
 
 local finishHint = Instance.new("TextLabel")
 finishHint.AnchorPoint = Vector2.new(0.5, 0)
-finishHint.Position = UDim2.new(0.5, 0, 0, 210)
+finishHint.Position = UDim2.new(0.5, 0, 0, 252)
 finishHint.Size = UDim2.new(1, -40, 0, 44)
 finishHint.BackgroundTransparency = 1
 finishHint.Font = Enum.Font.Gotham
 finishHint.TextSize = 17
-finishHint.Text = "Aperte R para recomeçar e bater seu recorde!"
+finishHint.Text = "Aperte R para recomeçar — o cronômetro zera!"
 finishHint.TextColor3 = Color3.fromRGB(160, 200, 230)
 finishHint.ZIndex = 22
 finishHint.Parent = panel
@@ -331,17 +393,16 @@ local function showFinish()
 		return
 	end
 	finishedShown = true
+	finalTime = tick() - startTime
 	local coins = player:GetAttribute("Coins") or 0
-	local cp = player:GetAttribute("Checkpoint") or 0
+	local level = player:GetAttribute("Checkpoint") or 0
 	finishStats.Text = string.format(
-		"Checkpoints: %d / %d      Moedas: %d / %d",
-		cp,
-		totalCheckpoints,
-		coins,
-		totalCoins
+		"Nível: %d / %d      Moedas: %d / %d\nTempo: %s      Mortes: %d",
+		level, totalCheckpoints, coins, totalCoins,
+		formatTime(finalTime), deaths
 	)
 	overlay.Visible = true
-	panel.Size = UDim2.fromOffset(430, 264)
+	panel.Size = UDim2.fromOffset(450, 292)
 	local fadeIn = TweenService:Create(
 		overlay,
 		TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
@@ -350,21 +411,63 @@ local function showFinish()
 	local panelIn = TweenService:Create(
 		panel,
 		TweenInfo.new(0.55, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
-		{ Size = UDim2.fromOffset(480, 300) }
+		{ Size = UDim2.fromOffset(500, 330) }
 	)
 	fadeIn:Play()
 	panelIn:Play()
-	burstConfetti(30)
+	burstConfetti(34)
 	task.delay(1.1, function()
-		burstConfetti(24)
+		burstConfetti(26)
 	end)
 end
 
+local function resetRun()
+	if not finishedShown then
+		return
+	end
+	finishedShown = false
+	finalTime = nil
+	startTime = tick()
+	overlay.Visible = false
+end
+
 ---------------------------------------------------------------
--- Reações aos atributos do jogador
+-- Mundo atual
+local function worldInfo(idx)
+	local current = nil
+	local number = nil
+	for i, w in ipairs(WORLDS) do
+		if idx >= w.first then
+			current = w.name
+			number = i
+		else
+			break
+		end
+	end
+	return number, current
+end
+
+local function renderWorld(idx)
+	if idx <= 0 then
+		worldText.Text = "LOBBY — subindo até o céu"
+		return
+	end
+	local number, name = worldInfo(idx)
+	if number and name then
+		worldText.Text = string.format(
+			"MUNDO %d/%d — %s", number, #WORLDS, name
+		)
+	else
+		worldText.Text = "NÍVEL ALTO"
+	end
+end
+
+---------------------------------------------------------------
+-- Progresso e reações aos atributos
 local function refreshProgress()
 	local idx = player:GetAttribute("Checkpoint") or 0
-	cpText.Text = "CHECKPOINT " .. idx .. " / " .. totalCheckpoints
+	cpText.Text = "NÍVEL " .. idx .. " / " .. totalCheckpoints
+	renderWorld(idx)
 	local ratio = math.clamp(idx / math.max(totalCheckpoints, 1), 0, 1)
 	local tween = TweenService:Create(
 		barFill,
@@ -375,11 +478,11 @@ local function refreshProgress()
 end
 
 local function refreshCoins()
-	local coins = player:GetAttribute("Coins") or 0
-	coinText.Text = "Moedas: " .. coins
-	coinText.TextSize = 25
+	coinShown = player:GetAttribute("Coins") or 0
+	statsText.TextSize = 20
+	renderStats(lastClock ~= "" and lastClock or "0:00.00")
 	task.delay(0.15, function()
-		coinText.TextSize = 21
+		statsText.TextSize = 17
 	end)
 end
 
@@ -387,7 +490,7 @@ player:GetAttributeChangedSignal("Checkpoint"):Connect(function()
 	local idx = player:GetAttribute("Checkpoint") or 0
 	if idx > 0 then
 		refreshProgress()
-		showPopup("CHECKPOINT " .. idx .. "  ✔")
+		showPopup("NÍVEL " .. idx .. "  ✔")
 		flashPad(idx)
 	end
 end)
@@ -397,8 +500,33 @@ player:GetAttributeChangedSignal("Coins"):Connect(refreshCoins)
 player:GetAttributeChangedSignal("Finished"):Connect(function()
 	if player:GetAttribute("Finished") then
 		showFinish()
+	else
+		resetRun()
+	end
+end)
+
+---------------------------------------------------------------
+-- Morte = renascimento (reinicia a tentativa)
+local seenCharacter = false
+player.CharacterAdded:Connect(function()
+	if seenCharacter then
+		deaths = deaths + 1
+		renderStats(lastClock ~= "" and lastClock or "0:00.00")
+	end
+	seenCharacter = true
+end)
+
+---------------------------------------------------------------
+-- Relógio
+RunService.Heartbeat:Connect(function()
+	local t = finalTime or (tick() - startTime)
+	local txt = formatTime(t)
+	if txt ~= lastClock then
+		lastClock = txt
+		renderStats(txt)
 	end
 end)
 
 refreshProgress()
 refreshCoins()
+renderStats("0:00.00")

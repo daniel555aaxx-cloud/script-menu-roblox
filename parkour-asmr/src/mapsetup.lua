@@ -1,10 +1,16 @@
 --[[
 	Parkour ASMR — MapSetup (servidor)
-	Placas, luzes dos checkpoints, brasas da lava e confete da chegada.
+	Placas dos mundos, rótulos/luzes dos checkpoints, pilares de luz,
+	brasas da lava e confete da chegada.
 ]]
 
 local MODEL = workspace:WaitForChild("ParkourMap")
 local course = MODEL:WaitForChild("Course")
+
+-- âncoras dos mundos geradas pelo build
+local WORLDS = {
+__WORLDS_CONFIG__
+}
 
 ------------------------------------------------------------------
 -- Placa flutuante (parte invisível + BillboardGui)
@@ -24,7 +30,7 @@ local function makeSign(anchorPos, width, height, title, subtitle)
 	billboard.Name = "Sign"
 	billboard.Size = UDim2.fromOffset(width, height)
 	billboard.AlwaysOnTop = false
-	billboard.MaxDistance = 300
+	billboard.MaxDistance = 350
 	billboard.LightInfluence = 0
 	billboard.Parent = holder
 
@@ -69,15 +75,29 @@ local function makeSign(anchorPos, width, height, title, subtitle)
 end
 
 ------------------------------------------------------------------
--- Placa da boas-vindas (sobre o spawn)
+-- Placa da boas-vindas (sobre o spawn) com números reais do mapa
+local checkFolder = course:WaitForChild("Checkpoints")
+local totalLevels = 0
+for _, pad in ipairs(checkFolder:GetChildren()) do
+	if string.match(pad.Name, "^Checkpoint_%d+$") then
+		totalLevels = totalLevels + 1
+	end
+end
+
+local coinFolder = course:WaitForChild("Coins")
+local totalCoins = #coinFolder:GetChildren()
+
 local lobby = MODEL:WaitForChild("Lobby")
 local spawnLocation = lobby:WaitForChild("SpawnLocation")
 makeSign(
-	spawnLocation.Position + Vector3.new(0, 16, 0),
-	760,
-	180,
+	spawnLocation.Position + Vector3.new(0, 17, 0),
+	820,
+	190,
 	"PARKOUR ASMR",
-	"WASD = andar   •   ESPAÇO = pular   •   K = ligar/desligar o som ASMR"
+	string.format(
+		"%d níveis • %d mundos • %d moedas   |   WASD andar • ESPAÇO pular • K som ASMR",
+		totalLevels, #WORLDS, totalCoins
+	)
 )
 
 ------------------------------------------------------------------
@@ -85,23 +105,34 @@ makeSign(
 local finish = course:WaitForChild("Finish")
 makeSign(
 	finish.Position + Vector3.new(0, 13, 0),
-	680,
+	700,
 	160,
 	"CHEGADA!",
 	"Você terminou o parkour ASMR — jogou demais!"
 )
 
 ------------------------------------------------------------------
--- Rótulo + luz nos checkpoints
-local checkFolder = course:WaitForChild("Checkpoints")
+-- Placas de mundo (entrada de cada mundo)
+for _, world in ipairs(WORLDS) do
+	makeSign(
+		Vector3.new(world.x, world.y, world.z),
+		700,
+		160,
+		world.title,
+		world.subtitle
+	)
+end
+
+------------------------------------------------------------------
+-- Rótulo + luz + pilar de luz nos checkpoints
 for _, pad in ipairs(checkFolder:GetChildren()) do
 	local idx = string.match(pad.Name, "Checkpoint_(%d+)")
 	if idx then
 		local billboard = Instance.new("BillboardGui")
 		billboard.Name = "Label"
-		billboard.Size = UDim2.fromOffset(250, 54)
-		billboard.StudsOffset = Vector3.new(0, 5.5, 0)
-		billboard.MaxDistance = 220
+		billboard.Size = UDim2.fromOffset(260, 54)
+		billboard.StudsOffset = Vector3.new(0, 6, 0)
+		billboard.MaxDistance = 260
 		billboard.LightInfluence = 0
 		billboard.Parent = pad
 
@@ -109,7 +140,7 @@ for _, pad in ipairs(checkFolder:GetChildren()) do
 		label.Size = UDim2.fromScale(1, 1)
 		label.BackgroundTransparency = 1
 		label.Font = Enum.Font.GothamBold
-		label.Text = "CHECKPOINT " .. idx
+		label.Text = "NÍVEL " .. idx
 		label.TextColor3 = Color3.fromRGB(110, 255, 170)
 		label.TextStrokeTransparency = 0.45
 		label.TextScaled = true
@@ -119,9 +150,23 @@ for _, pad in ipairs(checkFolder:GetChildren()) do
 		light.Name = "CheckpointGlow"
 		light.Color = Color3.fromRGB(90, 255, 160)
 		light.Brightness = 1.5
-		light.Range = 16
+		light.Range = 18
 		light.Shadows = false
 		light.Parent = pad
+
+		-- pilar de luz flutuando acima do pad (marcador visível de longe)
+		local pillar = Instance.new("Part")
+		pillar.Name = "LightPillar_" .. idx
+		pillar.Anchored = true
+		pillar.CanCollide = false
+		pillar.CanTouch = false
+		pillar.CanQuery = false
+		pillar.Size = Vector3.new(0.7, 15, 0.7)
+		pillar.Transparency = 0.65
+		pillar.Material = Enum.Material.Neon
+		pillar.Color = Color3.fromRGB(70, 255, 150)
+		pillar.CFrame = pad.CFrame * CFrame.new(0, 9.5, 0)
+		pillar.Parent = MODEL:WaitForChild("Decor")
 	end
 end
 
@@ -132,7 +177,7 @@ for _, part in ipairs(hazards:GetChildren()) do
 	if part:IsA("BasePart") and string.find(part.Name, "Lava") then
 		local embers = Instance.new("ParticleEmitter")
 		embers.Name = "Brasas"
-		embers.Rate = 22
+		embers.Rate = 110
 		embers.Speed = NumberRange.new(3, 6)
 		embers.Lifetime = NumberRange.new(1.8, 3)
 		embers.Acceleration = Vector3.new(0, 5, 0)

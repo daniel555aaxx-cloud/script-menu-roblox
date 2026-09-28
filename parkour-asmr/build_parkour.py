@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Gera Parkour_ASMR.rbxlx — mapa de parkour para Roblox Studio
-com checkpoints, moedas, obstáculos e sistema de ASMR de teclado.
+com 42 níveis em 7 mundos, ASMR de teclado e progresso salvo.
 
 Uso:   python3 build_parkour.py
 Saida: Parkour_ASMR.rbxlx (abra no Studio: Arquivo > Abrir do arquivo)
@@ -25,6 +25,13 @@ SMOOTH = 272
 NEON = 288
 WOOD = 512
 
+TOTAL_WORLDS = 7
+LEVELS_PER_WORLD = 6
+TOTAL_LEVELS = TOTAL_WORLDS * LEVELS_PER_WORLD  # 42
+
+Z_LIMIT = 12      # faixa lateral máxima do percurso
+TOP_CEILING = 52  # altura máxima do percurso (ajusta descidas)
+
 
 def color_uint8(rgb):
     r, g, b = (max(0, min(255, int(round(c * 255)))) for c in rgb)
@@ -39,6 +46,12 @@ LAV = (0.80, 0.72, 1.00)
 PINK = (1.00, 0.72, 0.83)
 CORAL = (1.00, 0.62, 0.58)
 ICE = (0.78, 0.95, 1.00)
+SAND = (0.96, 0.87, 0.62)
+JADE = (0.55, 0.93, 0.74)
+TEAL = (0.45, 0.85, 0.88)
+STEEL = (0.78, 0.81, 0.86)
+ORANGE = (1.00, 0.72, 0.35)
+ROYAL = (0.98, 0.95, 0.85)
 CP_GREEN = (0.25, 1.00, 0.55)
 MOVER_YEL = (1.00, 0.90, 0.25)
 FALL_BROWN = (0.76, 0.54, 0.32)
@@ -47,18 +60,23 @@ LAVA_RED = (1.00, 0.28, 0.10)
 GOLD = (1.00, 0.84, 0.25)
 WHITE = (1.00, 1.00, 1.00)
 CYAN = (0.30, 0.95, 1.00)
+VIOLET = (0.72, 0.45, 1.00)
 LOBBY_BLUE = (0.68, 0.86, 1.00)
 SPAWN_Y = (1.00, 0.95, 0.65)
 PAD_STONE = (0.90, 0.93, 0.97)
+VANISH_CYAN = (0.55, 0.95, 1.00)
+BEAM_WHITE = (0.94, 0.96, 1.00)
 
-# Pastas do mapa (caminho de itens)
+# Pastas do mapa
 F_LOBBY = ["ParkourMap", "Lobby"]
 F_PLAT = ["ParkourMap", "Course", "Platforms"]
 F_CP = ["ParkourMap", "Course", "Checkpoints"]
 F_MOVER = ["ParkourMap", "Course", "Movers"]
 F_FALL = ["ParkourMap", "Course", "FallingPlatforms"]
+F_VANISH = ["ParkourMap", "Course", "VanishPlatforms"]
 F_SPIN = ["ParkourMap", "Course", "Spinners"]
 F_COIN = ["ParkourMap", "Course", "Coins"]
+F_PADS = ["ParkourMap", "Course", "Pads"]
 F_FINISH = ["ParkourMap", "Course"]
 F_DECOR = ["ParkourMap", "Decor"]
 F_HAZ = ["ParkourMap", "Hazards"]
@@ -68,16 +86,28 @@ parts = []
 movers_cfg = []
 spinners_cfg = []
 falling_names = []
-counters = {"plat": 0, "coin": 0, "cp": 0}
+vanish_cfg = []
+boosts_cfg = []
+speedpads_cfg = []
+world_signs = []      # placas dos mundos (x, y, z, título, subtítulo)
+worlds_hud = []       # primeiro nível de cada mundo (para o HUD)
+counters = {"plat": 0, "coin": 0, "cp": 0, "pad": 0, "spinner": 0}
+PAL = [SKY, MINT, LEMON]
+
+
+def pal(i):
+    return PAL[i % len(PAL)]
 
 
 def add(name, folder, center, size, color, mat=SMOOTH, yaw=0.0,
-        transparency=0.0, can_collide=True, cls="Part"):
-    parts.append({
+        transparency=0.0, can_collide=True, cls="Part", special=None):
+    p = {
         "name": name, "folder": folder, "center": center, "size": size,
         "color": color, "mat": mat, "yaw": yaw, "transparency": transparency,
-        "can_collide": can_collide, "cls": cls,
-    })
+        "can_collide": can_collide, "cls": cls, "special": special,
+    }
+    parts.append(p)
+    return p
 
 
 def place_coin(x, y, z):
@@ -96,20 +126,53 @@ class Cursor:
 cur = Cursor(-16.0, 0.0, 0.0, 34.0, 34.0)
 
 
+def clamp_z(z):
+    return max(-Z_LIMIT, min(Z_LIMIT, z))
+
+
+def clamp_dy(dy, exempt=False):
+    """Mantém o percurso dentro da faixa de altura (descida gradual)."""
+    if exempt:
+        return dy
+    if cur.top + dy > TOP_CEILING:
+        over = cur.top + dy - TOP_CEILING
+        dy = max(dy - over * 0.6, -4.5)  # no máximo ~4.5 studs por degrau
+    if cur.top + dy < 2:
+        dy = max(dy, 2 - cur.top)
+    return dy
+
+
+def clamp_jump(gap, dz, special=None):
+    """Limita o pulo a ~7.3 studs horizontais (descontando o deslocamento
+    lateral), exceto nas pistas de velocidade (14 studs)."""
+    if special == "speed":
+        return gap, dz
+    eff = math.hypot(max(gap, 0.0), dz)
+    if eff <= 7.3:
+        return gap, dz
+    if abs(dz) > 6.4:
+        dz = math.copysign(6.4, dz)
+    gap = max(3.4, math.sqrt(max(7.3 ** 2 - dz ** 2, 4.0)))
+    return gap, dz
+
+
 def link(size, gap, dz=0.0, dy=0.0, size_z=None, color=SKY, mat=SMOOTH,
          yaw=0.0, coin=False, coin_dz=0.0, coin_rise=2.4, name=None,
-         folder=None, sy=1.0):
+         folder=None, sy=1.0, special=None):
     """Coloca uma plataforma à frente do cursor e avança o cursor."""
     sz = size if size_z is None else size_z
     prev_edge = cur.cx + cur.sx / 2
+    cz = clamp_z(cur.cz + dz)
+    gap, dz_off = clamp_jump(gap, cz - cur.cz, special)
+    cz = clamp_z(cur.cz + dz_off)
+    dy = clamp_dy(dy, exempt=(special == "boost"))
     cx = prev_edge + gap + size / 2
-    cz = cur.cz + dz
     top = cur.top + dy
     if name is None:
         counters["plat"] += 1
         name = f"Plat_{counters['plat']}"
     add(name, folder or F_PLAT, (cx, top - sy / 2, cz), (size, sy, sz),
-        color, mat, yaw=yaw)
+        color, mat, yaw=yaw, special=special)
     if coin:
         mid_x = (prev_edge + (cx - size / 2)) / 2
         mid_z = (cur.cz + cz) / 2 + coin_dz
@@ -130,8 +193,11 @@ def mover_link(size, gap, amp, speed, phase, dz_pos=0.0, y_offset=0.0,
     sz = size if size_z is None else size_z
     prev_edge = cur.cx + cur.sx / 2
     cx = prev_edge + gap + size / 2
-    cz = cur.cz + dz_pos
-    top = cur.top + y_offset
+    cz = clamp_z(cur.cz + dz_pos)
+    gap2, dz2 = clamp_jump(gap, cz - cur.cz)
+    cz = clamp_z(cur.cz + dz2)
+    cx = prev_edge + gap2 + size / 2
+    top = cur.top + clamp_dy(y_offset)
     counters["plat"] += 1
     name = name or f"Mover_{counters['plat']}"
     add(name, F_MOVER, (cx, top - 0.5, cz), (size, 1.0, sz), color, NEON)
@@ -151,11 +217,284 @@ def falling_link(size, gap, dz=0.0, color=FALL_BROWN, coin=False, coin_dz=0.0):
     return name
 
 
-def spinner_pad(gap=4.5, speed=0.95, name="Spinner_1"):
-    link(15.0, gap, size_z=12.0, color=PAD_STONE)
-    add(name, F_SPIN, (cur.cx, cur.top + 1.15, cur.cz), (16.0, 1.6, 1.6),
-        SPIN_RED, NEON)
-    spinners_cfg.append({"name": name, "speed": speed, "phase": 0.0})
+def vanish_link(size, gap, dz=0.0, dy=0.0, coin=False):
+    counters["pad"] += 1
+    name = f"Vanish_{counters['pad']}"
+    idx = len(vanish_cfg)
+    link(size, gap, dz=dz, dy=dy, color=VANISH_CYAN, mat=NEON,
+         name=name, folder=F_VANISH, coin=coin)
+    vanish_cfg.append({
+        "name": name, "cycle": 4.0, "phase": round(idx * 0.5, 3),
+    })
+    return name
+
+
+def spinner_pad(gap=4.5, speed=0.95, bars=1, pad_size=15.0, pad_z=12.0,
+                bar_len=16.0, color=PAD_STONE):
+    link(pad_size, gap, size_z=pad_z, color=color)
+    for b in range(bars):
+        counters["spinner"] += 1
+        name = f"Spinner_{counters['spinner']}"
+        yaw = 90.0 if b % 2 == 1 else 0.0
+        add(name, F_SPIN, (cur.cx, cur.top + 1.15, cur.cz),
+            (bar_len, 1.6, 1.6), SPIN_RED, NEON, yaw=yaw)
+        spinners_cfg.append({"name": name, "speed": speed, "phase": 0.0})
+
+
+def place_boost_pad(platform_top, cx, cz, sx, sz, power):
+    counters["pad"] += 1
+    name = f"Boost_{counters['pad']}"
+    w = min(sx - 0.6, 6.5)
+    d = min(sz - 0.6, 5.5)
+    add(name, F_PADS, (cx, platform_top + 0.22, cz), (w, 0.44, d),
+        VIOLET, NEON, can_collide=False)
+    boosts_cfg.append({"name": name, "power": power})
+    return name
+
+
+def place_speed_pad(platform_top, cx, cz, sx, sz):
+    counters["pad"] += 1
+    name = f"Speed_{counters['pad']}"
+    w = min(sx - 0.6, 11.0)
+    d = min(sz - 0.4, 3.8)
+    add(name, F_PADS, (cx, platform_top + 0.2, cz), (w, 0.4, d),
+        ORANGE, NEON, can_collide=False)
+    speedpads_cfg.append({"name": name, "speed": 28, "duration": 2.6})
+    return name
+
+
+def center_pull(spread):
+    return rng.uniform(-spread, spread) - 0.35 * cur.cz
+
+
+# ---------------------------------------------------------------------------
+# Segmentos de fase (cada um termina com um checkpoint)
+# ---------------------------------------------------------------------------
+def seg_chain(n=5, gap=(4.5, 5.5), size=(8, 7), spread=3.0, dy=(0, 1.5),
+              coins=(), yaw_range=0.0):
+    for i in range(n):
+        s = rng.uniform(*size)
+        dyy = clamp_dy(rng.uniform(*dy))
+        yaw = rng.uniform(-yaw_range, yaw_range) if yaw_range else 0.0
+        link(s, rng.uniform(*gap), dz=center_pull(spread), dy=dyy,
+             color=pal(i), yaw=yaw, coin=(i in coins))
+
+
+def seg_stairs(n=5, rise=1.6, spread=3.2, coins=()):
+    for i in range(n):
+        side = spread if i % 2 == 0 else -spread
+        dyy = clamp_dy(rise)
+        link(6.5, 4.3, dz=side - 0.25 * cur.cz, dy=dyy, color=pal(i),
+             coin=(i in coins))
+
+
+def seg_precise(n=4, gap=(5.4, 6.4), size=(4.6, 3.6), spread=4.5,
+                coins=(), yaw_range=8.0):
+    for i in range(n):
+        s = rng.uniform(*size)
+        yaw = rng.uniform(-yaw_range, yaw_range)
+        dyy = clamp_dy(rng.uniform(-1, 1.5))
+        link(s, rng.uniform(*gap), dz=center_pull(spread), dy=dyy,
+             color=pal(i), yaw=yaw, coin=(i in coins))
+
+
+def seg_speedrun(gap=9.0):
+    # pista com speed pad e salto longo
+    link(12.0, 4.2, size_z=4.2, color=ORANGE)
+    place_speed_pad(cur.top, cur.cx, cur.cz, cur.sx, cur.sz)
+    link(7.5, gap, dz=center_pull(1.5), color=pal(1), special="speed")
+
+
+def seg_ferry():
+    mover_link(8, gap=2.5, amp=(2.5, 0, 0), speed=0.85, phase=-math.pi / 2)
+    link(7, 2.5, color=pal(0))
+
+
+def seg_elevator():
+    link(6.5, 5, color=pal(1))
+    counters["plat"] += 1
+    mover_link(6, gap=2.5, amp=(0, 3.5, 0), speed=0.75, phase=-math.pi / 2,
+               y_offset=3.5, name=f"Elevator_{counters['plat']}")
+    link(6.5, 2.5, color=pal(2))  # mesma altura do elevador (cursor já subiu)
+
+
+def seg_sidemover(coin=False):
+    direction = -1.0 if cur.cz > 0 else 1.0
+    mover_link(5, gap=0.5, amp=(0, 0, 4.5 * direction), speed=0.8,
+               phase=-math.pi / 2, dz_pos=4.5 * direction, size_z=9,
+               name=f"SideMover_{len(movers_cfg) + 1}")
+    link(5.5, 0.5, dz=4.5 * direction, color=pal(0), coin=coin,
+         coin_dz=-3 * direction)
+
+
+def seg_falling(n=3, coins=()):
+    link(6.5, 5, dz=center_pull(1.5), color=ICE)
+    for i in range(n):
+        falling_link(7, 5, coin=(i in coins), coin_dz=3)
+    link(6.5, 5, color=ICE)
+
+
+def seg_spinner(bars=1, gap=4.5, speed=0.95):
+    spinner_pad(gap=gap, speed=speed, bars=bars)
+    link(6, 4.5, dz=center_pull(2), color=CORAL)
+
+
+def seg_vanish(n=3, coins=()):
+    for i in range(n):
+        vanish_link(6.2, 5.0, dz=center_pull(2.0), coin=(i in coins))
+
+
+def seg_beam(with_spinner=False):
+    link(16.0, 4.5, size_z=2.8, color=BEAM_WHITE)
+    if with_spinner:
+        spinner_pad(gap=4.5, speed=1.05, pad_size=12.0, pad_z=10.0,
+                    bar_len=13.5)
+        link(16.0, 4.5, size_z=2.8, color=BEAM_WHITE)
+    else:
+        link(9.0, 4.5, color=pal(1))
+
+
+def seg_boost():
+    # plataforma de entrada com boost pad -> alvo alto
+    link(7.5, 4.2, color=pal(1))
+    dy_target = 14.0 + rng.uniform(0, 4.0)
+    power = math.sqrt(2 * 196.2 * (dy_target + 7))
+    place_boost_pad(cur.top, cur.cx, cur.cz, cur.sx, cur.sz, round(power, 1))
+    link(6.5, 6.0, dy=dy_target, color=pal(2), special="boost")
+    link(7.0, 4.5, color=pal(0))
+
+
+SEGMENTS = {
+    "chain": seg_chain,
+    "stairs": seg_stairs,
+    "precise": seg_precise,
+    "speedrun": seg_speedrun,
+    "ferry": seg_ferry,
+    "elevator": seg_elevator,
+    "sidemover": seg_sidemover,
+    "falling": seg_falling,
+    "spinner": seg_spinner,
+    "vanish": seg_vanish,
+    "beam": seg_beam,
+    "boost": seg_boost,
+}
+
+# ---------------------------------------------------------------------------
+# Programação dos 7 mundos (6 níveis cada = 42 níveis)
+# ---------------------------------------------------------------------------
+WORLD_SCHEDULE = [
+    {
+        "name": "Praia Inicial",
+        "palette": [SKY, MINT, LEMON],
+        "segs": [
+            ("chain", dict(n=5, gap=(4.0, 5.0), size=(8, 7.5), spread=2.0, dy=(0, 1))),
+            ("chain", dict(n=5, gap=(4.2, 5.2), size=(8, 7), spread=3.0, dy=(0, 1.5), coins=[2])),
+            ("stairs", dict(n=5, rise=1.5, spread=3.0)),
+            ("speedrun", dict(gap=8.5)),
+            ("ferry", dict()),
+            ("chain", dict(n=6, gap=(4.5, 5.4), size=(7.5, 6.5), spread=3.0, dy=(0, 2), coins=[3])),
+        ],
+    },
+    {
+        "name": "Jardins Verdes",
+        "palette": [MINT, (0.62, 0.9, 0.66), LEMON],
+        "segs": [
+            ("chain", dict(n=6, gap=(4.5, 5.5), size=(7.5, 6.5), spread=3.5, dy=(0, 2), coins=[4])),
+            ("stairs", dict(n=6, rise=1.7, spread=3.4)),
+            ("vanish", dict(n=3)),
+            ("chain", dict(n=5, gap=(5, 5.8), size=(7, 6), spread=4.0, dy=(0, 2))),
+            ("spinner", dict(bars=1, speed=0.9)),
+            ("ferry", dict()),
+        ],
+    },
+    {
+        "name": "Deserto Dourado",
+        "palette": [LEMON, PEACH, SAND],
+        "segs": [
+            ("precise", dict(n=4, gap=(5.2, 6.0), size=(4.8, 4.0), spread=4.5, coins=[2])),
+            ("speedrun", dict(gap=9.5)),
+            ("chain", dict(n=6, gap=(5, 5.8), size=(7, 6.5), spread=4.0, dy=(0, 2), yaw_range=6)),
+            ("elevator", dict()),
+            ("chain", dict(n=6, gap=(5.2, 6), size=(6.5, 5.5), spread=4.5, dy=(0, 2), coins=[4])),
+            ("vanish", dict(n=3)),
+        ],
+    },
+    {
+        "name": "Caverna de Jade",
+        "palette": [JADE, TEAL, ICE],
+        "segs": [
+            ("ferry", dict()),
+            ("chain", dict(n=6, gap=(5.2, 6), size=(6.5, 5.5), spread=4.5, dy=(0, 2), yaw_range=6)),
+            ("falling", dict(n=3, coins=[1])),
+            ("stairs", dict(n=6, rise=1.8, spread=3.8, coins=[4])),
+            ("precise", dict(n=5, gap=(5.5, 6.3), size=(4.4, 3.8), spread=5.0)),
+            ("boost", dict()),
+        ],
+    },
+    {
+        "name": "Fábrica de Ferro",
+        "palette": [STEEL, ORANGE, (0.7, 0.72, 0.78)],
+        "segs": [
+            ("speedrun", dict(gap=10.0)),
+            ("beam", dict(with_spinner=True)),
+            ("vanish", dict(n=4, coins=[2])),
+            ("elevator", dict()),
+            ("chain", dict(n=6, gap=(5.4, 6.2), size=(6.5, 5.5), spread=5.0, dy=(0, 2.5), yaw_range=8)),
+            ("sidemover", dict()),
+        ],
+    },
+    {
+        "name": "Névoa Rubra",
+        "palette": [CORAL, PINK, LAV],
+        "segs": [
+            ("precise", dict(n=5, gap=(5.6, 6.5), size=(4.4, 3.8), spread=5.5, coins=[3])),
+            ("falling", dict(n=3, coins=[1])),
+            ("ferry", dict()),
+            ("chain", dict(n=6, gap=(5.5, 6.4), size=(6.5, 5.5), spread=5.0, dy=(0, 2.5), coins=[5])),
+            ("spinner", dict(bars=2, speed=1.0, gap=4.0)),
+            ("vanish", dict(n=4)),
+        ],
+    },
+    {
+        "name": "Céu Real",
+        "palette": [GOLD, ROYAL, ICE],
+        "segs": [
+            ("boost", dict()),
+            ("precise", dict(n=6, gap=(5.8, 6.6), size=(4.2, 3.5), spread=6.0, coins=[3])),
+            ("sidemover", dict(coin=True)),
+            ("vanish", dict(n=4, coins=[2])),
+            ("falling", dict(n=4, coins=[2])),
+            ("chain", dict(n=7, gap=(5.5, 6.5), size=(6.5, 5.5), spread=5.5, dy=(0, 2.5), yaw_range=8)),
+        ],
+    },
+]
+
+
+def build_course():
+    """Gera os mundos, um checkpoint ao final de cada fase."""
+    first_level = 1
+    for wi, world in enumerate(WORLD_SCHEDULE):
+        PAL[:] = world["palette"]
+        # âncora da placa do mundo (no ponto onde o mundo começa)
+        anchor = (round(cur.cx + 6, 1), round(cur.top + 10, 1),
+                  round(clamp_z(cur.cz), 1))
+        end_level = first_level + LEVELS_PER_WORLD - 1
+        world_signs.append({
+            "x": anchor[0], "y": anchor[1], "z": anchor[2],
+            "title": f"MUNDO {wi + 1} — {world['name']}",
+            "subtitle": f"Níveis {first_level}–{end_level}",
+        })
+        worlds_hud.append({"first": first_level, "name": world["name"]})
+
+        for seg_name, kwargs in world["segs"]:
+            SEGMENTS[seg_name](**kwargs)
+            checkpoint(4.2)
+            assert counters["cp"] <= TOTAL_LEVELS, "passou dos níveis!"
+
+        first_level = end_level + 1
+
+    assert counters["cp"] == TOTAL_LEVELS, \
+        f"esperava {TOTAL_LEVELS} níveis, gerou {counters['cp']}"
 
 
 # ---------------------------------------------------------------------------
@@ -169,119 +508,66 @@ add("StartLine", F_LOBBY, (0.5, 0.22, 0), (1, 0.44, 34), GOLD, NEON)
 add("SpawnLocation", F_LOBBY, (-26, 0.3, 0), (8, 0.6, 8), SPAWN_Y, SMOOTH,
     cls="SpawnLocation")
 
-# ---------------------------------------------------------------------------
-# S1 — Aquecimento (fácil, plano)
-# ---------------------------------------------------------------------------
-s1_sizes = [8, 8, 7.5, 7.5, 7, 7]
-s1_gaps = [4.5, 4.5, 5, 4.5, 5]
-s1_colors = [SKY, MINT, LEMON]
-for i, (sz, gp) in enumerate(zip(s1_sizes, s1_gaps)):
-    link(sz, gp, dz=rng.uniform(-2, 2), color=s1_colors[i % 3],
-         coin=(i == 2))
-checkpoint(4)
+build_course()
 
 # ---------------------------------------------------------------------------
-# S2 — Subida (fácil, ganhando altura)
+# Chegada e lava
 # ---------------------------------------------------------------------------
-s2_sizes = [7.5, 7, 7, 6.5, 6.5, 6]
-s2_gaps = [4.5, 5, 5, 5, 5.5]
-s2_dy = [1.5, 2, 1.5, 2.5, 2]
-s2_colors = [MINT, LEMON, SKY]
-for i, (sz, gp, dy) in enumerate(zip(s2_sizes, s2_gaps, s2_dy)):
-    link(sz, gp, dz=rng.uniform(-3, 3), dy=dy, color=s2_colors[i % 3],
-         coin=(i == 3))
-checkpoint(4)
-
-# ---------------------------------------------------------------------------
-# S3 — Balsa (plataforma móvel no eixo X)
-# ---------------------------------------------------------------------------
-mover_link(8, gap=2.5, amp=(2.5, 0, 0), speed=0.85, phase=-math.pi / 2)
-link(7, 2.5, color=PEACH)
-checkpoint(4)
-
-# ---------------------------------------------------------------------------
-# S4 — Ilhas médias
-# ---------------------------------------------------------------------------
-s4_sizes = [6.5, 6, 6, 5.5, 5.5, 5.5]
-s4_gaps = [5.5, 6, 5.5, 6, 6]
-s4_dy = [0, 1.5, -1, 2, -1.5]
-s4_colors = [PEACH, LAV, PINK]
-for i, (sz, gp, dy) in enumerate(zip(s4_sizes, s4_gaps, s4_dy)):
-    yaw = rng.uniform(-8, 8) if i == 2 else 0.0
-    link(sz, gp, dz=rng.uniform(-4, 4), dy=dy, color=s4_colors[i % 3],
-         yaw=yaw, coin=(i in (1, 4)))
-checkpoint(4)
-
-# ---------------------------------------------------------------------------
-# S5 — Ponte que cai
-# ---------------------------------------------------------------------------
-link(6.5, 5, dz=rng.uniform(-1, 1), color=ICE)
-falling_link(7, 5)
-falling_link(7, 5, coin=True, coin_dz=3)
-falling_link(7, 5)
-link(6.5, 5, color=ICE)
-checkpoint(4)
-
-# ---------------------------------------------------------------------------
-# S6 — Giratória
-# ---------------------------------------------------------------------------
-spinner_pad(gap=4.5, speed=0.95, name="Spinner_1")
-link(6, 4.5, dz=2, color=CORAL)
-checkpoint(4)
-
-# ---------------------------------------------------------------------------
-# S7 — Elevador (móvel vertical)
-# ---------------------------------------------------------------------------
-link(6.5, 5, color=LAV)
-mover_link(6, gap=2.5, amp=(0, 3.5, 0), speed=0.75, phase=-math.pi / 2,
-           y_offset=3.5, name="Elevator_1")
-link(6.5, 2.5, dy=3.5, color=LAV)
-checkpoint(4)
-
-# ---------------------------------------------------------------------------
-# S8 — Precisão (plataformas pequenas)
-# ---------------------------------------------------------------------------
-s8_sizes = [4.5, 4, 4, 3.6, 3.6, 3.4]
-s8_gaps = [5.5, 6, 6, 6.2, 6.3]
-s8_dy = [1, 1.5, -1, 2, 1]
-s8_colors = [CORAL, ICE, LAV]
-for i, (sz, gp, dy) in enumerate(zip(s8_sizes, s8_gaps, s8_dy)):
-    yaw = rng.uniform(-10, 10) if i in (1, 4) else 0.0
-    extra = 7 if i == 2 else 0
-    link(sz, gp, dz=rng.uniform(-5, 5), dy=dy, color=s8_colors[i % 3],
-         yaw=yaw, coin=(i == 2),
-         coin_dz=(extra if rng.random() < 0.5 else -extra))
-checkpoint(4)
-
-# ---------------------------------------------------------------------------
-# S9 — Coroação (movel lateral + queda + subida final)
-# ---------------------------------------------------------------------------
-link(6, 5.5, color=PINK)
-mover_link(5, gap=0.5, amp=(0, 0, 4.5), speed=0.8, phase=-math.pi / 2,
-           dz_pos=4.5, size_z=9, name="SideMover_1")
-link(5.5, 0.5, dz=4.5, color=PINK, coin=True, coin_dz=-4.5)
-falling_link(6, 5)
-link(5, 5, dy=2, color=CORAL)
-checkpoint(4)
-
-# ---------------------------------------------------------------------------
-# S10 — Chegada
-# ---------------------------------------------------------------------------
-link(7, 5, color=GOLD, mat=NEON)
+link(7, 5, dy=0, color=GOLD, mat=NEON)
 finish_cx, finish_top, finish_cz = link(
     14, 4, size_z=14, color=GOLD, mat=NEON, name="Finish", folder=F_FINISH)
 
-# ---------------------------------------------------------------------------
-# Lava embaixo de tudo
-# ---------------------------------------------------------------------------
 lava_x0, lava_x1 = 1.0, finish_cx + 7
 add("Lava_Floor", F_HAZ,
     ((lava_x0 + lava_x1) / 2, -14, 0),
-    ((lava_x1 - lava_x0) + 80, 2, 140),
+    ((lava_x1 - lava_x0) + 80, 2, 170),
     LAVA_RED, NEON, transparency=0.12)
 
 course_end = finish_cx
 n_coins = counters["coin"]
+
+# ---------------------------------------------------------------------------
+# Auditoria de alcançabilidade (pulos do percurso)
+# ---------------------------------------------------------------------------
+CHAIN_FOLDERS = {tuple(F_PLAT), tuple(F_CP), tuple(F_MOVER), tuple(F_FALL),
+                 tuple(F_VANISH), tuple(F_FINISH)}
+
+
+def audit_chain():
+    chain = [p for p in parts if tuple(p["folder"]) in CHAIN_FOLDERS]
+    problems = []
+    effs = []
+    for a, b in zip(chain, chain[1:]):
+        top_a = a["center"][1] + a["size"][1] / 2
+        top_b = b["center"][1] + b["size"][1] / 2
+        edge_gap = ((b["center"][0] - b["size"][0] / 2)
+                    - (a["center"][0] + a["size"][0] / 2))
+        dz = b["center"][2] - a["center"][2]
+        dy = top_b - top_a
+        eff = math.hypot(max(edge_gap, 0), dz)
+        effs.append(eff)
+        special = b.get("special")
+        max_gap = 14.0 if special == "speed" else 7.8
+        if edge_gap < -0.6:
+            problems.append(f"sobreposição {a['name']}->{b['name']}")
+        if eff > max_gap:
+            problems.append(
+                f"gap {eff:.1f} {a['name']}->{b['name']} (special={special})")
+        if dy > 4.2 and special != "boost":
+            problems.append(
+                f"subida {dy:.1f} {a['name']}->{b['name']}")
+        if dy < -14:
+            problems.append(f"queda {dy:.1f} {a['name']}->{b['name']}")
+    tops = [p["center"][1] + p["size"][1] / 2 for p in chain]
+    stats = {
+        "chain": len(chain),
+        "avg_eff": sum(effs) / len(effs),
+        "max_eff": max(effs),
+        "min_top": min(tops),
+        "max_top": max(tops),
+    }
+    return problems, stats
+
 
 # ---------------------------------------------------------------------------
 # Serialização RBXLX (XML v4)
@@ -588,7 +874,7 @@ def players_item():
 
 
 # ---------------------------------------------------------------------------
-# Config Lua dos obstáculos
+# Config Lua dos obstáculos e mundos
 # ---------------------------------------------------------------------------
 def lua_num(v):
     return f"{v:.6g}"
@@ -615,25 +901,78 @@ def lua_falling_config():
     return "\n".join(f'\t"{name}",' for name in falling_names)
 
 
+def lua_vanish_config():
+    return "\n".join(
+        '\t{ name = "%s", cycle = %s, phase = %s },'
+        % (c["name"], lua_num(c["cycle"]), lua_num(c["phase"]))
+        for c in vanish_cfg
+    )
+
+
+def lua_boosts_config():
+    return "\n".join(
+        '\t{ name = "%s", power = %s },' % (c["name"], lua_num(c["power"]))
+        for c in boosts_cfg
+    )
+
+
+def lua_speedpads_config():
+    return "\n".join(
+        '\t{ name = "%s", speed = %s, duration = %s },'
+        % (c["name"], lua_num(c["speed"]), lua_num(c["duration"]))
+        for c in speedpads_cfg
+    )
+
+
+def lua_worlds_signs():
+    return "\n".join(
+        '\t{ x = %s, y = %s, z = %s, title = "%s", subtitle = "%s" },'
+        % (lua_num(w["x"]), lua_num(w["y"]), lua_num(w["z"]),
+           w["title"], w["subtitle"])
+        for w in world_signs
+    )
+
+
+def lua_worlds_hud():
+    return "\n".join(
+        '\t{ first = %d, name = "%s" },' % (w["first"], w["name"])
+        for w in worlds_hud
+    )
+
+
 # ---------------------------------------------------------------------------
 # Montagem final + validação
 # ---------------------------------------------------------------------------
 def main():
     gamecore = (SRC / "gamecore.lua").read_text(encoding="utf-8")
-    for placeholder in ("__MOVERS_CONFIG__", "__SPINNERS_CONFIG__",
-                        "__FALLING_CONFIG__"):
-        assert placeholder in gamecore, f"placeholder ausente: {placeholder}"
-    gamecore = gamecore.replace("__MOVERS_CONFIG__", lua_movers_config())
-    gamecore = gamecore.replace("__SPINNERS_CONFIG__", lua_spinners_config())
-    gamecore = gamecore.replace("__FALLING_CONFIG__", lua_falling_config())
-    assert "__MOVERS" not in gamecore and "__FALLING" not in gamecore
-
     mapsetup = (SRC / "mapsetup.lua").read_text(encoding="utf-8")
     asmr = (SRC / "asmr.lua").read_text(encoding="utf-8")
     hud = (SRC / "hud.lua").read_text(encoding="utf-8")
 
-    services = []
+    for ph in ("__MOVERS_CONFIG__", "__SPINNERS_CONFIG__", "__FALLING_CONFIG__",
+               "__VANISH_CONFIG__", "__BOOSTS_CONFIG__", "__SPEEDPADS_CONFIG__"):
+        assert ph in gamecore, f"placeholder ausente no GameCore: {ph}"
+    gamecore = (gamecore
+                .replace("__MOVERS_CONFIG__", lua_movers_config())
+                .replace("__SPINNERS_CONFIG__", lua_spinners_config())
+                .replace("__FALLING_CONFIG__", lua_falling_config())
+                .replace("__VANISH_CONFIG__", lua_vanish_config())
+                .replace("__BOOSTS_CONFIG__", lua_boosts_config())
+                .replace("__SPEEDPADS_CONFIG__", lua_speedpads_config()))
+    assert "__CONFIG__" not in gamecore
 
+    assert "__WORLDS_CONFIG__" in mapsetup and "__WORLDS_CONFIG__" in hud
+    mapsetup = mapsetup.replace("__WORLDS_CONFIG__", lua_worlds_signs())
+    hud = hud.replace("__WORLDS_CONFIG__", lua_worlds_hud())
+    assert "__WORLDS_CONFIG__" not in mapsetup
+    assert "__WORLDS_CONFIG__" not in hud
+
+    # --- auditoria de alcance ------------------------------------------
+    problems, audit = audit_chain()
+    assert not problems, "problemas de alcance:\n" + "\n".join(problems)
+
+    # --- montagem -------------------------------------------------------
+    services = []
     ws = workspace_item(map_item())
     services.append(ws.render(1))
     services.append(lighting_item().render(1))
@@ -667,7 +1006,7 @@ def main():
     )
     xml_text = header + "\n".join(services) + "</roblox>\n"
 
-    # --- validação ---------------------------------------------------------
+    # --- validação do XML ----------------------------------------------
     root = ET.fromstring(xml_text)
     assert root.tag == "roblox" and root.get("version") == "4"
     referents = [it.get("referent") for it in root.iter("Item")]
@@ -696,34 +1035,41 @@ def main():
     assert script_names == {"GameCore", "MapSetup", "ASMRKeyboard", "ParkourHUD"}, \
         script_names
 
-    # conferências de jogo
     part_names = set()
     for it in root.iter("Item"):
         if it.get("class") in ("Part", "SpawnLocation"):
             for prop in it.find("Properties"):
                 if prop.get("name") == "Name":
                     part_names.add(prop.text)
-    for i in range(1, counters["cp"] + 1):
-        assert f"Checkpoint_{i}" in part_names
+    for i in range(1, TOTAL_LEVELS + 1):
+        assert f"Checkpoint_{i}" in part_names, f"falta Checkpoint_{i}"
     assert "Finish" in part_names and "Lava_Floor" in part_names
     assert "SpawnLocation" in part_names
     for name in falling_names:
         assert name in part_names
-    for cfg in movers_cfg + spinners_cfg:
+    for cfg in (movers_cfg + spinners_cfg + vanish_cfg + boosts_cfg
+                + speedpads_cfg):
         assert cfg["name"] in part_names, cfg["name"]
 
     OUT.write_text(xml_text, encoding="utf-8")
 
     print(f"Arquivo gerado: {OUT}")
     print(f"  tamanho............ {OUT.stat().st_size / 1024:.1f} KB")
+    print(f"  níveis............. {counters['cp']} (7 mundos)")
     print(f"  plataformas........ {counters['plat']}")
-    print(f"  checkpoints........ {counters['cp']}")
     print(f"  moedas............. {n_coins}")
-    print(f"  movers............. {len(movers_cfg)}")
-    print(f"  giratorias......... {len(spinners_cfg)}")
+    print(f"  móveis............. {len(movers_cfg)}")
+    print(f"  giratórias......... {len(spinners_cfg)}")
     print(f"  que-caem........... {len(falling_names)}")
+    print(f"  desaparecem........ {len(vanish_cfg)}")
+    print(f"  boost/speed pads... {len(boosts_cfg)}/{len(speedpads_cfg)}")
+    print(f"  placas de mundo.... {len(world_signs)}")
     print(f"  fim do percurso.... x = {course_end:.0f} studs")
+    print(f"  altura do curso.... {audit['min_top']:.0f} .. {audit['max_top']:.0f}")
+    print(f"  pulo efetivo....... médio {audit['avg_eff']:.1f}, "
+          f"máx {audit['max_eff']:.1f}")
     print(f"  itens XML.......... {len(referents)}")
+    print("  auditoria.......... 0 problemas de alcance")
 
 
 if __name__ == "__main__":

@@ -1,15 +1,16 @@
 --[[
 	Parkour ASMR — GameCore (servidor)
-	• Checkpoints com reaparecimento automático
-	• Moedas colecionáveis
-	• Lava e giratórias matam ao toque
-	• Plataformas móveis, que caem e giratórias
-	• Placa de chegada + confete
+	• 42 níveis/checkpoints com renascimento salvo
+	• Progresso salvo via DataStore (quando disponível)
+	• Moedas, lava, giratórias, móveis, plataformas que caem e que desaparecem
+	• Boost pads (impulso) e speed pads (velocidade)
+	• Chegada com confete
 ]]
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local DataStoreService = game:GetService("DataStoreService")
 
 -- RemoteEvent usado pelos clientes para tocar os sons ASMR
 local fx = Instance.new("RemoteEvent")
@@ -31,8 +32,53 @@ local FALLING = {
 __FALLING_CONFIG__
 }
 
-local checkpoints = {}
+local VANISH = {
+__VANISH_CONFIG__
+}
 
+local BOOSTS = {
+__BOOSTS_CONFIG__
+}
+
+local SPEEDPADS = {
+__SPEEDPADS_CONFIG__
+}
+
+local checkpoints = {}
+local DEFAULT_WALKSPEED = 16
+local DEFAULT_JUMPHIGHT = 7.2
+local padCooldown = {}
+local speedToken = {}
+
+------------------------------------------------------------------
+-- Progresso persistente (silencioso se a API não estiver disponível)
+local ENABLE_SAVES = true
+local store = nil
+if ENABLE_SAVES then
+	local ok, result = pcall(function()
+		return DataStoreService:GetDataStore("ParkourASMR_Save_v1")
+	end)
+	if ok then
+		store = result
+	end
+end
+
+local function saveData(player)
+	if not store then
+		return
+	end
+	local payload = {
+		cp = player:GetAttribute("Checkpoint") or 0,
+		coins = player:GetAttribute("Coins") or 0,
+	}
+	task.spawn(function()
+		pcall(function()
+			store:SetAsync("u_" .. player.UserId, payload)
+		end)
+	end)
+end
+
+------------------------------------------------------------------
 local function playerFromHit(hit)
 	local parent = hit.Parent
 	if not parent then
@@ -51,7 +97,61 @@ local function playerFromHit(hit)
 end
 
 ------------------------------------------------------------------
--- Checkpoints
+-- Reaparecer no último nível
+local function onCharacter(player, character)
+	local idx = player:GetAttribute("Checkpoint") or 0
+	player:SetAttribute("Finished", false)
+	local pad = checkpoints[idx]
+	if not pad then
+		return
+	end
+	task.spawn(function()
+		local root = character:WaitForChild("HumanoidRootPart", 10)
+		if not root or not character.Parent then
+			return
+		end
+		-- humanoide com valores determinísticos (pulo que a auditoria mediu)
+		local humanoid = character:FindFirstChildOfClass("Humanoid")
+		if humanoid then
+			humanoid.WalkSpeed = DEFAULT_WALKSPEED
+			humanoid.UseJumpPower = false
+			humanoid.JumpHeight = DEFAULT_JUMPHIGHT
+			humanoid.JumpPower = 50
+			speedToken[player] = nil
+		end
+		task.wait(0.15)
+		character:PivotTo(pad.CFrame * CFrame.new(0, 4.5, 0))
+		if root.Parent then
+			root.AssemblyLinearVelocity = Vector3.zero
+		end
+	end)
+end
+
+local function loadData(player)
+	if not store then
+		return
+	end
+	task.spawn(function()
+		local ok, data = pcall(function()
+			return store:GetAsync("u_" .. player.UserId)
+		end)
+		if not ok or type(data) ~= "table" then
+			return
+		end
+		local cp = tonumber(data.cp) or 0
+		local coins = tonumber(data.coins) or 0
+		if cp > (player:GetAttribute("Checkpoint") or 0) then
+			player:SetAttribute("Checkpoint", cp)
+			player:SetAttribute("Coins", coins)
+			if player.Character then
+				onCharacter(player, player.Character)
+			end
+		end
+	end)
+end
+
+------------------------------------------------------------------
+-- Níveis (checkpoints)
 local function setupCheckpoints()
 	local folder = MODEL.Course:WaitForChild("Checkpoints")
 	for _, pad in ipairs(folder:GetChildren()) do
@@ -67,6 +167,7 @@ local function setupCheckpoints()
 				if idx > current then
 					player:SetAttribute("Checkpoint", idx)
 					fx:FireClient(player, "checkpoint", idx)
+					saveData(player)
 				end
 			end)
 		end
@@ -111,6 +212,7 @@ local function setupCoins()
 			player:SetAttribute("Coins", total)
 			fx:FireClient(player, "coin", total)
 			coin:Destroy()
+			saveData(player)
 		end)
 	end
 end
@@ -147,6 +249,129 @@ local function setupFalling()
 					busy = false
 				end)
 			end)
+		end
+	end
+end
+
+------------------------------------------------------------------
+-- Boost pads (impulso vertical) e speed pads (velocidade)
+local function padReady(player, key)
+	local now = tick()
+	local stamp = padCooldown[player]
+	if stamp and stamp[key] and now - stamp[key] < 0.7 then
+		return false
+	end
+	if not stamp then
+		stamp = {}
+		padCooldown[player] = stamp
+	end
+	stamp[key] = now
+	return true
+end
+
+local function setupPads()
+	local folder = MODEL.Course:WaitForChild("Pads")
+
+	for _, cfg in ipairs(BOOSTS) do
+		local part = folder:FindFirstChild(cfg.name)
+		if part then
+			part.Touched:Connect(function(hit)
+				local player = playerFromHit(hit)
+				if not player or not player.Character then
+					return
+				end
+				if not padReady(player, cfg.name) then
+					return
+				end
+				local root = player.Character:FindFirstChild("HumanoidRootPart")
+				if root then
+					local v = root.AssemblyLinearVelocity
+					root.AssemblyLinearVelocity = Vector3.new(v.X * 1.15, cfg.power, v.Z * 1.15)
+					fx:FireClient(player, "boost")
+				end
+			end)
+		end
+	end
+
+	for _, cfg in ipairs(SPEEDPADS) do
+		local part = folder:FindFirstChild(cfg.name)
+		if part then
+			part.Touched:Connect(function(hit)
+				local player = playerFromHit(hit)
+				if not player or not player.Character then
+					return
+				end
+				if not padReady(player, cfg.name) then
+					return
+				end
+				local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
+				if humanoid and humanoid.Health > 0 then
+					humanoid.WalkSpeed = cfg.speed
+					fx:FireClient(player, "speed")
+					-- token: um novo toque recompõe a janela inteira
+					speedToken[player] = (speedToken[player] or 0) + 1
+					local token = speedToken[player]
+					task.delay(cfg.duration, function()
+						if speedToken[player] == token
+							and humanoid.Parent
+							and humanoid.WalkSpeed == cfg.speed
+						then
+							humanoid.WalkSpeed = DEFAULT_WALKSPEED
+						end
+					end)
+				end
+			end)
+		end
+	end
+end
+
+------------------------------------------------------------------
+-- Plataformas que desaparecem (ciclo visível/aviso/invisível)
+local vanishList = {}
+
+local function setupVanish()
+	local folder = MODEL.Course:WaitForChild("VanishPlatforms")
+	for _, cfg in ipairs(VANISH) do
+		local part = folder:FindFirstChild(cfg.name)
+		if part then
+			table.insert(vanishList, {
+				part = part,
+				cycle = cfg.cycle,
+				phase = cfg.phase,
+				last = nil,
+			})
+		end
+	end
+end
+
+local function updateVanish(elapsed)
+	for _, v in ipairs(vanishList) do
+		if v.part.Parent then
+			local t = (elapsed + v.phase) % v.cycle
+			local visibleSpan = v.cycle * 0.58
+			local state
+			if t < visibleSpan - 0.55 then
+				state = 0 -- visível
+			elseif t < visibleSpan then
+				state = 1 -- aviso (pisca)
+			else
+				state = 2 -- invisível
+			end
+			if state ~= v.last then
+				if state == 2 then
+					v.part.Transparency = 1
+					v.part.CanCollide = false
+					v.part.CanTouch = false
+				elseif state == 1 then
+					v.part.Transparency = 0.55
+					v.part.CanCollide = true
+				else
+					v.part.Transparency = 0
+					v.part.CanCollide = true
+					v.part.CanTouch = true
+				end
+				v.last = state
+			end
 		end
 	end
 end
@@ -212,6 +437,7 @@ RunService.Stepped:Connect(function(_, delta)
 			sp.part.CFrame = sp.base * CFrame.Angles(0, elapsed * sp.speed + sp.phase, 0)
 		end
 	end
+	updateVanish(elapsed)
 end)
 
 ------------------------------------------------------------------
@@ -229,42 +455,30 @@ local function setupFinish()
 			confetti:Emit(140)
 		end
 		fx:FireClient(player, "finish", player:GetAttribute("Coins") or 0)
+		saveData(player)
 	end)
 end
 
 ------------------------------------------------------------------
--- Reaparecer no último checkpoint
-local function onCharacter(player, character)
-	local idx = player:GetAttribute("Checkpoint") or 0
-	local pad = checkpoints[idx]
-	if not pad then
-		return
-	end
-	task.spawn(function()
-		local root = character:WaitForChild("HumanoidRootPart", 10)
-		if not root or not character.Parent then
-			return
-		end
-		task.wait(0.15)
-		character:PivotTo(pad.CFrame * CFrame.new(0, 4.5, 0))
-		if root.Parent then
-			root.AssemblyLinearVelocity = Vector3.zero
-		end
-	end)
-end
-
 local function onPlayer(player)
 	player:SetAttribute("Checkpoint", 0)
 	player:SetAttribute("Coins", 0)
+	player:SetAttribute("Finished", false)
 	player.CharacterAdded:Connect(function(character)
 		onCharacter(player, character)
 	end)
 	if player.Character then
 		onCharacter(player, player.Character)
 	end
+	loadData(player)
 end
 
 Players.PlayerAdded:Connect(onPlayer)
+Players.PlayerRemoving:Connect(function(player)
+	saveData(player)
+	padCooldown[player] = nil
+	speedToken[player] = nil
+end)
 for _, player in ipairs(Players:GetPlayers()) do
 	onPlayer(player)
 end
@@ -274,5 +488,7 @@ setupCheckpoints()
 setupHazards()
 setupCoins()
 setupFalling()
+setupPads()
+setupVanish()
 setupObstacles()
 setupFinish()

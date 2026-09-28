@@ -316,7 +316,20 @@ fx.OnClientEvent:Connect(function(kind, value)
 	if kind == "coin" then
 		play("coin", 1 + math.random() * 0.25, 1)
 	elseif kind == "checkpoint" then
-		play("checkpoint", 0.95 + (tonumber(value) or 1) * 0.05, 1)
+		local level = tonumber(value) or 1
+		local pitch = math.min(0.95 + level * 0.015, 1.5)
+		play("checkpoint", pitch, 1)
+	elseif kind == "boost" then
+		play("jump", 1.35, 1)
+		task.delay(0.25, function()
+			play("land", 1.2, 0.7)
+		end)
+	elseif kind == "speed" then
+		for i = 0, 4 do
+			task.delay(i * 0.07, function()
+				play("key", 1.1 + i * 0.1, 0.85)
+			end)
+		end
 	elseif kind == "finish" then
 		play("finish", 1, 1)
 		task.delay(0.2, function()

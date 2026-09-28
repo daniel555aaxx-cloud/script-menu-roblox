@@ -1,140 +1,139 @@
-# 🏔️ PARKOUR ASMR — mapa para Roblox Studio
+# 🏃‍♂️ Parkour ASMR — 42 Níveis em 7 Mundos
 
-Mapa de parkour completo e **satisfatório**, com **ASMR de teclado** (cliques suaves a cada tecla,
-passinhos, pulo, aterrissagem), HUD animado, checkpoints, moedas, obstáculos e comemoração com
-confete. Tudo em um único arquivo pronto para importar.
+Mapa de parkour para **Roblox Studio** com **mais de 40 fases**, sons de teclado
+ASMR satisfatórios, progresso salvo e HUD completa em português.
 
-![Layout do mapa](preview_mapa.png)
+**Arquivo para importar:** [`Parkour_ASMR.rbxlx`](./Parkour_ASMR.rbxlx)
+
+![Prévia do mapa](./preview_mapa.png)
 
 ---
 
 ## ⬇️ Como importar no Roblox Studio
 
-1. Baixe o arquivo **`Parkour_ASMR.rbxlx`**.
-2. Abra o **Roblox Studio**.
-3. Vá em **Arquivo → Abrir do arquivo...** e selecione o `Parkour_ASMR.rbxlx`
-   (ou simplesmente **arraste o arquivo para dentro do Studio**).
-4. O mapa já aparece no Explorer, organizado em `Workspace → ParkourMap`.
-5. Aperte **F5 (Play)** para testar. Divirta-se!
-6. Quando quiser publicar: **Arquivo → Publicar no Roblox...**
+1. Baixe o arquivo `Parkour_ASMR.rbxlx` (botão *Download* do GitHub).
+2. Abra o **Roblox Studio** e vá em **Arquivo → Abrir do projeto…** (ou `Ctrl+O`).
+3. Navegue até a pasta baixada e selecione `Parkour_ASMR.rbxlx`.
+4. Aperte **F5** (ou ▶ *Play*) para testar. Pronto — é só jogar!
 
-> O arquivo é um place no formato XML do Roblox (`.rbxlx`) — é o mesmo formato que o próprio
-> Studio gera em "Salvar como...". Nada de plugin ou conversor.
+> Não é necessário copiar scripts manualmente: todo o jogo (mapa, sons, HUD e
+> progresso) já vem dentro do arquivo.
 
 ---
 
-## 🎮 Controles e o que tem no mapa
+## 🎮 Controles
 
-| Controle | Efeito |
+| Tecla | Ação |
 |---|---|
-| **WASD** | andar (com cliques ASMR a cada tecla) |
-| **ESPAÇO** | pular (com som de pulo/aterrissagem) |
-| **SHIFT** | correr |
-| **K** | ligar/desligar o som ASMR do teclado |
-| **R** | reiniciar o personagem |
-
-**Conteúdo do percurso:**
-
-- 🟩 **9 checkpoints** — ao tocar, o pad brilha, toca um "ping" e você renasce nele
-- 🪙 **7 moedas** girando (pegue desviando do caminho principal)
-- 🌋 **Lava** cobrindo o chão inteiro (morte ao toque + brasas subindo)
-- 🚡 **3 plataformas móveis** — balsa lateral, elevador vertical e balsa em Z
-- 💥 **4 plataformas que tremem e caem** (você tem ~2 segundos)
-- ❌ **1 giratória mortal** — barra neon girando; salte na hora certa (os cantos do pad são seguros)
-- 🏁 **Chegada** com confete, fanfarra e tela de comemoração
-- 📊 **HUD** com barra de progresso, contador de moedas e pop-up de checkpoint
-- 🪧 Placas de boas-vindas/controles, iluminação de fim de tarde, bloom nos neons
-
-Dificuldade pensada para ser **satisfatória, não raivosa**: pulo médio de ~5 studs
-(máximo ~7,5 — o personagem alcança ~8,5 correndo).
+| **W A S D** | Andar |
+| **ESPAÇO** | Pular |
+| **SHIFT** | Correr |
+| **K** | Ligar / desligar o som ASMR |
+| **R** | Reiniciar a tentativa (volta ao último nível) |
 
 ---
 
-## 🔊 Sobre os sons ASMR
+## 🗺️ O que tem no mapa
 
-Os sons vêm de **áudios clássicos embutidos do próprio Roblox** (`rbxasset://sounds/...`),
-então funcionam **sem upload nenhum**. Se algum caminho parar de existir num futuro cliente,
-o script testa automaticamente alternativas.
+### 42 níveis — 7 mundos
+1. **Praia Inicial** (níveis 1–6) — tutoriais suaves: correntes, escadaria, pista de velocidade e balsa.
+2. **Jardins Verdes** (7–12) — primeiroas plataformas que somem e giratória.
+3. **Deserto Dourado** (13–18) — pulos precisos, elevador e corrida rápida.
+4. **Caverna de Jade** (19–24) — placas que caem, escadaria longa e **boost**.
+5. **Fábrica de Ferro** (25–30) — feixes estreitos, plataforma lateral e pistas de velocidade.
+6. **Névoa Rubra** (31–36) — desafio avançado: **giratória de 2 barras** e quedas.
+7. **Céu Real** (37–42) — alta altitude, boost, placas que somem e o pulo final.
 
-Para usar **seus próprios áudios ASMR** (ex.: gravações de teclado mecânico):
+### Mecânicas
+- **Pads de boost** (roxo) — lançamento vertical para alcançar plataformas altas.
+- **Pads de velocidade** (laranja) — `WalkSpeed` temporário para vãos longos.
+- **Plataformas que somem** (ciano) — aparecem e desaparecem em ciclo; pisca antes de sumir.
+- **Plataformas que caem** — treme ao tocar e despenca.
+- **Balsas e elevadores** — movimentos horizontais e verticais.
+- **Plataformas laterais** e **feixes estreitos**.
+- **Giratórias** — 1 ou 2 barras girando (encoste = respawn).
+- **Pilares de luz** marcam cada checkpoint de longe.
+- **Lava** embaixo de todo o percurso; **placas de mundo** na entrada de cada fase.
 
-1. No Studio: `StarterPlayer → StarterPlayerScripts → ASMRKeyboard` (dê dois cliques).
-2. No topo do script existe a tabela `CUSTOM`:
-
-```lua
-local CUSTOM = {
-    key = "",        -- clique do teclado
-    step = "",       -- passinhos
-    jump = "",       -- pulo
-    land = "",       -- aterrissagem
-    coin = "",       -- moeda
-    checkpoint = "", -- checkpoint
-    finish = "",     -- chegada
-    music = "",      -- música de fundo em loop (opcional)
-}
-```
-
-3. Cole o ID no formato `rbxassetid://1234567890` e dê Play de novo.
-
-> ⚠️ **Licenciamento de áudio:** desde 2022 o Roblox só permite reproduzir áudios que a sua
-> conta possui (enviados por você ou copiados da Creator Store para a sua conta). Use áudios
-> seus ou licenciados — IDs aleatórios de terceiros podem simplesmente não tocar.
+### Progresso
+- **DataStore** (salva automático): último nível e moedas — continua de onde parou.
+- **HUD**: nome do mundo, `NÍVEL x / 42`, barra de progresso, **moedas**, **cronômetro** e **contador de mortes**.
+- Ao terminar: tela de comemoração com **tempo da tentativa**, mortes e confete.
 
 ---
 
-## 🗂️ Estrutura do place
+## 🔊 Sobre o som ASMR
+
+O jogo toca sons de teclado (tecla, espaço, enter, moeda…) em ritmo de jogo.
+Aperte **K** para ligar/desligar a qualquer momento.
+
+- Os áudios usam IDs públicos no estilo "sound packs" de teclado.
+- **Aviso (política de áudio do Roblox, pós-2022):** áudios só tocam no Studio
+  se a conta que abrir o place tiver permissão sobre eles. Os IDs foram escolhidos
+  para funcionar no máximo de cenários possível, mas se algum não tocar na sua
+  conta, troque o ID em `ASMRKeyboard` (clique com botão direito no script →
+  *View Connections* não se aplica; é só editar a lista `KEY_SOUNDS`) por um áudio
+  que você tenha licença.
+- Todos os textos do jogo são em português.
+
+---
+
+## 🧩 Estrutura do place
 
 ```
 Workspace
-└── ParkourMap (Model)
-    ├── Lobby          → base, spawn e faixa de largada
-    ├── Course
-    │   ├── Platforms        (34 plataformas + circuito)
-    │   ├── Checkpoints      (Checkpoint_1 … Checkpoint_9)
-    │   ├── Movers           (balsa, elevador, lateral)
-    │   ├── FallingPlatforms (que caem)
-    │   ├── Spinners         (giratória)
-    │   ├── Coins            (Coin_1 … Coin_7)
-    │   └── Finish
-    ├── Decor          → placas (criadas em runtime)
-    └── Hazards        → Lava_Floor
-
+└─ ParkourMap
+   ├─ Lobby            (spawn + boas-vindas)
+   ├─ Course
+   │  ├─ Platforms           plataformas comuns
+   │  ├─ Checkpoints         Checkpoint_1 … Checkpoint_42
+   │  ├─ Movers              balsas, elevadores, laterais
+   │  ├─ FallingPlatforms    que caem ao tocar
+   │  ├─ VanishPlatforms     que somem em ciclo
+   │  ├─ Pads                boost e velocidade
+   │  ├─ Spinners            barras giratórias
+   │  ├─ Coins               colecione para a contagem
+   │  └─ Finish
+   ├─ Decor            (placas, pilares de luz — criados pelo MapSetup)
+   └─ Hazards          (lava)
+Lighting               (céu, névoa, bloom, color correction)
+SoundService
+ReplicatedStorage       (RemoteEvent ParkourFX, criado em runtime)
 ServerScriptService
-├── GameCore   → checkpoints, moedas, perigos, obstáculos, chegada
-└── MapSetup   → placas, luzes, brasas e confete
-
-StarterPlayer.StarterPlayerScripts
-├── ASMRKeyboard → sons de teclado/passo/pulo + toggle (K)
-└── ParkourHUD   → barra, moedas, pop-ups e tela de vitória
+   ├─ GameCore         checkpoints, moedas, pads, DataStore, obstáculos
+   └─ MapSetup         placas dos mundos, pilares, brasas, confete
+StarterPlayer
+   ├─ StarterPlayerScripts
+   │  ├─ ASMRKeyboard      sons de teclado (LocalScript)
+   │  └─ ParkourHUD        HUD em português (LocalScript)
+   └─ StarterCharacterScripts
 ```
 
 ---
 
-## 🛠️ Reeditar / regenerar (opcional)
+## 🔧 Regenerar o arquivo (opcional)
 
-O mapa é gerado por código — se quiser mexer na dificuldade (gaps, tamanhos, cores):
+O `.rbxlx` é gerado por código — assim dá para balancear e reconstruir:
 
 ```bash
 cd parkour-asmr
 python3 build_parkour.py     # regenera Parkour_ASMR.rbxlx
 ```
 
-- `build_parkour.py` — layout do curso + montagem do XML
-- `src/gamecore.lua` — lógica do servidor
-- `src/mapsetup.lua` — decorações do mapa
-- `src/asmr.lua` — sons ASMR (client)
-- `src/hud.lua` — HUD (client)
-
-Os quatro scripts são validados sintaticamente na geração.
+- Os scripts de jogo ficam em `src/*.lua` e são embutidos na hora do build
+  (edite o `.lua` e rode o build de novo).
+- O build **valida sozinho**: XML bem-formado, 42 checkpoints, todos os
+  obstáculos referenciados e **auditoria de alcance** (todo pulo ≤ 7,3 studs,
+  exceto pistas de velocidade, e descidas ≤ 4,5 studs).
 
 ---
 
-## ❓ Problemas comuns
+## ❓Problemas comuns
 
-| Sintoma | Solução |
+| Problema | Solução |
 |---|---|
-| Nenhum som ao andar | Você está na edição — aperte **F5**. Veja se o selo mostra "ASMR: LIGADO" (tecla **K**) |
-| Um som específico não toca | Provável caminho de áudio aposentado em algum cliente — troque pelo seu ID em `CUSTOM` |
-| O arquivo não abre arrastando | Use **Arquivo → Abrir do arquivo...** (é um place, não um modelo) |
-| Quer começar do zero sem perder progresso | Checkpoints duram a sessão; **R** reinicia o personagem (volta ao último CP) |
-| Multiplayer | Moedas são compartilhadas na sessão (se alguém pega, some para todos) |
+| Botão Play desabilitado | Ative com *Test → Clients and Servers* ou clique em ▶ normalmente |
+| Som não toca | Veja o aviso de áudio acima; teste com a conta dona do place |
+| Progresso não salva no Studio | Game Settings → *Security* → **Enable Studio Access to API Services** |
+| Quer testar sozinho | *Test → Clients and Servers → 1 Player* |
+| Quer mudar a dificuldade | Ajuste `WORLD_SCHEDULE` no `build_parkour.py` e rebuild |
