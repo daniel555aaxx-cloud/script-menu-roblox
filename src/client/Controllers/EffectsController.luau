@@ -55,15 +55,25 @@ function EffectsController.build()
 	gui.DisplayOrder = 3
 	gui.Parent = player:WaitForChild("PlayerGui")
 
-	vignette = Instance.new("ImageLabel")
-	vignette.Name = "Vignette"
+	-- Vinheta de medo feita só com frames/gradiente (não depende de asset externo).
+	vignette = Instance.new("Frame")
+	vignette.Name = "FearVignette"
+	vignette.BackgroundColor3 = UIKit.Palette.Danger
 	vignette.BackgroundTransparency = 1
-	vignette.Image = "rbxassetid://6234275856" -- vinheta/scanline opcional
-	vignette.ImageTransparency = 1
-	vignette.ImageColor3 = UIKit.Palette.Danger
+	vignette.BorderSizePixel = 0
 	vignette.Size = UDim2.fromScale(1, 1)
 	vignette.ZIndex = 2
 	vignette.Parent = gui
+
+	local gradient = Instance.new("UIGradient")
+	gradient.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 0),
+		NumberSequenceKeypoint.new(0.35, 1),
+		NumberSequenceKeypoint.new(0.65, 1),
+		NumberSequenceKeypoint.new(1, 0),
+	})
+	gradient.Rotation = 90
+	gradient.Parent = vignette
 	EffectsController.Vignette = vignette
 
 	-- lanterna (SpotLight no personagem)
@@ -150,7 +160,9 @@ function EffectsController.start()
 	RunService.RenderStepped:Connect(function(deltaTime)
 		local fear = (player:GetAttribute("Fear") or 0) / Config.Fear.MAX
 		if vignette then
-			vignette.ImageTransparency = 1 - math.clamp(fear * 0.8, 0, 0.8)
+			-- 1 = invisível; 0.75 = vermelho tomando as bordas no pânico
+			vignette.BackgroundTransparency = 1 - math.clamp(fear * 0.8, 0, 0.75)
+			vignette.Visible = vignette.BackgroundTransparency < 0.99
 		end
 		if fear > 0.1 then
 			heartbeatSound.Volume = math.max(heartbeatSound.Volume, fear * 0.5)
