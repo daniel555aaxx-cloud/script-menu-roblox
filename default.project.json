@@ -1,0 +1,104 @@
+{
+  "name": "MysteryMachineScoobyDoo",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      "Shared": {
+        "$path": "src/shared"
+      },
+      "Remotes": {
+        "$className": "Folder"
+      }
+    },
+    "ServerScriptService": {
+      "$className": "ServerScriptService",
+      "Server": {
+        "$path": "src/server"
+      }
+    },
+    "ServerStorage": {
+      "$className": "ServerStorage",
+      "CustomModels": {
+        "$className": "Folder",
+        "$properties": {
+          "Name": "CustomModels"
+        }
+      }
+    },
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+      "$properties": {
+        "CharacterJumpHeight": 6,
+        "CharacterWalkSpeed": 16,
+        "EnableMouseLockOption": false,
+        "LoadCharacterAppearance": true,
+        "CameraMaxZoomDistance": 26,
+        "CameraMinZoomDistance": 6,
+        "DevComputerCameraMovementMode": "Classic",
+        "DevTouchCameraMovementMode": "Classic"
+      },
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+        "Client": {
+          "$path": "src/client"
+        }
+      }
+    },
+    "StarterGui": {
+      "$className": "StarterGui",
+      "$properties": {
+        "ScreenOrientation": "LandscapeSensor",
+        "ResetPlayerGuiOnSpawn": false
+      }
+    },
+    "Lighting": {
+      "$className": "Lighting",
+      "$properties": {
+        "Technology": "Future",
+        "Ambient": [
+          0.196,
+          0.196,
+          0.196
+        ],
+        "OutdoorAmbient": [
+          0.372,
+          0.372,
+          0.372
+        ],
+        "Brightness": 2,
+        "ClockTime": 19.5,
+        "GeographicLatitude": 12,
+        "ExposureCompensation": 0.15,
+        "GlobalShadows": true,
+        "EnvironmentDiffuseScale": 0.85,
+        "EnvironmentSpecularScale": 0.85,
+        "ShadowSoftness": 0.35
+      }
+    },
+    "SoundService": {
+      "$className": "SoundService",
+      "$properties": {
+        "AmbientReverb": "Hallway",
+        "DistanceFactor": 3.33,
+        "RolloffScale": 1.4
+      }
+    },
+    "Workspace": {
+      "$className": "Workspace",
+      "$properties": {
+        "FilteringEnabled": true,
+        "StreamingEnabled": false,
+        "Gravity": 196.2
+      }
+    },
+    "Players": {
+      "$className": "Players",
+      "$properties": {
+        "RespawnTime": 4,
+        "CharacterAutoLoads": false,
+        "MaxPlayers": 24
+      }
+    }
+  }
+}
