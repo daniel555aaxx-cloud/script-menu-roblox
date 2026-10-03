@@ -18,6 +18,13 @@
         "$className": "StarterPlayerScripts",
         "$path": "src/StarterPlayer/StarterPlayerScripts"
       }
+    },
+    "VoiceChatService": {
+      "$className": "VoiceChatService",
+      "$properties": {
+        "UseAudioApi": { "Enum": 2 },
+        "EnableDefaultVoice": false
+      }
     }
   }
 }

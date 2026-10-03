@@ -15,12 +15,21 @@ Projeto Luau para importar no Roblox Studio com Rojo. O servidor monta um escrit
 
 ## Abrir no Roblox Studio
 
-### Com Rojo (recomendado)
+### Abrir o place pronto (sem Rojo)
+
+1. Abra o Roblox Studio.
+2. Escolha **File → Open from File…**.
+3. Selecione `CentralDoCao.rbxlx`, na raiz deste repositório.
+4. Aguarde o place carregar e pressione **Play**. O escritório, os NPCs e os remotes são criados pelo servidor durante a execução.
+
+O arquivo `.rbxlx` inclui os quatro scripts Luau e as configurações do projeto. Ele passou pela validação de XML e por um parser RBXLX externo; este ambiente não tem Roblox Studio instalado, então a abertura final no Studio ainda precisa ser confirmada.
+
+### Desenvolver/atualizar com Rojo (opcional)
 
 1. Instale o [Rojo](https://rojo.space/) e o plugin Rojo para Roblox Studio.
 2. Na raiz deste repositório, execute `rojo serve default.project.json`.
 3. No Studio, conecte o plugin ao servidor Rojo. A árvore será montada com os scripts nos serviços corretos.
-4. Para gerar um arquivo local de place, também é possível executar `rojo build default.project.json -o CentralDoCao.rbxlx` e abrir o `.rbxlx` no Studio.
+4. Se preferir gerar novamente o place a partir dos fontes, execute `rojo build default.project.json -o CentralDoCao.rbxlx` e abra o arquivo no Studio.
 5. Pressione **Play**. O mapa e os remotes são criados pelo servidor durante a execução.
 
 ### Voz no Studio/publicado
@@ -28,7 +37,7 @@ Projeto Luau para importar no Roblox Studio com Rojo. O servidor monta um escrit
 Para o microfone, publique uma cópia de teste e ajuste as configurações da experiência:
 
 1. Em **Experience Settings → Communication**, habilite **Enable Microphone**.
-2. No serviço **VoiceChatService**, habilite **UseAudioApi**. Para usar fala-para-texto sem transmitir a voz ao restante do servidor, deixe **EnableDefaultVoice** desabilitado.
+2. O place pronto e o projeto Rojo já definem **VoiceChatService → UseAudioApi = Enabled** e **EnableDefaultVoice = false**. Confirme essas opções no Studio após sincronizar; manter a voz padrão desabilitada evita transmitir o áudio capturado ao restante do servidor.
 3. Teste com uma conta/dispositivo elegível para voz. A disponibilidade do microfone depende das permissões e das regras atuais do Roblox; se a voz não estiver disponível, os botões e o campo de texto continuam funcionando.
 
 A voz do NPC usa o TTS nativo do Roblox (VoiceId `1002`, português feminino). A primeira fala pode levar um instante para carregar. A captura só é ativada após o jogador tocar em **MIC ON**.
@@ -42,6 +51,7 @@ A voz do NPC usa o TTS nativo do Roblox (VoiceId `1002`, português feminino). A
 
 ## Arquivos
 
+- `CentralDoCao.rbxlx` — place pronto para abrir diretamente no Roblox Studio.
 - `default.project.json` — mapeamento Rojo.
 - `src/ReplicatedStorage/Shared/GameConfig.lua` — textos, clientes, recompensas e limites.
 - `src/ServerScriptService/WorldBuilder.lua` — construção procedural do escritório.
