@@ -1,0 +1,70 @@
+-- Configurações compartilhadas de Central do Caô.
+-- Todas as ofertas são absurdas, fictícias e pagas apenas com créditos do jogo.
+
+return {
+	GameName = "Central do Caô",
+	CurrencyName = "Créditos",
+	StartingMoney = 0,
+	StartingReputation = 100,
+	MaxInputLength = 180,
+	MaxCallDistance = 28,
+	ActionCooldown = 0.7,
+	PortugueseVoiceId = "1002", -- voz portuguesa feminina do AudioTextToSpeech do Roblox
+
+	Customers = {
+		{
+			Name = "Lia",
+			Product = "Seguro contra chuva de confete",
+			Opening = "Oi, sou Lia. Vi o Seguro contra Chuva de Confete no mural. Isso é uma brincadeira?",
+			Question = "A ideia é proteger um guarda-chuva imaginário de uma chuva de confete imaginária. É uma piada; não existe serviço real nem pagamento fora do jogo.",
+			BuyChance = 0.42,
+			MinReward = 32,
+			MaxReward = 72,
+		},
+		{
+			Name = "Caio",
+			Product = "Plano premium para nuvens de estimação",
+			Opening = "Olá! Sou Caio. Meu amigo inventou uma nuvem de estimação. Esse plano premium é de mentirinha?",
+			Question = "O plano dá uma medalha imaginária para uma nuvem que também não existe. É só uma brincadeira dentro deste jogo.",
+			BuyChance = 0.48,
+			MinReward = 38,
+			MaxReward = 78,
+		},
+		{
+			Name = "Bia",
+			Product = "Garantia para skate voador de papelão",
+			Opening = "Oi, aqui é a Bia. Vi uma garantia para skate voador de papelão. Ele voa mesmo ou é uma piada?",
+			Question = "É uma piada sobre um skate de papelão que não voa. A garantia é apenas um adesivo virtual e não vale fora do jogo.",
+			BuyChance = 0.36,
+			MinReward = 42,
+			MaxReward = 86,
+		},
+		{
+			Name = "Ravi",
+			Product = "Assinatura de café invisível para robôs",
+			Opening = "Tudo bem? Sou Ravi. Um robô imaginário pediu café invisível. Essa assinatura existe de verdade?",
+			Question = "Só existe na nossa história: o robô recebe uma caneca invisível e uma figurinha. Nenhum café ou produto real é enviado.",
+			BuyChance = 0.52,
+			MinReward = 30,
+			MaxReward = 68,
+		},
+		{
+			Name = "Nuno",
+			Product = "Clube de figurinhas de satélites de queijo",
+			Opening = "Olá, sou Nuno. O clube de satélites de queijo parece engraçado. As figurinhas são só virtuais?",
+			Question = "Isso mesmo: são figurinhas inventadas de satélites feitos de queijo. Só existem como créditos e brincadeira neste jogo.",
+			BuyChance = 0.46,
+			MinReward = 36,
+			MaxReward = 82,
+		},
+		{
+			Name = "Jo",
+			Product = "Detector de fantasmas que só encontra torradas",
+			Opening = "Oi, sou Jo. Um detector de fantasmas que só encontra torradas parece suspeito. Como funciona?",
+			Question = "Ele aponta para torradas imaginárias e nunca detecta fantasmas. É uma piada; não é um aparelho real.",
+			BuyChance = 0.40,
+			MinReward = 40,
+			MaxReward = 90,
+		},
+	},
+}
