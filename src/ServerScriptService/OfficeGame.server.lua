@@ -15,6 +15,7 @@ local MAX_STAT = 2000000000
 local AUTOSAVE_SECONDS = 120
 local RANK_REFRESH_SECONDS = 60
 local CALL_COOLDOWN_SECONDS = 4
+local CALL_IDLE_TIMEOUT_SECONDS = math.clamp(tonumber(Config.CallIdleTimeoutSeconds) or 120, 30, 600)
 
 local profileStore = DataStoreService:GetDataStore("CentralDoCao_PlayerData_v1")
 local rankingStore = DataStoreService:GetOrderedDataStore("CentralDoCao_Ranking_v1")
@@ -44,6 +45,7 @@ local actionRemote = getOrCreateRemote("PlayerAction")
 local clientRemote = getOrCreateRemote("ClientUpdate")
 
 local sessions = {}
+local stationSessions = {}
 local actionTimes = {}
 local profilesLoaded = {}
 local queuedSaves = {}
@@ -59,6 +61,36 @@ local function sendToast(player, message, tone)
 			message = message,
 			tone = tone or "info",
 		})
+	end
+end
+
+local function setStationBusy(station, busy)
+	if not station then
+		return
+	end
+
+	local prompt = station.Prompt
+	if prompt and prompt.Parent then
+		prompt.Enabled = true
+		prompt.ActionText = busy and "Estação ocupada" or "Atender ligação"
+		prompt.ObjectText = "Estação " .. tostring(station.Index)
+	end
+
+	local phone = station.Phone
+	if phone and phone.Parent then
+		phone:SetAttribute("InUse", busy)
+		local indicator = phone.Parent:FindFirstChild("TelefoneDisplay")
+		if indicator and indicator:IsA("BasePart") then
+			indicator.Color = busy and Color3.fromRGB(242, 133, 108) or Color3.fromRGB(118, 222, 184)
+		end
+	end
+end
+
+local function releaseStation(session)
+	local station = session and session.Station
+	if station and stationSessions[station] == session then
+		stationSessions[station] = nil
+		setStationBusy(station, false)
 	end
 end
 
@@ -396,19 +428,19 @@ local function inferIntent(session, rawText)
 		return "safety"
 	end
 
-	if hasAnyPhrase(normalized, {"encerrar", "tchau", "quero sair", "nao quero", "nao obrigado", "nao obrigada", "pode parar", "sair da ligacao"}) then
+	if hasAnyPhrase(normalized, {"encerrar", "tchau", "quero sair", "nao quero", "nao aceito", "nao vou aceitar", "prefiro nao", "nao obrigado", "nao obrigada", "pode parar", "sair da ligacao"}) then
 		return "end"
 	end
 	if hasAnyPhrase(normalized, {"promessa", "prometer", "prometo", "garantir o impossivel", "garantia impossivel"}) then
 		return "promise"
 	end
-	if hasAnyPhrase(normalized, {"brincadeira", "ficticio", "imaginario", "so no jogo", "somente no jogo", "moedas do jogo", "nao e real", "nao existe", "sem valor real", "de mentirinha", "nao e de verdade"}) then
-		return "explain"
-	end
 	if hasAnyPhrase(normalized, {"como funciona", "o que e", "qual e", "explica", "explique", "me explica", "por que", "quanto custa", "duvida", "tenho uma pergunta", "quero saber", "fale mais", "conte mais", "detalhes"}) then
 		return "ask"
 	end
-	if hasAnyPhrase(normalized, {"sim", "aceito", "aceitar", "quero", "fechado", "topo", "pode ser"}) then
+	if hasAnyPhrase(normalized, {"resolver", "resolva", "solucionar", "solucao", "ajudar", "ajuda", "orientar", "consertar", "atender o caso"}) and session.choices.resolve then
+		return "resolve"
+	end
+	if hasAnyPhrase(normalized, {"sim", "aceito", "aceitar", "quero", "fechado", "topo", "pode ser", "compro", "pode registrar"}) then
 		if session.choices.accept_offer then
 			return "accept_offer"
 		end
@@ -417,13 +449,16 @@ local function inferIntent(session, rawText)
 		end
 	end
 	if hasAnyPhrase(normalized, {"oferta", "oferecer", "ofereco", "pacote", "comprar", "vender", "manda"}) then
-		if session.choices.accept_offer then
-			return "accept_offer"
-		end
 		if session.choices.offer then
 			return "offer"
 		end
+		if session.choices.accept_offer then
+			return "ask"
+		end
 		return "ask"
+	end
+	if hasAnyPhrase(normalized, {"brincadeira", "ficticio", "imaginario", "so no jogo", "somente no jogo", "moedas do jogo", "nao e real", "nao existe", "sem valor real", "de mentirinha", "nao e de verdade"}) then
+		return "explain"
 	end
 	if normalized == " nao " or normalized == " nao obrigado " or normalized == " nao obrigada " then
 		return "end"
@@ -456,20 +491,50 @@ end
 
 local function currentIntroChoices(session)
 	return choiceList(session, {
+		{id = "ask", label = "Entender melhor o que aconteceu"},
+		{id = "resolve", label = "Resolver o caso com honestidade"},
 		{id = "explain", label = "Explicar a brincadeira com clareza"},
-		{id = "offer", label = "Oferecer o pacote imaginário"},
+		{id = "offer", label = "Apresentar o pacote imaginário"},
 		{id = "promise", label = "Fazer uma promessa impossível"},
-		{id = "ask", label = "Perguntar o que a pessoa entendeu"},
 		{id = "end", label = "Encerrar a ligação"},
 	})
 end
 
 local function currentPitchChoices(session)
 	return choiceList(session, {
-		{id = "accept_offer", label = "Confirmar a oferta fictícia"},
-		{id = "ask", label = "Ouvir a explicação outra vez"},
-		{id = "end", label = "Encerrar sem vender"},
+		{id = "accept_offer", label = "Concluir a oferta e ouvir a resposta"},
+		{id = "ask", label = "Reexplicar a oferta fictícia"},
+		{id = "resolve", label = "Resolver o caso sem pressão"},
+		{id = "end", label = "Encerrar sem venda"},
 	})
+end
+
+local function currentResolvedChoices(session)
+	return choiceList(session, {
+		{id = "offer", label = "Apresentar a oferta fictícia (opcional)"},
+		{id = "ask", label = "Revisar a solução do caso"},
+		{id = "end", label = "Finalizar atendimento"},
+	})
+end
+
+local function currentRecoveryChoices(session)
+	return choiceList(session, {
+		{id = "resolve", label = "Corrigir e resolver o caso honestamente"},
+		{id = "explain", label = "Corrigir e explicar que era uma piada"},
+		{id = "ask", label = "Responder à dúvida do cliente"},
+		{id = "end", label = "Encerrar a ligação"},
+	})
+end
+
+local function choicesForSession(session)
+	if session.stage == "pitch" then
+		return currentPitchChoices(session)
+	elseif session.stage == "resolved" then
+		return currentResolvedChoices(session)
+	elseif session.stage == "recovery" then
+		return currentRecoveryChoices(session)
+	end
+	return currentIntroChoices(session)
 end
 
 local function finishCall(player, session, finalText, reward)
@@ -486,6 +551,7 @@ local function finishCall(player, session, finalText, reward)
 		stats.TotalEarned.Value = math.min(MAX_STAT, stats.TotalEarned.Value + reward)
 	end
 
+	releaseStation(session)
 	sessions[player] = nil
 	callCooldowns[player] = os.clock() + CALL_COOLDOWN_SECONDS
 	clientRemote:FireClient(player, "finishCall", {
@@ -499,6 +565,24 @@ local function finishCall(player, session, finalText, reward)
 	task.defer(refreshRanking)
 end
 
+local function armCallTimeout(player, session)
+	session.TimeoutGeneration = (session.TimeoutGeneration or 0) + 1
+	local generation = session.TimeoutGeneration
+	session.LastActivityAt = os.clock()
+	task.delay(CALL_IDLE_TIMEOUT_SECONDS, function()
+		if sessions[player] ~= session or session.TimeoutGeneration ~= generation then
+			return
+		end
+
+		local reward = session.Resolved and session.ResolutionReward or 0
+		local finalText = "A ligação foi encerrada por falta de resposta. Nenhum crédito foi perdido."
+		if reward > 0 then
+			finalText ..= string.format("\n\nCaso resolvido: +%d Créditos fictícios.", reward)
+		end
+		finishCall(player, session, finalText, reward)
+	end)
+end
+
 local function updateReputation(player, amount)
 	local stats = getStats(player)
 	if not stats or not stats.Reputation then
@@ -510,23 +594,30 @@ end
 
 local function resolvePurchase(player, session, chance, wasTransparent)
 	chance = math.clamp(chance, 0.05, 0.85)
+	local serviceReward = session.Resolved and session.ResolutionReward or 0
 	if math.random() <= chance then
-		local reward = session.Quote
+		local reward = session.Quote + serviceReward
 		if wasTransparent then
 			updateReputation(player, 3)
 		end
+		local rewardText = string.format("+%d Créditos fictícios!", reward)
+		if serviceReward > 0 then
+			rewardText = string.format("+%d Créditos pelo pacote e %d pela solução do caso!", session.Quote, serviceReward)
+		end
 		local text = string.format(
-			"%s: Fechado! A oferta era uma brincadeira, e eu sei que só vale neste jogo. Ganhei um pacote imaginário.\n\n+%d Créditos fictícios!",
+			"%s: Fechado! Entendi que a oferta era uma brincadeira e só vale neste jogo.\n\n%s",
 			session.Customer.Name,
-			reward
+			rewardText
 		)
 		finishCall(player, session, text, reward)
 	else
+		local rewardText = serviceReward > 0 and string.format("O atendimento foi resolvido: +%d Créditos fictícios.", serviceReward) or "Nenhum crédito foi perdido."
 		local text = string.format(
-			"%s: Obrigado por explicar. Vou deixar passar desta vez; não houve custo nem perda de créditos.\n\nLigação encerrada.",
-			session.Customer.Name
+			"%s: Obrigado por explicar. Vou deixar o pacote passar desta vez.\n\n%s\nLigação encerrada.",
+			session.Customer.Name,
+			rewardText
 		)
-		finishCall(player, session, text, 0)
+		finishCall(player, session, text, serviceReward)
 	end
 end
 
@@ -537,21 +628,49 @@ local function handleChoice(player, choiceId)
 		return
 	end
 	if choiceId == "end" then
-		finishCall(player, session, session.Customer.Name .. ": Obrigado pela conversa. Até mais!\n\nLigação encerrada sem custo.", 0)
+		local reward = session.Resolved and session.ResolutionReward or 0
+		local finalText = session.Customer.Name .. ": Obrigado pela conversa. Até mais!\n\nLigação encerrada sem custo."
+		if reward > 0 then
+			finalText = string.format("%s: Obrigado por resolver meu caso com transparência.\n\nAtendimento concluído: +%d Créditos fictícios.", session.Customer.Name, reward)
+		end
+		finishCall(player, session, finalText, reward)
 		return
 	end
 	if not session.choices[choiceId] then
 		return
 	end
+	armCallTimeout(player, session)
 
 	if choiceId == "ask" then
-		local options
+		local text
 		if session.stage == "pitch" then
-			options = currentPitchChoices(session)
+			text = string.format("A oferta é para %s. Ela só existe neste jogo, custa %d Créditos fictícios e não envolve pagamento real. Você pode registrar a resposta do cliente ou encerrar.", session.Customer.Product, session.Quote)
+		elseif session.stage == "resolved" then
+			text = (session.Customer.Resolution or "O caso foi explicado com transparência.") .. " A oferta imaginária é opcional; você também pode finalizar sem vender."
+		elseif session.stage == "recovery" then
+			text = session.Customer.Question .. " Desculpe pela promessa impossível. Posso corrigir a informação, resolver o caso ou encerrar."
 		else
-			options = currentIntroChoices(session)
+			text = session.Customer.Question .. " Você pode pedir mais detalhes, resolver o caso com honestidade, apresentar a brincadeira fictícia ou encerrar."
 		end
-		local text = session.Customer.Question .. " Se quiser, posso ouvir uma explicação honesta, aceitar o pacote de brincadeira ou encerrar."
+		sendNpcLine(player, session, text, choicesForSession(session))
+		return
+	end
+
+	if choiceId == "resolve" then
+		if not session.Resolved then
+			session.Resolved = true
+			session.ResolutionReward = safeInteger(Config.ServiceResolutionReward, 16, 0, 1000)
+			session.Trust = math.min(1, session.Trust + 0.35)
+			updateReputation(player, 4)
+		end
+		session.stage = "resolved"
+		local solution = session.Customer.Resolution or "A situação foi explicada com clareza e sem custos reais."
+		local options = currentResolvedChoices(session)
+		local text = string.format(
+			"%s: Obrigado por resolver minha dúvida. %s Nenhum dado pessoal ou pagamento real é necessário. Você pode finalizar agora; qualquer pacote é opcional.",
+			session.Customer.Name,
+			solution
+		)
 		sendNpcLine(player, session, text, options)
 		return
 	end
@@ -562,8 +681,9 @@ local function handleChoice(player, choiceId)
 		session.stage = "pitch"
 		local options = currentPitchChoices(session)
 		local text = string.format(
-			"%s Valeu por deixar claro que é só uma piada e que os créditos não têm valor real. O pacote imaginário custa %d Créditos deste jogo. Quer participar?",
-			session.Customer.Question,
+			"%s: Obrigado por explicar. Entendi que é só uma brincadeira, sem valor fora do jogo. O pacote %s custa %d Créditos fictícios; a oferta é opcional e não há pagamento real.",
+			session.Customer.Name,
+			session.Customer.Product,
 			session.Quote
 		)
 		sendNpcLine(player, session, text, options)
@@ -571,8 +691,15 @@ local function handleChoice(player, choiceId)
 	end
 
 	if choiceId == "offer" then
-		local chance = session.Customer.BuyChance + session.Trust * 0.15
-		resolvePurchase(player, session, chance, session.Trust > 0)
+		session.stage = "pitch"
+		local options = currentPitchChoices(session)
+		local text = string.format(
+			"%s: Entendi a oferta do pacote %s. Ela é apenas uma brincadeira deste jogo, custa %d Créditos fictícios e não exige dinheiro real. Vou decidir se aceito.",
+			session.Customer.Name,
+			session.Customer.Product,
+			session.Quote
+		)
+		sendNpcLine(player, session, text, options)
 		return
 	end
 
@@ -585,16 +712,11 @@ local function handleChoice(player, choiceId)
 	if choiceId == "promise" then
 		updateReputation(player, -6)
 		session.stage = "recovery"
-		local options = choiceList(session, {
-			{id = "explain", label = "Corrigir e explicar que era uma piada"},
-			{id = "ask", label = "Responder à dúvida do NPC"},
-			{id = "end", label = "Encerrar a ligação"},
-		})
 		local text = string.format(
-			"%s: Essa promessa é impossível, então não vou aceitar. Nesta simulação, inventar uma garantia reduz sua reputação. Você ainda pode explicar a brincadeira ou encerrar.",
+			"%s: Essa promessa é impossível, então não vou aceitá-la. Na simulação, inventar uma garantia reduz sua reputação. Você pode corrigir a informação, resolver meu caso ou encerrar.",
 			session.Customer.Name
 		)
-		sendNpcLine(player, session, text, options)
+		sendNpcLine(player, session, text, currentRecoveryChoices(session))
 		return
 	end
 end
@@ -612,6 +734,16 @@ local function startCall(player, station)
 		sendToast(player, "Aguarde alguns segundos antes de atender outra ligação.", "info")
 		return
 	end
+	local existingSession = stationSessions[station]
+	if existingSession then
+		local owner = existingSession.Player
+		if owner and sessions[owner] == existingSession then
+			sendToast(player, "Esta estação está ocupada. Use outro telefone ou aguarde.", "warning")
+			return
+		end
+		stationSessions[station] = nil
+		setStationBusy(station, false)
+	end
 	if #Config.Customers == 0 then
 		sendToast(player, "Nenhum cliente de brincadeira está disponível.", "warning")
 		return
@@ -620,19 +752,27 @@ local function startCall(player, station)
 	local customer = Config.Customers[math.random(1, #Config.Customers)]
 	local quote = math.random(customer.MinReward, customer.MaxReward)
 	local session = {
+		Player = player,
+		Station = station,
 		Customer = customer,
 		Phone = station.Phone,
 		Quote = quote,
 		Trust = 0,
+		Resolved = false,
+		ResolutionReward = safeInteger(Config.ServiceResolutionReward, 16, 0, 1000),
 		stage = "intro",
 		choices = {},
 		StartedAt = os.clock(),
 	}
 	sessions[player] = session
+	stationSessions[station] = session
+	setStationBusy(station, true)
+	armCallTimeout(player, session)
 	local options = currentIntroChoices(session)
 	clientRemote:FireClient(player, "callStart", {
 		name = customer.Name,
 		product = customer.Product,
+		station = station.Index,
 		text = customer.Opening,
 		choices = options,
 	})
@@ -664,6 +804,7 @@ local function handleSpeechOrText(player, rawText)
 		sendToast(player, "Volte para a sua estação para continuar a conversa.", "warning")
 		return
 	end
+	armCallTimeout(player, session)
 
 	-- A fala é transitória: não é registrada nem enviada a outros jogadores. Se for
 	-- exibida, primeiro passa pelo filtro oficial de texto do Roblox.
@@ -680,7 +821,7 @@ local function handleSpeechOrText(player, rawText)
 	end
 
 	if isSensitive then
-		local options = session.stage == "pitch" and currentPitchChoices(session) or currentIntroChoices(session)
+		local options = choicesForSession(session)
 		sendNpcLine(player, session,
 			"Não compartilhe senha, telefone, endereço, documentos ou dados de pagamento. Esta brincadeira não precisa de nenhum dado pessoal.",
 			options
@@ -690,7 +831,7 @@ local function handleSpeechOrText(player, rawText)
 
 	local intent = inferIntent(session, rawText)
 	if intent == "safety" then
-		local options = session.stage == "pitch" and currentPitchChoices(session) or currentIntroChoices(session)
+		local options = choicesForSession(session)
 		sendNpcLine(player, session,
 			"Não compartilhe dados pessoais ou de pagamento. Nenhuma informação desse tipo é necessária para jogar.",
 			options
@@ -698,9 +839,9 @@ local function handleSpeechOrText(player, rawText)
 		return
 	end
 	if intent == "unknown" then
-		local options = session.stage == "pitch" and currentPitchChoices(session) or currentIntroChoices(session)
+		local options = choicesForSession(session)
 		sendNpcLine(player, session,
-			"Entendi. Posso explicar que é uma brincadeira, apresentar a oferta imaginária ou encerrar. Todas as moedas são apenas do jogo.",
+			"Entendi. Posso ouvir mais detalhes, resolver o caso com honestidade, explicar a brincadeira, apresentar a oferta imaginária ou encerrar. Todas as moedas são apenas do jogo.",
 			options
 		)
 		return
@@ -712,7 +853,7 @@ local function handleSpeechOrText(player, rawText)
 		elseif intent == "accept_offer" and session.choices.offer then
 			intent = "offer"
 		else
-			local options = session.stage == "pitch" and currentPitchChoices(session) or currentIntroChoices(session)
+			local options = choicesForSession(session)
 			sendNpcLine(player, session,
 				"Ainda não chegamos a essa parte. Quer ouvir como funciona a brincadeira ou prefere encerrar?",
 				options

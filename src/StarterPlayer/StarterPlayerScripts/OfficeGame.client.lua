@@ -669,7 +669,9 @@ local function beginCall(payload)
 	backdrop.Visible = true
 	clearHistory()
 	textInput.Text = ""
-	customerLabel.Text = "CLIENTE  •  " .. tostring(payload.product or "OFERTA FICTÍCIA")
+	local stationNumber = tonumber(payload.station)
+	local stationPrefix = stationNumber and ("ESTAÇÃO " .. string.format("%02d", stationNumber) .. "  •  ") or ""
+	customerLabel.Text = stationPrefix .. "CLIENTE  •  " .. tostring(payload.product or "CASO FICTÍCIO")
 	appendHistory(tostring(payload.name or "CLIENTE"), tostring(payload.text or "Olá!"))
 	showChoices(payload.choices)
 	speakNpc(payload.text)
