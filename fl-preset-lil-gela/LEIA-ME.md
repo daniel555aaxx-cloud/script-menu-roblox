@@ -1,7 +1,7 @@
 # Preset vocal "GELA" — emo trap BR (lilgiela33 / Lil Gela) para FL Studio
 
 > Pacote completo: análise do estilo + cadeia de efeitos com valores + script que
-> salva/aplica a sua cadeia como preset permanente.
+> **gira os knobs por você dentro do FL Studio** e congela o resultado como preset.
 > Feito para **FL Studio 20/21/24/25 (Windows ou Mac)**. Nada de plugin pago é obrigatório.
 
 ---
@@ -12,14 +12,32 @@
 |---|---|
 | `LEIA-ME.md` | Este documento: análise + preset + como instalar no FL |
 | `colinha-vocal-lilgela.txt` | Só os números, formato texto (abre no celular enquanto grava) |
-| `fl_chain_tool.py` | Script Python que roda **dentro** do FL Studio: salva a sua cadeia num arquivo de texto e reaplica em qualquer projeto/PC (`dump()` / `apply()`) |
+| `fl_chain_tool.py` | Script Python que roda **dentro** do FL Studio. Ele **gira os knobs por você** (`lead()`, `dobras()`, `adlibs()`, `tune()`, `reverbfx()`, `delayfx()`) e também salva/reaplica a sua cadeia (`dump()` / `apply()`) |
+| `receita-gela.txt` | O preset em si, em texto editável: uma linha por knob (`T|Fruity Compressor|Threshold|-18.0 dB`). É o que o script acima lê |
 | `test_fl_chain_tool.py` | Teste offline do script (simula a API do FL). Se você não programa, ignore. |
 
-**Sobre "o arquivo":** o FL Studio **não** importa preset de plugin de áudio escrito à mão — os
-formatos (`Maximus`, `Fruity Limiter`, VST de terceiros) são binários/proprietários. Os "packs de
-preset" que circulam por aí são projetos `.fst`/`.zip` cheios de lixo. Então este pacote faz o
-caminho certo: **a receita abaixo + o `fl_chain_tool.py`**, que gera um preset de verdade com os
-SEUS valores e pode transferi-lo entre projetos. A seção 6 tem o passo a passo.
+### Por que não existe um `.fst` pronto (e o que é melhor que isso)
+
+`.fst` e `.flp` são contêineres binários (`FLdB` / `FLhd` + `FLdt`) e os valores dos knobs vivem
+dentro de **blobs proprietários que só o FL Studio escreve** — um `Fruity Parametric EQ 2` não tem
+formato de preset em texto, e um VST de terceiro usa estado binário do fornecedor. Li o código do
+parser aberto da comunidade (PyFLP) pra confirmar: ele **lê** plugin data como bytes opacos; criar
+esses bytes fora do FL não é suportado. Consequência: qualquer `.fst` "de preset" gerado fora do FL
+ou abre como projeto vazio, ou faz o FL acusar arquivo corrompido. É também por isso que pack de
+preset de procedência duvidosa é vetor clássico de problema.
+
+O que este pacote faz em vez disso — e que entrega o mesmo resultado, com os **seus** números:
+
+1. você **arrasta os plugins** pra track (8 slots, ~10 cliques);
+2. roda **uma linha** no FL (`lead()`) e o script **procura o valor escrito no knob** e gira cada um
+   sozinho (−18.0 dB, 8.0:1, 0.5 ms, `4x`, `Comp`…), conferindo o texto antes de gravar;
+3. `dump()` congela o resultado em `fl_gela_chain.txt`, que você leva pra qualquer projeto/PC.
+
+A lista de alvos é o `receita-gela.txt` — texto puro, editável, e é o que manda: se você não gostar
+do drive, muda `15.0%` pra `8.0%` no arquivo e roda de novo.
+
+> Dica que resolve 90% das frustrações no manual: **duplo clique em qualquer knob do FL aceita
+> texto**. Digite `-3.0dB`, `110Hz`, `8:1`, `45ms` e ele vai exatamente ali — sem caçar ponteiro.
 
 ---
 
@@ -301,7 +319,28 @@ Faça a cadeia **uma** vez, depois:
 `File → Save as default project` — `Ctrl+Alt+P`. Isso muda seu `Default.fst`, então salve antes
 uma cópia do seu template atual.)
 
-**C. Com o script desta pasta (`fl_chain_tool.py`) — para passar a cadeia entre projetos e PCs**
+**C. Com o script desta pasta (`fl_chain_tool.py`) — preset de verdade, aplicável**
+
+Fluxo completo (depois de arrastar os plugins nos slots, na track do LEAD selecionada):
+
+```python
+# 1) instala a receita editavel (só na primeira vez)
+exec(open(r"C:\Users\VOCE\Documents\fl_gela\fl_chain_tool.py").read()); install_recipe(r"C:\Users\VOCE\Downloads\receita-gela.txt")
+
+# 2) gira todos os knobs da track do vocal
+exec(open(r"C:\Users\VOCE\Documents\fl_gela\fl_chain_tool.py").read()); lead()
+
+# 3) congele como seu preset permanente
+exec(open(r"C:\Users\VOCE\Documents\fl_gela\fl_chain_tool.py").read()); dump()
+```
+
+Depois, em qualquer outro projeto: `apply()` (volta exatamente o que você gravou) ou `lead()` (volta
+a receita). Nas tracks de efeito: `reverbfx()` / `delayfx()`; nas dobras: `dobras()`; nos adlibs:
+`adlibs()`. Se uma linha da receita não bater com o nome real do parâmetro na sua versão do FL, o
+script **não chuta**: ele avisa `[!!]` e lista os nomes reais — você conserta a linha no `.txt` em 5
+segundos. Rode `lead(dry_run=True)` antes pra ver o que ele acha, com o transporte parado.
+
+**C2. Para passar a cadeia entre projetos e PCs**
 
 Ele lê os valores reais dos knobs (inclusive de VST pago) e grava em texto puro; depois aplica de
 volta. Roda dentro do FL, não precisa de Python instalado:

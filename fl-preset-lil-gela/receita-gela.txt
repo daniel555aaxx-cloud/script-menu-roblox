@@ -1,0 +1,165 @@
+# =====================================================================
+#  RECEITA DO PRESET VOCAL "GELA"  (lilgiela33 / emo trap BR)  -  FL Studio
+#  ---------------------------------------------------------------
+#  Este .txt E o preset. O fl_chain_tool.py le cada linha e gira os knobs
+#  na sua frente, batendo o valor que aparece escrito no plugin.
+#
+#  COMO USAR (com a track certa selecionada no mixer):
+#     lead()        -> track do vocal (12)
+#     dobras()      -> track das dobras (13)
+#     adlibs()      -> track dos adlibs (14)
+#     reverbfx()    -> track do GELA REVERB (16)
+#     delayfx()     -> track do GELA DELAY (17)
+#     apply_recipe()-> aplica TODOS os blocos presentes na track atual
+#     xxx(dry_run=True) -> so confere, nao grava nada
+#
+#  FORMATO:  T|plugin|parametro|valor
+#     - "valor" e escrito igual ao que aparece no knob: "-18.0 dB", "8.0:1",
+#       "0.5 ms", "4x", "On", "Off", "Comp". Sem aspas.
+#     - "~" separa nomes alternativos (o FL renomeia coisas entre versoes).
+#     - "G|NOME" abre um bloco/bloco de grupo. Linhas valem para o grupo atual.
+#     - "#" no inicio da linha = comentario.
+#
+#  SE UMA LINHA FALHAR: o script imprime "[!!]" com os NOMES REAIS daquele
+#  plugin. Rode  params(<slot>)  e corrija o nome nessa linha. Nada de chute:
+#  ele so grava um knob quando consegue CONFIRMAR que o texto dele virou o alvo.
+# =====================================================================
+
+# =====================================================================
+G|LEAD
+# =====================================================================
+
+# --- 1) Fruity Parametric EQ 2 (pre-EQ cirurgico) --------------------
+# Os knobs de banda do PEQ2 tem nome que muda de versao pra versao. As
+# linhas abaixo ja tentam varios; o que falar, digite no knob (duplo clique
+# no knob do FL aceita texto: -3.0dB) ou ajuste o nome aqui com params(0).
+T|Parametric EQ 2|Over sampling~Oversampling~Sample rate~Global oversampling|4x
+T|Parametric EQ 2|Linear phase~Lin~Phase|Off
+T|Parametric EQ 2|Freq 1~1 Freq~Band 1 Freq~Band 1: Frequency~Frequency 1|100 Hz
+T|Parametric EQ 2|Q 1~1 Q~Band 1 Q~Band 1: Q|0.35
+T|Parametric EQ 2|Freq 2~2 Freq~Band 2 Freq~Band 2: Frequency~Frequency 2|315 Hz
+T|Parametric EQ 2|Band 2 Gain~Gain 2~2 Gain|315|-3.0 dB
+T|Parametric EQ 2|Freq 3~3 Freq~Band 3 Freq~Band 3: Frequency~Frequency 3|850 Hz
+T|Parametric EQ 2|Band 3 Gain~Gain 3~3 Gain|850|-1.5 dB
+T|Parametric EQ 2|Freq 4~4 Freq~Band 4 Freq~Band 4: Frequency~Frequency 4|2.4 kHz
+T|Parametric EQ 2|Band 4 Gain~Gain 4~4 Gain|2400|+1.0 dB
+T|Parametric EQ 2|Freq 5~5 Freq~Band 5 Freq~Band 5: Frequency~Frequency 5|4.3 kHz
+T|Parametric EQ 2|Band 5 Gain~Gain 5~5 Gain|4300|-2.0 dB
+T|Parametric EQ 2|Freq 6~6 Freq~Band 6 Freq~Band 6: Frequency~Frequency 6|11 kHz
+T|Parametric EQ 2|Band 6 Gain~Gain 6~6 Gain|11000|+2.0 dB
+T|Parametric EQ 2|Output gain~Output~Out gain~Volume|-1.5 dB
+
+# --- 2) Fruity Compressor (1a etapa: segurar os picos) ---------------
+T|Fruity Compressor|Ratio|8.0:1
+T|Fruity Compressor|Threshold|-18.0 dB
+T|Fruity Compressor|Attack|0.5 ms
+T|Fruity Compressor|Release|45.0 ms
+T|Fruity Compressor|Make up~Makeup~Volume~Output|+4.0 dB
+
+# --- 3) afinador: veja o bloco G|TUNE (a escala depende do TOM da faixa!) --
+
+# --- 4) Fruity Limiter em modo COMP (2a compressao, serial) ----------
+T|Fruity Limiter|Mode~Type|Comp
+T|Fruity Limiter|Comp ratio~Ratio|4.0:1
+T|Fruity Limiter|Comp threshold~Threshold|-12.0 dB
+T|Fruity Limiter|Comp attack~Attack|3.0 ms
+T|Fruity Limiter|Comp release~Release|80.0 ms
+T|Fruity Limiter|Auto release~Auto|On
+T|Fruity Limiter|Comp gain~Gain|+2.0 dB
+T|Fruity Limiter|Ceiling~Limit ceiling|-1.0 dB
+
+# --- 5) de-esser com Fruity Maximus (banda alta comprimida) ----------
+T|Maximus|Band 3 crossover~Crossover 3~Xover 3~3 Xover|5.5 kHz
+T|Maximus|Band 3 ratio~3 Ratio~Ratio 3|4.0:1
+T|Maximus|Band 3 threshold~3 Threshold~Threshold 3|-30.0 dB
+T|Maximus|Band 3 attack~3 Attack~Attack 3|0.3 ms
+T|Maximus|Band 3 release~3 Release~Release 3|40.0 ms
+
+# --- 6) drive / casca ------------------------------------------------
+T|Soundgoodizer|Mode~Preset~Style|A
+T|Soundgoodizer|Amount~Knob~Level|15.0%
+
+# =====================================================================
+G|DOBRAS
+# =====================================================================
+# Mesma ideia do lead, mas mais esmagada e mais alta em reverb.
+T|Parametric EQ 2|Over sampling~Oversampling|4x
+T|Parametric EQ 2|Freq 1~1 Freq~Band 1 Freq|130 Hz
+T|Fruity Compressor|Ratio|12.0:1
+T|Fruity Compressor|Threshold|-16.0 dB
+T|Fruity Compressor|Attack|1.0 ms
+T|Fruity Compressor|Release|60.0 ms
+T|Fruity Limiter|Mode~Type|Comp
+T|Fruity Limiter|Comp ratio~Ratio|6.0:1
+T|Fruity Limiter|Comp threshold~Threshold|-10.0 dB
+T|Soundgoodizer|Mode~Preset~Style|C
+T|Soundgoodizer|Amount~Knob~Level|22.0%
+
+# =====================================================================
+G|ADLIBS
+# =====================================================================
+T|Parametric EQ 2|Freq 1~1 Freq~Band 1 Freq|200 Hz
+T|Fruity Compressor|Ratio|12.0:1
+T|Fruity Compressor|Threshold|-14.0 dB
+T|Fruity Compressor|Attack|0.5 ms
+T|Fruity Compressor|Release|50.0 ms
+T|Soundgoodizer|Mode~Preset~Style|C
+T|Soundgoodizer|Amount~Knob~Level|30.0%
+T|Fruity Limiter|Ceiling~Limit ceiling|-1.0 dB
+
+# =====================================================================
+G|TUNE
+# =====================================================================
+# Nomes de param de VST variam MUITO; estas linhas funcionam com MAutoPitch
+# (gratis). Com Antares, faca a escala/Key uma vez e deposite use dump()/apply().
+# IMPORTANTE: confira o tom da faixa antes (tabela no LEIA-ME, secao 1.1).
+T|MAutoPitch|Hard tune~HardTune|On
+T|MAutoPitch|Depth|100.0%
+T|MAutoPitch|Speed~Retune|0.0 ms
+T|MAutoPitch|Max shift~Shift|12.0
+T|MAutoPitch|Detune|0.0
+T|MAutoPitch|Formant|0.0%
+# depois de ajustar a mo no plugin, congele tudo assim:
+#   dump()      -> Documents\fl_gela\fl_gela_chain.txt
+#   apply()     -> reaplica exatamente (qualquer projeto / qualquer PC)
+
+# =====================================================================
+G|REVERB
+# =====================================================================
+# use com a track do GELA REVERB selecionada (16)
+T|Reeverb 2|Pre delay~Pre-delay|32.0 ms
+T|Reeverb 2|Stereo separation~Sep~Width|45.0%
+T|Reeverb 2|Dry level~Dry|0%
+T|Reeverb 2|Wet level~Wet|100%
+# duck (sidechain do lead, no Fruity Limiter do fim da cadeia do reverb)
+T|Fruity Limiter|Mode~Type|Comp
+T|Fruity Limiter|Comp threshold~Threshold|-22.0 dB
+T|Fruity Limiter|Comp ratio~Ratio|4.0:1
+T|Fruity Limiter|Comp attack~Attack|2.0 ms
+T|Fruity Limiter|Comp release~Release|110.0 ms
+
+# =====================================================================
+G|DELAY
+# =====================================================================
+# use com a track do GELA DELAY selecionada (17)
+T|Delay 3|Time~Delay time|3/16
+T|Delay 3|Time mode~Sync~Tempo|On
+T|Delay 3|Ping pong~Ping-pong~Pan mode|On
+T|Delay 3|Feedback|25.0%
+T|Delay 3|High pass~Hypass|550 Hz
+T|Delay 3|Low pass~Lopass|3.2 kHz
+T|Delay 3|Dry level~Dry|0%
+T|Delay 3|Wet level~Wet|100%
+T|Fruity Limiter|Mode~Type|Comp
+T|Fruity Limiter|Comp threshold~Threshold|-22.0 dB
+T|Fruity Limiter|Comp ratio~Ratio|4.0:1
+T|Fruity Limiter|Comp release~Release|110.0 ms
+
+# =====================================================================
+#  ALVOS QUE FICAM MANUAIS (por propo'sito - o FL nao expoe como knob unico)
+#  - send levels: lead -18 dB | dobras -14 dB | adlibs -8 dB (dê 2 cliques no
+#    botao do send e digite)
+#  - throw do delay: automacao no send, -24 -> -10 dB por ~1 s a cada 8 compassos
+#  - pan: dobras -35 / +35, adlibs -60 / +60; Haas 15-25 ms (Alt+arrastar)
+#  - oitava nos adlibs: no clipe de audio, Time stretching -> Pitch -12 ou +12
+# =====================================================================

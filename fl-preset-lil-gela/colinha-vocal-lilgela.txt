@@ -100,7 +100,21 @@
     B quarto/demo .. reverb -12 dB, decay 2.8 s | drive 0 | retune 15, hum 30 | LP 8 kHz
     C raivosa ...... reverb -22 dB, decay 0.9 s | Fast Dist 15% | retune 0 | ar +3.5 dB
 
-[10] SALVAR COMO PRESET NO FL (depois de montar 1x)
+[10] AUTOMATIZAR (o caminho do "preset" de verdade)
+    NAO existe .fst/.xml geravel por fora: FLdB/FLhd = binario e o estado de cada
+    plugin e blob proprietario. Entao:
+      1) arraste os plugins nos slots da track do lead
+      2) no console do FL:
+         exec(open(r"C:\Users\VOCE\Documents\fl_gela\fl_chain_tool.py").read()); install_recipe(r"C:\Users\VOCE\Downloads\receita-gela.txt")
+         exec(open(r"...\fl_chain_tool.py").read()); lead()      <- gira os knobs sozinho
+         exec(open(r"...\fl_chain_tool.py").read()); dump()      <- congela seu preset
+      3) nos efeitos: reverbfx() delayfx() | dobras: dobras() | adlibs: adlibs()
+      4) proximo projeto: apply()
+    Receita = receita-gela.txt (texto puro; edite 15.0% -> 8.0% e rode de novo)
+    Se um nome de param nao existir na sua versao, ele avisa [!!] e lista os nomes reais
+    Truque manual: duplo clique no knob do FL aceita TEXTO ("-18.0dB", "110Hz", "4x")
+
+[11] SALVAR COMO PRESET NO FL (depois de montar 1x)
     menu da track -> Save mixer track state as ->
       Documentos\Image-Line\FL Studio\Presets\Mixer\LilGela_vocal_emotrap
     e/ou File -> Export -> Project as template (.fst)
